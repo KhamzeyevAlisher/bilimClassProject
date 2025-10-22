@@ -1,0 +1,209 @@
+<!-- bilimClassApp/templates/bilimClassApp/journal_view.html (ИСПРАВЛЕННАЯ ВЕРСИЯ) -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Электронный Журнал - Bilim Class</title>
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body class="td-body">
+
+<div class="td-container">
+    <header class="td-header">
+        <div class="td-logo-section">
+            <div class="td-logo-icon">🎓</div>
+            <div><h1>ШкольнаяПлатформа</h1><p>Система управления учебным процессом</p></div>
+        </div>
+        <div class="td-user-section">
+            <div class="td-user-info">
+                <h3>{{ request.user.get_full_name }}</h3><p>Учитель</p>
+            </div>
+            <div class="td-user-avatar">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+        </div>
+    </header>
+
+    <main>
+        <nav class="td-main-nav">
+             <ul>
+                <li><a href="{% url 'teacher_dashboard' %}"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="#"><i class="fas fa-tasks"></i> Поурочные планы</a></li>
+                <li class="active"><a href="{% url 'teacher_journal' %}"><i class="fas fa-book"></i> Журнал</a></li>
+                <li><a href="#"><i class="fas fa-pencil-alt"></i> Домашние задания</a></li>
+                <li><a href="#"><i class="far fa-calendar-alt"></i> Расписание</a></li>
+            </ul>
+        </nav>
+        
+        <section class="td-card journal-section">
+            <div class="journal-controls">
+                <div class="journal-header">
+                    <i class="fas fa-book-open"></i>
+                    <div>
+                        <h3>Электронный журнал</h3><p>Оценки и посещаемость учащихся</p>
+                    </div>
+                </div>
+                <div class="journal-filters">
+                    <select id="class-select" class="td-form-select">
+                        <option value="">-- Выберите класс --</option>
+                        {% for class in teacher_classes %}
+                        <option value="{{ class.pk }}">{{ class.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="journal-view-tabs">
+                <button class="journal-tab-btn active" data-view="grades">Оценки</button>
+                <button class="journal-tab-btn" data-view="attendance">Посещаемость</button>
+            </div>
+            
+            <div id="journal-grid-container" class="journal-grid-container">
+                <p class="td-empty-message">Выберите класс, чтобы отобразить журнал.</p>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- 1. Находим только те элементы, которые точно есть в вашем HTML ---
+    const classSelect = document.getElementById('class-select');
+    const gridContainer = document.getElementById('journal-grid-container');
+    const tabButtons = document.querySelectorAll('.journal-tab-btn');
+    
+    let currentView = 'grades';
+    let lastLoadedData = null; // Кэш для данных, чтобы не перезагружать при смене вкладок
+
+    // --- 2. Вешаем обработчик ТОЛЬКО на выбор класса ---
+    classSelect.addEventListener('change', tryLoadJournalData);
+
+    // --- 3. Обработчик для переключения вкладок (Оценки/Посещаемость) ---
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentView = btn.dataset.view;
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Если данные уже были загружены, просто перерисовываем их
+            if (lastLoadedData) {
+                renderJournal();
+            }
+        });
+    });
+
+    // --- 4. Функция, которая решает, отправлять ли запрос ---
+    function tryLoadJournalData() {
+        const classId = classSelect.value;
+
+        // === ГЛАВНОЕ УСЛОВИЕ: ЕСЛИ КЛАСС НЕ ВЫБРАН - НЕ ОТПРАВЛЯЕМ ЗАПРОС ===
+        if (!classId) {
+            gridContainer.innerHTML = '<p class="td-empty-message">Выберите класс, чтобы отобразить журнал.</p>';
+            lastLoadedData = null; // Сбрасываем кэш
+            return; // Прерываем выполнение
+        }
+
+        // Если класс выбран, вызываем функцию загрузки
+        fetchJournalData(classId);
+    }
+
+    // --- 5. Функция, которая выполняет AJAX-запрос ---
+    async function fetchJournalData(classId) {
+        gridContainer.innerHTML = '<p class="td-empty-message">Загрузка данных...</p>';
+        try {
+            const response = await fetch(`/api/journal-grid-data/?class_id=${classId}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка сети');
+            }
+            lastLoadedData = await response.json(); // Сохраняем данные в кэш
+            renderJournal(); // Отрисовываем
+        } catch (error) {
+            gridContainer.innerHTML = `<p class="td-empty-message" style="color:red;">Ошибка: ${error.message}</p>`;
+            lastLoadedData = null;
+        }
+    }
+    
+    // --- 6. Функция, которая отрисовывает таблицу на основе загруженных данных ---
+    function renderJournal() {
+        if (!lastLoadedData || lastLoadedData.students.length === 0) {
+            gridContainer.innerHTML = '<p class="td-empty-message">В этом классе нет учеников.</p>';
+            return;
+        }
+        
+        // В зависимости от активной вкладки, вызываем нужную функцию отрисовки
+        if (currentView === 'grades') {
+            renderGradesView();
+        } else {
+            renderAttendanceView();
+        }
+    }
+
+    // --- Функции отрисовки (остаются без изменений) ---
+    function renderGradesView() {
+        // ... ваш код для отрисовки оценок ...
+        let tableHtml = '<table class="journal-table"><thead><tr><th>Ученик</th>';
+        const formattedDates = lastLoadedData.dates.map(d => new Date(d).toLocaleDateString('ru-RU', {day: '2-digit', month: '2-digit'}));
+        formattedDates.forEach(d => { tableHtml += `<th>${d}</th>`; });
+        tableHtml += '<th>Средний балл</th></tr></thead><tbody>';
+        
+        lastLoadedData.students.forEach(student => {
+            const studentGrades = lastLoadedData.grades_data[student.id];
+            tableHtml += `<tr><td>${student.full_name}</td>`;
+            lastLoadedData.dates.forEach(dateISO => {
+                const gradeInfo = studentGrades[dateISO];
+                let cellClass = 'journal-grade-cell';
+                let gradeVal = '+';
+                
+                if (gradeInfo.was_absent) {
+                    gradeVal = 'Н';
+                    cellClass += ' bad';
+                } else if (gradeInfo.grade !== null) {
+                    gradeVal = gradeInfo.grade;
+                    if(gradeVal >= 85) cellClass += ' good';
+                    else if (gradeVal >= 70) cellClass += ' medium';
+                    else cellClass += ' bad';
+                }
+                
+                tableHtml += `<td class="${cellClass}">${gradeVal}</td>`;
+            });
+            tableHtml += `<td><b>${studentGrades.avg_grade}</b></td></tr>`;
+        });
+        tableHtml += '</tbody></table>';
+        gridContainer.innerHTML = tableHtml;
+    }
+
+    function renderAttendanceView() {
+        // ... ваш код для отрисовки посещаемости ...
+        let tableHtml = '<table class="journal-table"><thead><tr><th>Ученик</th>';
+        const formattedDates = lastLoadedData.dates.map(d => new Date(d).toLocaleDateString('ru-RU', {day: '2-digit', month: '2-digit'}));
+        formattedDates.forEach(d => { tableHtml += `<th>${d}</th>`; });
+        tableHtml += '<th>Процент</th></tr></thead><tbody>';
+
+        lastLoadedData.students.forEach(student => {
+            const studentAttendance = lastLoadedData.attendance_data[student.id];
+            tableHtml += `<tr><td>${student.full_name}</td>`;
+            lastLoadedData.dates.forEach(dateISO => {
+                const status = studentAttendance[dateISO];
+                let cellClass = 'journal-attendance-cell';
+                let icon = '<i class="fas fa-check"></i>';
+                
+                if (status === 'truant' || status === 'valid') {
+                    cellClass += ' absent';
+                    icon = '<i class="fas fa-times"></i>';
+                } else if (status === 'late') {
+                    icon = '<i class="fas fa-clock"></i>';
+                }
+                
+                tableHtml += `<td class="${cellClass}">${icon}</td>`;
+            });
+            tableHtml += `<td><b>${studentAttendance.percentage}%</b></td></tr>`;
+        });
+        tableHtml += '</tbody></table>';
+        gridContainer.innerHTML = tableHtml;
+    }
+});
+</script>
+</body>
+</html>

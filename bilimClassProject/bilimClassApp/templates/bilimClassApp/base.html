@@ -1,0 +1,42 @@
+{% load static %}
+{% load role_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BilimClass{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="{% url 'profile' %}" class="navbar-brand">BilimClass</a>
+            <div class="navbar-menu">
+                {% if user.is_authenticated %}
+                    
+                    <!-- Ссылка только для Учителей и Завучей -->
+                    {% if user|has_group:"Учитель" or user|has_group:"Завуч" %}
+                        <a href="{% url 'teacher_dashboard' %}">Панель Учителя</a>
+                    {% endif %}
+                    
+                    <a href="{% url 'profile' %}">Профиль ({{ user.username }})</a>
+                    <form class="logout-form" action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-button">Выйти</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Войти</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>

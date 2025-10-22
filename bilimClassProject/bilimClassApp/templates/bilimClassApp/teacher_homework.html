@@ -1,0 +1,496 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домашние задания | Школьная Платформа</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg-main: #F9FAFB; --bg-widget: #FFFFFF; --text-primary: #111827;
+            --text-secondary: #6B7280; --border-color: #E5E7EB; --accent-primary: #4F46E5;
+            --accent-light: #EEF2FF; --accent-red: #EF4444;
+            --status-green-bg: #ECFDF5; --status-green-text: #065F46;
+            --status-blue-bg: #EFF6FF; --status-blue-text: #1E40AF;
+            --status-gray-bg: #F3F4F6; --status-gray-text: #4B5563;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-primary); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        
+        /* === Шапка === */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .logo-section { display: flex; align-items: center; gap: 12px; }
+        .logo-section .logo-icon { width: 40px; height: 40px; background-color: var(--accent-primary); border-radius: 8px; color: white; display: grid; place-items: center; font-size: 20px; font-weight: 700; }
+        .logo-section h1 { font-size: 20px; font-weight: 700; }
+        .logo-section p { font-size: 14px; color: var(--text-secondary); }
+        .user-section { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+
+        /* === Навигация === */
+        .main-nav { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px; margin-bottom: 24px; }
+        .main-nav ul { display: flex; list-style: none; gap: 8px; }
+        .main-nav a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--text-secondary); font-weight: 600; border-radius: 8px; transition: all 0.2s; }
+        .main-nav a.active { background-color: var(--accent-light); color: var(--accent-primary); }
+        .main-nav i { width: 20px; text-align: center; }
+
+        /* === Основной виджет === */
+        .homework-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; }
+        .widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .widget-title h2 { font-size: 24px; font-weight: 700; }
+        .widget-title p { color: var(--text-secondary); margin-top: 4px; }
+        .btn-create { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--accent-primary); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+        /* === Карточка домашнего задания (ИСПРАВЛЕННАЯ ВЕРСИЯ) === */
+        .homework-list { display: flex; flex-direction: column; gap: 16px; }
+        .homework-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .hw-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+        .hw-card-header h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .hw-card-header .hw-info { font-size: 14px; color: var(--text-secondary); }
+        .hw-actions { display: flex; gap: 16px; flex-shrink: 0; }
+        .hw-actions button { background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 16px; padding: 4px; }
+        .hw-actions button:hover { color: var(--text-primary); }
+        .hw-actions .delete-btn:hover { color: var(--accent-red); }
+        .hw-card-body .hw-description { font-size: 14px; color: var(--text-secondary); }
+        .hw-card-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .hw-stats { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+        .btn-view-submissions { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 8px; background: none; font-weight: 600; font-size: 14px; cursor: pointer; color: var(--text-primary); }
+        
+        /* === Стили для модальных окон (без изменений) === */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(17, 24, 39, 0.6); justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal-container { background-color: var(--bg-widget); border-radius: 16px; padding: 24px; width: 90%; max-width: 700px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
+        .modal-header { margin-bottom: 16px; }
+        .modal-header h2 { font-size: 20px; font-weight: 600; }
+        .modal-header p { color: var(--text-secondary); }
+        .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color); }
+        .btn-secondary { padding: 10px 16px; background-color: var(--bg-widget); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-submit, .btn-gradient { padding: 10px 16px; background: linear-gradient(90deg, #4F46E5, #3B82F6); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 16px; }
+        .form-group label { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background-color: #F9FAFB; font-family: 'Inter', sans-serif; font-size: 14px; width: 100%; }
+        
+        /* Стили для таблицы просмотра работ */
+        .submissions-table-container { max-height: 400px; overflow-y: auto; }
+        .submissions-table { width: 100%; border-collapse: collapse; }
+        .submissions-table th, .submissions-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .status-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; font-weight: 500; font-size: 12px; }
+        .status-checked { background-color: var(--status-green-bg); color: var(--status-green-text); }
+        .status-submitted { background-color: var(--status-blue-bg); color: var(--status-blue-text); }
+        .status-awaiting { background-color: var(--status-gray-bg); color: var(--status-gray-text); }
+        .grade-circle { display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; background-color: var(--status-green-bg); color: var(--status-green-text); font-weight: 600; }
+        .btn-check-grade { padding: 6px 12px; border: 1px solid var(--border-color); background: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-check-grade:disabled { cursor: not-allowed; color: #ccc; }
+
+        /* Стили для модального окна рецензии */
+        #grading-modal .modal-container { max-width: 500px; z-index: 1001; padding: 32px; }
+        #grading-modal .modal-header h2 { font-size: 22px; font-weight: 700; }
+        #grading-modal .modal-header p { display: none; } /* Скрываем подзаголовок с именем */
+        #grading-modal .form-group label { font-weight: 600; }
+        #grading-modal textarea { min-height: 90px; }
+        #grading-modal .modal-footer { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border-color); }
+    </style>
+        
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo-icon">🎓</div>
+            <div>
+                <h1>Школьная Платформа</h1>
+                <p>Система управления учебным процессом</p>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="user-info">
+                <h3>{{ teacher.user.get_full_name }}</h3>
+                <p>Учитель</p>
+            </div>
+            <div class="user-avatar">{{ teacher.user.first_name|first }}{{ teacher.user.last_name|first }}</div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="{% url 'teacher_dashboard' %}"><i class="fas fa-home"></i> Главная</a></li>
+            <li><a href="#"><i class="fas fa-tasks"></i> Поурочные планы</a></li>
+            <li><a href="{% url 'teacher_journal' %}"><i class="fas fa-book"></i> Журнал</a></li>
+            <li><a href="{% url 'teacher_homework' %}" class="active"><i class="fas fa-pencil-alt"></i> Домашние задания</a></li>
+            <li><a href="#"><i class="far fa-calendar-alt"></i> Расписание</a></li>
+        </ul>
+    </nav>
+
+    <main class="homework-widget">
+        <div class="widget-header">
+            <div class="widget-title">
+                <h2>Домашние задания</h2>
+                <p>Создание и проверка домашних заданий</p>
+            </div>
+            <button class="btn-create"><i class="fas fa-plus"></i> Создать задание</button>
+        </div>
+
+        <div class="homework-list" id="homework-list-container">
+            {% for hw in homeworks %}
+            <div class="homework-card" id="hw-card-{{ hw.pk }}">
+                <div class="hw-card-header">
+                    <div class="hw-title-group">
+                        <h3>{{ hw.title }}</h3>
+                        <span class="hw-tag">{{ hw.school_class.name }}</span>
+                        <span class="hw-tag">{{ hw.subject.name }}</span>
+                    </div>
+                    <div class="hw-actions">
+                        <button class="edit-btn" data-hw-pk="{{ hw.pk }}"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="delete-btn" data-hw-pk="{{ hw.pk }}"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <p class="hw-description">{{ hw.description }}</p>
+                <div class="hw-card-footer">
+                    <div class="hw-stats">
+                        <span>Сдано: {{ hw.submission_count }}</span> &nbsp;&nbsp;
+                        <span>Проверено: {{ hw.checked_count }} из {{ hw.submission_count }}</span>
+                    </div>
+                    <button class="btn-view-submissions" data-hw-pk="{{ hw.pk }}" data-hw-title="{{ hw.title }}" data-hw-info="{{ hw.school_class.name }} • {{ hw.subject.name }}">
+                        <i class="far fa-eye"></i>
+                        Просмотреть работы
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <p id="no-homeworks-message" style="text-align:center; color: var(--text-secondary); padding: 20px;">Вы еще не создали ни одного домашнего задания.</p>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+<!-- Модальное окно для СОЗДАНИЯ/РЕДАКТИРОВАНИЯ ДЗ -->
+<div class="modal-overlay" id="homework-modal">
+    <div class="modal-container">
+        <button class="close-btn" id="close-homework-modal">&times;</button>
+        <div class="modal-header">
+            <h2>Создать домашнее задание</h2>
+            <p>Заполните информацию о домашнем задании</p>
+        </div>
+        <form id="homework-form" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group full-width" style="margin-top: 24px;">
+                <label for="{{ homework_form.title.id_for_label }}">Название задания</label>
+                {{ homework_form.title }}
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="{{ homework_form.school_class.id_for_label }}">Класс</label>{{ homework_form.school_class }}</div>
+                <div class="form-group"><label for="{{ homework_form.subject.id_for_label }}">Предмет</label>{{ homework_form.subject }}</div>
+                <div class="form-group"><label for="{{ homework_form.due_date.id_for_label }}">Срок сдачи</label>{{ homework_form.due_date }}</div>
+            </div>
+            <div class="form-group full-width"><label for="{{ homework_form.description.id_for_label }}">Описание задания</label>{{ homework_form.description }}</div>
+            <div class="form-group full-width"><label for="{{ homework_form.attached_file.id_for_label }}">Прикрепить файл (необязательно)</label>{{ homework_form.attached_file }}</div>
+            <div class="modal-footer full-width">
+                <button type="button" class="btn-secondary" id="cancel-homework-btn">Отмена</button>
+                <button type="submit" class="btn-submit">Создать</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно для ПРОСМОТРА РАБОТ -->
+<!-- <div class="modal-overlay" id="submissions-modal">
+    <div class="modal-container">
+        <button class="close-btn" id="close-submissions-modal">&times;</button>
+        <div class="modal-header">
+            <h2 id="submissions-modal-title"></h2>
+            <p id="submissions-modal-info"></p>
+        </div>
+        <div class="submissions-table-container">
+            <table class="submissions-table">
+                <thead>
+                    <tr><th>Ученик</th><th>Статус</th><th>Дата сдачи</th><th>Оценка</th><th>Действие</th></tr>
+                </thead>
+                <tbody id="submissions-tbody"></tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancel-submissions-btn">Закрыть</button>
+        </div>
+    </div>
+</div> -->
+
+<div class="modal-overlay" id="submissions-modal">
+    <div class="modal-container">
+        <button class="close-btn" id="close-submissions-modal">&times;</button>
+        <div class="modal-header"><h2 id="submissions-modal-title"></h2><p id="submissions-modal-info"></p></div>
+        <div class="submissions-table-container">
+            <table class="submissions-table">
+                <thead><tr><th>Ученик</th><th>Статус</th><th>Дата сдачи</th><th>Оценка</th><th>Действие</th></tr></thead>
+                <tbody id="submissions-tbody"></tbody>
+            </table>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-secondary" id="cancel-submissions-btn">Закрыть</button></div>
+    </div>
+</div>
+
+<!-- НОВОЕ Модальное окно для РЕЦЕНЗИИ -->
+<div class="modal-overlay" id="grading-modal">
+    <div class="modal-container">
+        <button class="close-btn" id="close-grading-modal">&times;</button>
+        <div class="modal-header">
+            <h2>Рецензия на работу</h2>
+            <p id="grading-student-name"></p>
+        </div>
+        <form id="grading-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="grade-input">Оценка (0-100)</label>
+                <input type="number" id="grade-input" name="grade" min="0" max="100" placeholder="Например, 85">
+            </div>
+            <div class="form-group">
+                <label for="comment-textarea">Комментарий</label>
+                <textarea id="comment-textarea" name="comment" placeholder="Отличная работа!"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancel-grading-btn">Отмена</button>
+                <button type="submit" class="btn-gradient">Сохранить рецензию</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // --- ОБЪЯВЛЯЕМ ВСЕ ОСНОВНЫЕ ЭЛЕМЕНТЫ ОДИН РАЗ ---
+    const homeworkListContainer = document.getElementById('homework-list-container');
+    const homeworkModal = document.getElementById('homework-modal');
+    const submissionsModal = document.getElementById('submissions-modal');
+    const gradingModal = document.getElementById('grading-modal');
+    
+    // --- БЛОК 1: Логика для модального окна СОЗДАНИЯ/РЕДАКТИРОВАНИЯ ---
+    if (homeworkModal && homeworkListContainer) {
+        const openCreateBtn = document.querySelector('.btn-create');
+        const homeworkForm = document.getElementById('homework-form');
+        const modalTitle = homeworkModal.querySelector('h2');
+        const submitButton = homeworkForm.querySelector('.btn-submit');
+        const closeModalBtn = document.getElementById('close-homework-modal');
+        const cancelModalBtn = document.getElementById('cancel-homework-btn');
+
+        const openModalForCreate = () => {
+            modalTitle.textContent = 'Создать домашнее задание';
+            submitButton.textContent = 'Создать';
+            homeworkForm.reset();
+            homeworkForm.action = "{% url 'api_create_homework' %}";
+            homeworkModal.style.display = 'flex';
+        };
+
+        const openModalForEdit = async (homeworkId) => {
+            modalTitle.textContent = 'Редактировать задание';
+            submitButton.textContent = 'Сохранить';
+            homeworkForm.reset();
+            homeworkForm.action = `/api/homework/${homeworkId}/update/`;
+            try {
+                const response = await fetch(`/api/homework/${homeworkId}/details/`);
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message);
+                
+                const data = result.data;
+                homeworkForm.querySelector('#id_title').value = data.title;
+                homeworkForm.querySelector('#id_description').value = data.description;
+                homeworkForm.querySelector('#id_school_class').value = data.school_class;
+                homeworkForm.querySelector('#id_subject').value = data.subject;
+                homeworkForm.querySelector('#id_due_date').value = data.due_date;
+                homeworkModal.style.display = 'flex';
+            } catch (error) {
+                alert('Не удалось загрузить данные задания.');
+            }
+        };
+
+        const closeModal = () => { homeworkModal.style.display = 'none'; };
+
+        openCreateBtn.addEventListener('click', openModalForCreate);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+        homeworkModal.addEventListener('click', (e) => { if (e.target === homeworkModal) closeModal(); });
+
+        homeworkForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST', body: formData, headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.reload(); 
+                } else {
+                    alert("Ошибка: " + JSON.stringify(result.errors));
+                }
+            } catch (error) {
+                alert('Произошла сетевая ошибка.');
+            }
+        });
+        
+        homeworkListContainer.addEventListener('click', function(e) {
+            const editButton = e.target.closest('.edit-btn');
+            if (editButton) {
+                openModalForEdit(editButton.dataset.hwPk);
+            }
+        });
+    }
+
+    // --- БЛОК 2: Логика для модального окна ПРОСМОТРА РАБОТ ---
+    if (submissionsModal && homeworkListContainer) {
+        const closeSubmissionsBtn = document.getElementById('close-submissions-modal');
+        const cancelSubmissionsBtn = document.getElementById('cancel-submissions-btn');
+        const submissionsTbody = document.getElementById('submissions-tbody');
+
+        const openSubmissionsModal = async (hwId, hwTitle, hwInfo) => {
+            submissionsModal.querySelector('#submissions-modal-title').textContent = hwTitle;
+            submissionsModal.querySelector('#submissions-modal-info').textContent = hwInfo;
+            submissionsTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Загрузка...</td></tr>';
+            submissionsModal.style.display = 'flex';
+
+            try {
+                const response = await fetch(`/api/homework/${hwId}/submissions/`);
+                const data = await response.json();
+                if (!response.ok || data.status !== 'success') throw new Error(data.message || 'Не удалось загрузить данные.');
+
+                submissionsTbody.innerHTML = '';
+                if (data.submissions.length === 0) {
+                     submissionsTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Работы еще не сданы.</td></tr>';
+                     return;
+                }
+
+                data.submissions.forEach(sub => {
+                    let statusHtml, gradeHtml = '<td>-</td>', actionHtml = '<td>-</td>';
+                    let actionButton = `<button class="btn-check-grade" disabled>Проверить</button>`;
+
+                    if (sub.status === 'Проверено') {
+                        statusHtml = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Проверено</span>`;
+                        gradeHtml = `<td><span class="grade-circle">${sub.grade}</span></td>`;
+                        actionButton = `<button class="btn-check-grade">Изменить</button>`;
+                    } else if (sub.status === 'Сдано') {
+                        statusHtml = `<span class="status-tag status-submitted"><i class="fas fa-check"></i> Сдано</span>`;
+                        actionButton = `<button class="btn-check-grade">Проверить</button>`;
+                    } else {
+                        statusHtml = `<span class="status-tag status-awaiting"><i class="far fa-clock"></i> Ожидается</span>`;
+                    }
+
+                    actionHtml = `<td data-submission-pk="${sub.submission_id}" data-student-name="${sub.full_name}" data-grade="${sub.grade || ''}" data-comment="${sub.teacher_comment || ''}">${actionButton}</td>`;
+
+                    const row = `<tr id="sub-row-${sub.submission_id}"><td>${sub.full_name}</td><td>${statusHtml}</td><td>${sub.submitted_at || '-'}</td>${gradeHtml}${actionHtml}</tr>`;
+                    submissionsTbody.insertAdjacentHTML('beforeend', row);
+                });
+            } catch (error) {
+                submissionsTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: red;">${error.message}</td></tr>`;
+            }
+        };
+
+        const closeSubmissionsModal = () => { submissionsModal.style.display = 'none'; };
+        closeSubmissionsBtn.addEventListener('click', closeSubmissionsModal);
+        cancelSubmissionsBtn.addEventListener('click', closeSubmissionsModal);
+        submissionsModal.addEventListener('click', (e) => { if (e.target === submissionsModal) closeSubmissionsModal(); });
+        
+        // ВОССТАНОВЛЕННЫЙ СЛУШАТЕЛЬ СОБЫТИЙ ДЛЯ КНОПКИ "ПРОСМОТРЕТЬ РАБОТЫ"
+        homeworkListContainer.addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('.btn-view-submissions');
+            if (viewBtn) {
+                const { hwPk, hwTitle, hwInfo } = viewBtn.dataset;
+                openSubmissionsModal(hwPk, hwTitle, hwInfo);
+            }
+        });
+    }
+
+    // --- БЛОК 3: Логика для модального окна РЕЦЕНЗИИ ---
+    if (gradingModal) {
+        const submissionsTbody = document.getElementById('submissions-tbody');
+        const gradingForm = document.getElementById('grading-form');
+        const studentNameEl = document.getElementById('grading-student-name');
+        const gradeInput = document.getElementById('grade-input');
+        const commentTextarea = document.getElementById('comment-textarea');
+        let currentSubmissionRow = null;
+
+        const openGradingModal = (cell) => {
+            const { submissionPk, studentName, grade, comment } = cell.dataset;
+            currentSubmissionRow = document.getElementById(`sub-row-${submissionPk}`);
+            
+            studentNameEl.textContent = studentName;
+            gradeInput.value = grade || "";
+            commentTextarea.value = comment || "";
+            gradingForm.dataset.submissionPk = submissionPk;
+            gradingModal.style.display = 'flex';
+        };
+
+        const closeGradingModal = () => { gradingModal.style.display = 'none'; };
+
+        gradingModal.querySelector('#close-grading-modal').addEventListener('click', closeGradingModal);
+        gradingModal.querySelector('#cancel-grading-btn').addEventListener('click', closeGradingModal);
+        gradingModal.addEventListener('click', (e) => { if (e.target === gradingModal) closeGradingModal(); });
+
+        gradingForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submissionPk = this.dataset.submissionPk;
+            const grade = gradeInput.value;
+            const comment = commentTextarea.value;
+
+            try {
+                const response = await fetch(`/api/submission/${submissionPk}/grade/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    body: JSON.stringify({ grade: grade, comment: comment }),
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message);
+
+                if (currentSubmissionRow) {
+                    const statusCell = currentSubmissionRow.cells[1];
+                    const gradeCell = currentSubmissionRow.cells[3];
+                    const actionCell = currentSubmissionRow.cells[4];
+                    const actionBtn = actionCell.querySelector('.btn-check-grade');
+
+                    statusCell.innerHTML = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Проверено</span>`;
+                    gradeCell.innerHTML = result.new_grade ? `<span class="grade-circle">${result.new_grade}</span>` : '-';
+                    actionBtn.textContent = 'Изменить';
+                    actionCell.dataset.grade = result.new_grade || "";
+                    actionCell.dataset.comment = comment;
+                }
+                closeGradingModal();
+            } catch (error) {
+                alert(`Ошибка: ${error.message}`);
+            }
+        });
+
+        submissionsTbody.addEventListener('click', (e) => {
+            const checkBtn = e.target.closest('.btn-check-grade');
+            if (checkBtn) {
+                // Передаем всю ячейку, чтобы получить все data-атрибуты
+                openGradingModal(checkBtn.parentElement);
+            }
+        });
+    }
+
+    // Глобальный listener для закрытия модальных окон по Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(modal => modal.style.display = 'none');
+        }
+    });
+});
+</script>
+</body>
+</html>

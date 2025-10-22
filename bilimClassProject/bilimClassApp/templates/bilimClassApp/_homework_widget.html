@@ -1,0 +1,70 @@
+{% comment %}Partial: homework widget. Used in dashboard and student_homework pages.{% endcomment %}
+
+<div class="homework-widget">
+    <div class="widget-header">
+        <h3>Домашние задания</h3>
+        <p>Все задания по предметам</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card stat-card-pending"><div class="stat-icon">🕒</div><div><div class="stat-value">{{ not_submitted_list.count }}</div><p class="stat-label">Не сдано</p></div></div>
+        <div class="stat-card stat-card-review"><div class="stat-icon">📄</div><div><div class="stat-value">{{ in_review_list.count }}</div><p class="stat-label">На проверке</p></div></div>
+        <div class="stat-card stat-card-checked"><div class="stat-icon">✓</div><div><div class="stat-value">{{ checked_list.count }}</div><p class="stat-label">Проверено</p></div></div>
+    </div>
+
+    <div class="homework-tabs">
+        <button class="tab-btn active" data-tab="not_submitted">Не сдано ({{ not_submitted_list.count }})</button>
+        <button class="tab-btn" data-tab="in_review">На проверке ({{ in_review_list.count }})</button>
+        <button class="tab-btn" data-tab="checked">Проверено ({{ checked_list.count }})</button>
+    </div>
+
+    <div class="homework-list" id="homework-list-container">
+        <div id="tab-content-not_submitted" class="tab-pane active">
+            {% for hw in not_submitted_list %}
+            <div class="homework-card">
+                <div class="hw-card-header"><h3>{{ hw.title }}</h3><span class="hw-status-tag tag-pending">Не сдано</span></div>
+                <p class="hw-meta">{{ hw.subject.name }} • {{ hw.teacher.user.get_full_name }}</p>
+                <p class="hw-description">{{ hw.description }}</p>
+                <div class="hw-footer">
+                        <div class="hw-deadline"><i class="far fa-clock"></i> Срок сдачи: {{ hw.due_date|date:"d.m.Y" }}</div>
+                        <button class="btn-submit open-submission-modal"
+                                data-hw-pk="{{ hw.pk }}"
+                                data-hw-title="{{ hw.title|escape }}"
+                                data-hw-subject="{{ hw.subject.name|escape }}"
+                                data-hw-teacher="{{ hw.teacher.user.get_full_name|escape }}"
+                                data-hw-description="{{ hw.description|escape }}">
+                            Сдать работу
+                        </button>
+                </div>
+            </div>
+            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет заданий, которые нужно сдать.</p> {% endfor %}
+        </div>
+
+        <div id="tab-content-in_review" class="tab-pane">
+            {% for submission in in_review_list %}
+            <div class="homework-card">
+                <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-review">На проверке</span></div>
+                <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
+                <div class="hw-footer">
+                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Сдано: {{ submission.submitted_at|date:"d.m.Y" }}</div>
+                    <button class="btn-submit btn-submitted" disabled>Отправлено</button>
+                </div>
+            </div>
+            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет работ на проверке.</p> {% endfor %}
+        </div>
+
+        <div id="tab-content-checked" class="tab-pane">
+            {% for submission in checked_list %}
+            <div class="homework-card">
+                 <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-checked">Оценка: {{ submission.grade }}</span></div>
+                <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
+                <p class="hw-description"><strong>Комментарий учителя:</strong> {{ submission.teacher_comment|default:"-" }}</p>
+                <div class="hw-footer">
+                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Проверено: {{ submission.checked_at|date:"d.m.Y" }}</div>
+                    <button class="btn-submit btn-checked" disabled>Проверено</button>
+                </div>
+            </div>
+            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет проверенных работ.</p> {% endfor %}
+        </div>
+    </div>
+</div>

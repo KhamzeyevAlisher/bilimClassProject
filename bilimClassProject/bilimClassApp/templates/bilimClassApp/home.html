@@ -1,0 +1,15 @@
+{% extends "bilimClassApp/base.html" %}
+
+{% block title %}Главная - BilimClass{% endblock %}
+
+{% block content %}
+    <div class="form-wrapper">
+        <h1>Добро пожаловать в BilimClass!</h1>
+        <p>Это главная страница вашего проекта.</p>
+        {% if user.is_authenticated %}
+            <p>Вы вошли как <strong>{{ user.username }}</strong>.</p>
+        {% else %}
+            <p>Чтобы получить доступ к профилю, пожалуйста, <a href="{% url 'login' %}">войдите в систему</a>.</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домашние задания | Bilim Class</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root{
+            --bg-main:#F9FAFB;
+            --bg-widget:#FFFFFF;
+            --text-primary:#111827;
+            --text-secondary:#6B7280;
+            --border-color:#E5E7EB;
+            --accent-primary:#4F46E5;
+            --accent-light:#EEF2FF;
+            --status-pending-bg:#FEF3C7;
+            --status-pending-text:#92400E;
+            --status-review-bg:#DBEAFE;
+            --status-review-text:#1E40AF;
+            --status-checked-bg:#D1FAE5;
+            --status-checked-text:#065F46}
+            *{margin:0;padding:0;box-sizing:border-box}
+            body{font-family:'Inter',sans-serif;background-color:var(--bg-main);color:var(--text-primary)}.container{max-width:1200px;margin:0 auto;padding:24px}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.header .logo{display:flex;align-items:center;gap:12px}.header .logo-icon{width:40px;height:40px;border-radius:8px;background-color:var(--accent-primary);color:#fff;display:grid;place-items:center;font-size:20px;font-weight:700}.header h1{font-size:18px}.header p{font-size:14px;color:var(--text-secondary)}.header .user-profile{display:flex;align-items:center;gap:16px}.header .user-avatar{width:40px;height:40px;border-radius:50%;background-color:#DDD6FE;color:#5B21B6;display:grid;place-items:center;font-weight:600}.main-nav{background-color:var(--bg-widget);border:1px solid var(--border-color);border-radius:12px;padding:8px;margin-bottom:24px}.main-nav ul{display:flex;list-style:none;gap:8px}.main-nav a{display:flex;align-items:center;gap:8px;padding:10px 16px;text-decoration:none;color:var(--text-secondary);font-weight:600;border-radius:8px;transition:all .2s}.main-nav a.active{background-color:var(--accent-light);color:var(--accent-primary)}.homework-widget{background-color:var(--bg-widget);border:1px solid var(--border-color);border-radius:16px;padding:24px}.widget-header{margin-bottom:24px}.widget-header h2{font-size:20px;font-weight:600}.widget-header p{color:var(--text-secondary)}.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}.stat-card{display:flex;align-items:center;gap:16px;padding:20px;border:1px solid var(--border-color);border-radius:12px}.stat-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:16px}.stat-card-pending .stat-icon{background-color:var(--status-pending-bg);color:var(--status-pending-text)}.stat-card-review .stat-icon{background-color:var(--status-review-bg);color:var(--status-review-text)}.stat-card-checked .stat-icon{background-color:var(--status-checked-bg);color:var(--status-checked-text)}.stat-value{font-size:24px;font-weight:700}.stat-label{font-size:14px;color:var(--text-secondary)}.homework-tabs{display:flex;gap:8px;margin-bottom:24px}.tab-btn{padding:8px 16px;background-color:#F3F4F6;border:none;border-radius:8px;font-weight:600;cursor:pointer;color:var(--text-secondary);transition:all .2s}.tab-btn.active{background-color:var(--accent-primary);color:#fff}.homework-list{display:flex;flex-direction:column;gap:16px}.tab-pane{display:none}.tab-pane.active{display:flex;flex-direction:column;gap:16px}.homework-card{border:1px solid var(--border-color);border-radius:12px;padding:20px}.hw-card-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}.hw-card-header h3{font-size:18px;font-weight:600}.hw-status-tag{font-size:12px;font-weight:500;padding:4px 10px;border-radius:99px}.tag-pending{background-color:var(--status-pending-bg);color:var(--status-pending-text)}.tag-review{background-color:var(--status-review-bg);color:var(--status-review-text)}.tag-checked{background-color:var(--status-checked-bg);color:var(--status-checked-text)}.hw-meta{color:var(--text-secondary);font-size:14px;margin-bottom:12px}.hw-description{margin-bottom:16px}.hw-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border-color);padding-top:16px;margin-top:16px}.hw-deadline{display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:14px}.btn-submit{display:flex;align-items:center;gap:8px;padding:10px 16px;background-color:var(--accent-primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}.btn-submitted{background-color:var(--status-review-bg);color:var(--status-review-text);cursor:default}.btn-checked{background-color:var(--status-checked-bg);color:var(--status-checked-text);cursor:default}.modal-overlay{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);justify-content:center;align-items:center}.modal-container{background-color:var(--bg-widget);border-radius:16px;padding:24px;width:90%;max-width:600px;box-shadow:0 10px 25px rgba(0,0,0,.1);position:relative}.modal-header{margin-bottom:16px}.modal-header h2{font-size:20px;font-weight:600}.modal-header p{color:var(--text-secondary)}.close-btn{position:absolute;top:16px;right:16px;background:0 0;border:none;font-size:24px;color:var(--text-secondary);cursor:pointer}.form-group{display:flex;flex-direction:column;margin-bottom:16px}.form-group label{font-size:14px;font-weight:500;margin-bottom:8px}.form-group textarea{padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;background-color:#F9FAFB;font-family:'Inter',sans-serif;font-size:14px;resize:vertical;min-height:80px}.file-drop-area{border:2px dashed var(--border-color);border-radius:8px;padding:32px;text-align:center;color:var(--text-secondary)}.file-drop-area i{font-size:24px;margin-bottom:12px}.file-drop-area p{font-weight:500}.file-drop-area span{font-size:12px}.modal-footer{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}.btn-secondary{padding:10px 16px;background-color:var(--bg-widget);color:var(--text-primary);border:1px solid var(--border-color);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            <div>
+                <h1>Bilim Class</h1>
+            </div>
+        </div>
+        <div class="user-profile">
+             <div class="user-avatar">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+             <div>
+                <p style="font-weight: 600;">{{ request.user.get_full_name }}</p>
+                <a href="{% url 'logout' %}" style="font-size: 12px; color: var(--text-secondary);">Выйти</a>
+             </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="#"><i class="fas fa-home"></i> Главная</a></li>
+            <li><a href="#"><i class="far fa-star"></i> Мои оценки</a></li>
+            <li><a href="#" class="active"><i class="fas fa-book-open"></i> Домашние задания</a></li>
+            <li><a href="#"><i class="far fa-calendar-alt"></i> Расписание</a></li>
+            <li><a href="#"><i class="fas fa-trophy"></i> Достижения</a></li>
+        </ul>
+    </nav>
+
+    <main class="homework-widget">
+        <div class="widget-header">
+            <h2>Домашние задания</h2>
+            <p>Все задания по предметам</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card stat-card-pending"><div class="stat-icon">🕒</div><div><div class="stat-value">{{ not_submitted_list.count }}</div><p class="stat-label">Не сдано</p></div></div>
+            <div class="stat-card stat-card-review"><div class="stat-icon">📄</div><div><div class="stat-value">{{ in_review_list.count }}</div><p class="stat-label">На проверке</p></div></div>
+            <div class="stat-card stat-card-checked"><div class="stat-icon">✓</div><div><div class="stat-value">{{ checked_list.count }}</div><p class="stat-label">Проверено</p></div></div>
+        </div>
+
+        <div class="homework-tabs">
+            <button class="tab-btn active" data-tab="not_submitted">Не сдано ({{ not_submitted_list.count }})</button>
+            <button class="tab-btn" data-tab="in_review">На проверке ({{ in_review_list.count }})</button>
+            <button class="tab-btn" data-tab="checked">Проверено ({{ checked_list.count }})</button>
+        </div>
+
+        <div class="homework-list" id="homework-list-container">
+            <div id="tab-content-not_submitted" class="tab-pane active">
+                {% for hw in not_submitted_list %}
+                <div class="homework-card">
+                    <div class="hw-card-header"><h3>{{ hw.title }}</h3><span class="hw-status-tag tag-pending">Не сдано</span></div>
+                    <p class="hw-meta">{{ hw.subject.name }} • {{ hw.teacher.user.get_full_name }}</p>
+                    <p class="hw-description">{{ hw.description }}</p>
+                    <div class="hw-footer">
+                        <div class="hw-deadline"><i class="far fa-clock"></i> Срок сдачи: {{ hw.due_date|date:"d.m.Y" }}</div>
+                        <button class="btn-submit open-submission-modal" data-hw-pk="{{ hw.pk }}">Сдать работу</button>
+                    </div>
+                </div>
+                {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет заданий, которые нужно сдать.</p> {% endfor %}
+            </div>
+
+            <div id="tab-content-in_review" class="tab-pane">
+                {% for submission in in_review_list %}
+                <div class="homework-card">
+                    <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-review">На проверке</span></div>
+                    <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
+                    <div class="hw-footer">
+                        <div class="hw-deadline"><i class="far fa-calendar-check"></i> Сдано: {{ submission.submitted_at|date:"d.m.Y" }}</div>
+                        <button class="btn-submit btn-submitted" disabled>Отправлено</button>
+                    </div>
+                </div>
+                {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет работ на проверке.</p> {% endfor %}
+            </div>
+
+            <div id="tab-content-checked" class="tab-pane">
+                {% for submission in checked_list %}
+                <div class="homework-card">
+                     <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-checked">Оценка: {{ submission.grade }}</span></div>
+                    <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
+                    <p class="hw-description"><strong>Комментарий учителя:</strong> {{ submission.teacher_comment|default:"-" }}</p>
+                    <div class="hw-footer">
+                        <div class="hw-deadline"><i class="far fa-calendar-check"></i> Проверено: {{ submission.checked_at|date:"d.m.Y" }}</div>
+                        <button class="btn-submit btn-checked" disabled>Проверено</button>
+                    </div>
+                </div>
+                {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет проверенных работ.</p> {% endfor %}
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Модальное окно для сдачи ДЗ -->
+<div class="modal-overlay" id="submission-modal">
+    <div class="modal-container">
+        <button class="close-btn" id="close-submission-modal">&times;</button>
+        <div class="modal-header">
+            <h2 id="modal-hw-title">Сдать домашнее задание</h2>
+            <p id="modal-hw-subject">История • Эссе "Великая Отечественная война"</p>
+        </div>
+        <form id="submission-form" method="POST" enctype="multipart/form-data" style="margin-top: 24px;">
+            {% csrf_token %}
+            <div id="modal-hw-description" style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                <p><strong>Задание:</strong> Написать эссе объемом 2-3 страницы на тему "Роль СССР в Великой Отечественной войне".</p>
+            </div>
+            <div class="form-group">
+                <label>Прикрепить файлы</label>
+                <div class="file-drop-area">
+                    <i class="fas fa-upload"></i>
+                    <p>Нажмите или перетащите файлы сюда</p>
+                    <span>PDF, DOC, DOCX, изображения (макс. 10 МБ)</span>
+                    <input type="file" name="submission_file" style="display: none;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="submission_text">Комментарий (необязательно)</label>
+                <textarea id="submission_text" name="submission_text" placeholder="Добавьте комментарий к работе..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancel-submission-btn">Отмена</button>
+                <button type="submit" class="btn-submit">Отправить работу</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- НАЧАЛО БЛОКА ДЛЯ СТРАНИЦЫ УЧЕНИКА ---
+
+    // 1. Логика для переключения табов
+    const tabs = document.querySelectorAll('.homework-tabs .tab-btn');
+    const panes = document.querySelectorAll('.homework-list .tab-pane');
+
+    if (tabs.length > 0 && panes.length > 0) {
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const targetId = `tab-content-${this.dataset.tab}`;
+                panes.forEach(p => {
+                    p.classList.toggle('active', p.id === targetId);
+                });
+            });
+        });
+    }
+
+    // 2. Логика для модального окна СДАЧИ работы
+    const submissionModal = document.getElementById('submission-modal');
+    const homeworkList = document.getElementById('homework-list-container');
+    
+    if (submissionModal && homeworkList) {
+        const closeSubmissionModalBtn = document.getElementById('close-submission-modal');
+        const cancelSubmissionModalBtn = document.getElementById('cancel-submission-btn');
+        const submissionForm = document.getElementById('submission-form');
+
+        homeworkList.addEventListener('click', function(e) {
+            const openBtn = e.target.closest('.open-submission-modal');
+            if (openBtn) {
+                const homeworkId = openBtn.dataset.hwPk;
+                // В будущем здесь будет AJAX для получения деталей ДЗ
+                submissionForm.action = `/api/homework/${homeworkId}/submit/`;
+                submissionModal.style.display = 'flex';
+            }
+        });
+
+        const closeModal = () => { submissionModal.style.display = 'none'; };
+        closeSubmissionModalBtn.addEventListener('click', closeModal);
+        cancelSubmissionModalBtn.addEventListener('click', closeModal);
+        submissionModal.addEventListener('click', (e) => { if (e.target === submissionModal) closeModal(); });
+
+        submissionForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.reload();
+                } else {
+                    alert(`Ошибка: ${result.message || 'Не удалось отправить работу.'}`);
+                }
+            } catch(error) {
+                alert('Произошла сетевая ошибка.');
+            }
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // --- КОНЕЦ БЛОКА ДЛЯ СТРАНИЦЫ УЧЕНИКА ---
+});
+</script>
+
+</body>
+</html>

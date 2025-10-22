@@ -1,0 +1,49 @@
+<table class="journal-table" id="grades-table">
+    <thead>
+        <tr>
+            <th>Ученик</th>
+            {% for date in date_range %}
+                <th>{{ date|date:"d.m" }}</th>
+            {% endfor %}
+            <th>Средний балл</th>
+        </tr>
+    </thead>
+    <tbody data-subject-id="{{ selected_subject_id }}" data-class-id="{{ selected_class_id }}">
+        {% for row in journal_data %}
+        <tr>
+            <td>{{ row.student.get_full_name|default:row.student.username }}</td>
+            
+            {% for cell in row.cells %}
+            <td class="grade-cell-wrapper">
+                <div class="grade-cell" 
+                    data-student-id="{{ row.student.pk }}" 
+                    data-date="{{ cell.date|date:'Y-m-d' }}"
+                    data-comment="{{ cell.grade.comment|default:'' }}">
+                    
+                    {% with grade_obj=cell.grade %}
+                        {% if grade_obj %}
+                            {% if grade_obj.was_absent %}
+                                <span style="color: var(--text-secondary); font-weight: 600;">Н/Б</span>
+                            {% elif grade_obj.grade is not None %}
+                                <div class="grade-badge-container">
+                                    <div class="grade-badge {% if grade_obj.grade >= 85 %}grade-5{% elif grade_obj.grade >= 65 %}grade-4{% else %}grade-3{% endif %}">
+                                        {{ grade_obj.grade }}
+                                    </div>
+                                    {% if grade_obj.comment %}
+                                        <span class="grade-comment-icon">💬</span>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <span style="color: var(--text-secondary); font-size: 20px;">+</span>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </td>
+            {% endfor %}
+
+            <td>{{ row.average|floatformat:2|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

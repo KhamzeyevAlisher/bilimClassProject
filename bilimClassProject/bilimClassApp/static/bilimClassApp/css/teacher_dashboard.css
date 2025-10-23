@@ -1,0 +1,52 @@
+/* =================================================================
+   teacher_dashboard.css
+   Стили для teacher_dashboard.html
+================================================================= */
+
+.td-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+.td-card { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; }
+.td-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.td-card-header i { color: var(--text-secondary); }
+.td-card-header h3 { font-size: 18px; font-weight: 600; }
+.td-card-subtitle { color: var(--text-secondary); margin-bottom: 20px; }
+
+/* --- Левая колонка --- */
+.td-stats-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.td-stat-card { padding: 20px; border-radius: 12px; color: white; }
+.td-stat-card i { font-size: 20px; margin-bottom: 12px; }
+.td-stat-card h2 { font-size: 28px; font-weight: 700; }
+.td-stat-card p { font-size: 14px; opacity: 0.9; }
+.blue { background-color: #3B82F6; }
+.orange { background-color: #F97316; }
+.purple { background-color: #8B5CF6; }
+.red { background-color: var(--accent-red); }
+
+.td-schedule-list { display: flex; flex-direction: column; gap: 12px; }
+.td-lesson-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 10px; background-color: #F9FAFB; }
+.td-lesson-item.current { background-color: var(--accent-light); border: 1px solid var(--accent-primary); }
+.td-lesson-time p { font-weight: 600; }
+.td-lesson-time span { font-size: 14px; color: var(--text-secondary); }
+.td-lesson-info { flex-grow: 1; }
+.td-lesson-info h4 { font-weight: 600; }
+.td-lesson-info p { font-size: 14px; color: var(--text-secondary); }
+.td-lesson-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
+.completed { color: #374151; background-color: #F3F4F6; }
+.current-badge { color: var(--accent-primary); background-color: var(--accent-light); }
+.upcoming { color: var(--text-secondary); background-color: transparent; }
+
+/* --- Правая колонка --- */
+.td-right-column { display: flex; flex-direction: column; gap: 24px; }
+.td-task-list, .td-plan-list { display: flex; flex-direction: column; gap: 16px; }
+.td-task-item, .td-plan-item { padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+.td-task-item:last-child, .td-plan-item:last-child { border: none; padding: 0; }
+.td-task-item p, .td-plan-item p { font-weight: 500; margin-bottom: 8px; }
+.td-task-meta { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
+.td-task-badge { padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+.urgent { background-color: #FEF2F2; color: #B91C1C; }
+.medium { background-color: #FFFBEB; color: #B45309; }
+.td-plan-item { display: flex; align-items: center; }
+.td-plan-item small { color: var(--text-secondary); margin-left: auto; }
+.td-plan-status { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: white; margin-left: 12px; font-size: 12px; }
+.approved { background-color: #10B981; }
+.pending { background-color: #F59E0B; }
+.rejected { background-color: #EF4444; }

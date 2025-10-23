@@ -102,114 +102,266 @@ def profile_view(request):
 def teacher_dashboard(request):
     return render(request, 'bilimClassApp/teacher_dashboard.html')
 
+# @login_required
+# def dashboard_view(request):
+#     # allow opening a specific tab via ?tab=homework|dnevnik|schedule|profile
+#     active_tab = request.GET.get('tab') or 'schedule'
+#     # ===============================================================
+#     # 1. ОСНОВНЫЕ ПЕРЕМЕННЫЕ И ПОЛУЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
+#     # ===============================================================
+#     current_user = request.user
+#     role = current_user.groups.first()
+    
+#     # --- Переменные, которые мы будем заполнять и передавать в шаблон ---
+#     user_role_name = "Пользователь"
+#     schedule_by_day = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
+#     average_grade, total_grades_count, total_absences = None, 0, 0
+#     attendance_percentage = 100.0
+#     grades_by_subject = []
+#     recent_assessments = []
+
+#     # ===============================================================
+#     # 2. ОСНОВНАЯ ЛОГИКА В ЗАВИСИМОСТИ ОТ РОЛИ ПОЛЬЗОВАТЕЛЯ
+#     # ===============================================================
+#     if role:
+#         user_role_name = role.name
+        
+#         # --- ЕСЛИ ЗАШЕЛ УЧЕНИК ---
+#         if role.name == 'Ученик':
+#             student_class = current_user.school_classes.first()
+#             if student_class:
+#                 # 2.1 Получаем РАСПИСАНИЕ
+#                 schedule_list = Schedule.objects.filter(school_class=student_class).order_by('start_time')
+#                 for lesson in schedule_list:
+#                     if lesson.day_of_week in schedule_by_day:
+#                         schedule_by_day[lesson.day_of_week].append(lesson)
+            
+#                 # 2.2 Получаем ОЦЕНКИ и считаем статистику
+#                 all_assessments_records = Assessment.objects.filter(student=current_user)
+#                 assessments_with_grade = all_assessments_records.filter(was_absent=False)
+#                 if assessments_with_grade.exists():
+#                     total_grades_count = assessments_with_grade.count()
+#                     avg_dict = assessments_with_grade.aggregate(avg_grade=Avg('grade'))
+#                     average_grade = avg_dict['avg_grade']
+                    
+#                     subjects_with_grades = Subject.objects.filter(assessment__in=assessments_with_grade).distinct().order_by('name')
+                    
+#                     for subject in subjects_with_grades:
+#                         # Получаем все оценки по этому предмету
+#                         subject_grades_qs = assessments_with_grade.filter(subject=subject).order_by('-date')
+                        
+#                         # Считаем средний балл
+#                         subject_avg = subject_grades_qs.aggregate(avg=Avg('grade'))['avg']
+
+#                         # --- ДОБАВЛЕНА ЛОГИКА ПОИСКА УЧИТЕЛЯ ---
+#                         # Ищем запись в расписании, чтобы найти учителя для этого предмета в этом классе
+#                         teacher_name = "Не назначен"
+#                         schedule_entry = Schedule.objects.filter(school_class=student_class, subject=subject).first()
+#                         if schedule_entry and schedule_entry.teacher:
+#                             teacher_name = schedule_entry.teacher.user.get_full_name()
+#                         # --- КОНЕЦ ЛОГИКИ ПОИСКА УЧИТЕЛЯ ---
+                        
+#                         # Собираем словарь в ФОРМАТЕ, КОТОРЫЙ ОЖИДАЕТ ШАБЛОН
+#                         grades_by_subject.append({
+#                             'subject_name': subject.name,      # ИСПРАВЛЕНО: 'name' -> 'subject_name'
+#                             'teacher_name': teacher_name,      # ДОБАВЛЕНО: имя учителя
+#                             'average': subject_avg,
+#                             'grades': subject_grades_qs       # ИСПРАВЛЕНО: 'assessments' -> 'grades'
+#                         })
+#                 recent_assessments = all_assessments_records.order_by('-date')[:10]
+
+#                 # 2.3 Получаем ДОМАШНИЕ ЗАДАНИЯ для таба homework
+#                 # Получаем все ДЗ, назначенные классу этого ученика
+#                 all_homeworks = Homework.objects.filter(school_class=student_class).order_by('due_date')
+                
+#                 # Получаем все сданные этим учеником работы
+#                 submissions = HomeworkSubmission.objects.filter(student=current_user, homework__in=all_homeworks)
+#                 submitted_homework_ids = submissions.values_list('homework_id', flat=True)
+
+#                 # Разделяем ДЗ на категории
+#                 not_submitted = all_homeworks.exclude(pk__in=submitted_homework_ids)
+#                 in_review = submissions.filter(grade__isnull=True)
+#                 checked = submissions.filter(grade__isnull=False)
+
+#                 # 2.4 Считаем ПРОЦЕНТ ПОСЕЩАЕМОСТИ (ПО УРОКАМ)
+#                 today = date.today()
+#                 if today.month >= 9:
+#                     start_of_school_year = date(today.year, 9, 1)
+#                 else:
+#                     start_of_school_year = date(today.year - 1, 9, 1)
+
+#                 attendance_records = Attendance.objects.filter(
+#                     student=current_user, date__gte=start_of_school_year, date__lte=today
+#                 )
+#                 total_absences = attendance_records.exclude(status='present').count()
+                
+#                 total_lessons_held = 0
+#                 holidays = set(Holiday.objects.filter(date__gte=start_of_school_year).values_list('date', flat=True))
+                
+#                 class_schedule = Schedule.objects.filter(school_class=student_class)
+#                 lessons_per_weekday = {i: 0 for i in range(7)}
+#                 for lesson in class_schedule:
+#                     lessons_per_weekday[lesson.day_of_week - 1] += 1
+                
+#                 current_day = start_of_school_year
+#                 while current_day <= today:
+#                     if current_day.weekday() < 5 and current_day not in holidays:
+#                         total_lessons_held += lessons_per_weekday.get(current_day.weekday(), 0)
+#                     current_day += timedelta(days=1)
+                    
+#                 if total_lessons_held > 0:
+#                     attended_lessons = total_lessons_held - total_absences
+#                     attendance_percentage = (attended_lessons / total_lessons_held) * 100
+
+#         # --- ЕСЛИ ЗАШЕЛ УЧИТЕЛЬ ---
+#         elif role.name == 'Учитель':
+#             try:
+#                 teacher_profile = current_user.teacher
+#                 schedule_list = Schedule.objects.filter(teacher=teacher_profile).order_by('start_time')
+#                 for lesson in schedule_list:
+#                     if lesson.day_of_week in schedule_by_day:
+#                         schedule_by_day[lesson.day_of_week].append(lesson)
+#             except Teacher.DoesNotExist:
+#                 pass
+                
+#     # ===============================================================
+#     # 3. ФОРМИРОВАНИЕ КОНТЕКСТА И РЕНДЕРИНГ ШАБЛОНА
+#     # ===============================================================
+#     context = {
+#         'user_role': user_role_name,
+#         'schedule_by_day': schedule_by_day,
+#         'average_grade': average_grade,
+#         'total_grades_count': total_grades_count,
+#         'total_absences': total_absences,
+#         'attendance_percentage': attendance_percentage,
+#         'grades_by_subject': grades_by_subject,
+#         'recent_assessments': recent_assessments,
+#         'active_tab': active_tab,
+#         'not_submitted_list': not_submitted if role and role.name == 'Ученик' else [],
+#         'in_review_list': in_review if role and role.name == 'Ученик' else [],
+#         'checked_list': checked if role and role.name == 'Ученик' else [],
+#     }
+    
+#     return render(request, 'bilimClassApp/dashboard.html', context)
+
 @login_required
 def dashboard_view(request):
-    # allow opening a specific tab via ?tab=homework|dnevnik|schedule|profile
-    active_tab = request.GET.get('tab') or 'schedule'
     # ===============================================================
-    # 1. ОСНОВНЫЕ ПЕРЕМЕННЫЕ И ПОЛУЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
+    # 1. ПОЛУЧЕНИЕ ПАРАМЕТРОВ И ПОЛЬЗОВАТЕЛЯ
     # ===============================================================
+    active_tab = request.GET.get('tab', 'schedule')
+    # НОВОЕ: Получаем период фильтрации, по умолчанию - 'week' (неделя)
+    period = request.GET.get('period', 'week')
+    
     current_user = request.user
     role = current_user.groups.first()
     
-    # --- Переменные, которые мы будем заполнять и передавать в шаблон ---
     user_role_name = "Пользователь"
-    schedule_by_day = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
+    schedule_by_day = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+    grades_by_subject = []
+    not_submitted, in_review, checked = [], [], []
     average_grade, total_grades_count, total_absences = None, 0, 0
     attendance_percentage = 100.0
-    grades_by_subject = []
-    recent_assessments = []
 
     # ===============================================================
-    # 2. ОСНОВНАЯ ЛОГИКА В ЗАВИСИМОСТИ ОТ РОЛИ ПОЛЬЗОВАТЕЛЯ
+    # 2. ОСНОВНАЯ ЛОГИКА В ЗАВИСИМОСТИ ОТ РОЛИ
     # ===============================================================
     if role:
         user_role_name = role.name
         
-        # --- ЕСЛИ ЗАШЕЛ УЧЕНИК ---
         if role.name == 'Ученик':
             student_class = current_user.school_classes.first()
             if student_class:
-                # 2.1 Получаем РАСПИСАНИЕ
+                # 2.1 Получаем РАСПИСАНИЕ (без изменений)
                 schedule_list = Schedule.objects.filter(school_class=student_class).order_by('start_time')
                 for lesson in schedule_list:
                     if lesson.day_of_week in schedule_by_day:
                         schedule_by_day[lesson.day_of_week].append(lesson)
-            
-                # 2.2 Получаем ОЦЕНКИ и считаем статистику
+
+                # ======================================================
+                # НОВОЕ: ЛОГИКА ФИЛЬТРАЦИИ ОЦЕНОК ПО ПЕРИОДУ
+                # ======================================================
+                today = date.today()
+                start_date, end_date = None, None
+
+                if period == 'week':
+                    # Начало недели (понедельник)
+                    start_date = today - timedelta(days=today.weekday())
+                    # Конец недели (воскресенье)
+                    end_date = start_date + timedelta(days=6)
+                elif period == 'month':
+                    # Начало месяца
+                    start_date = today.replace(day=1)
+                    # Конец месяца (сложный, но надежный способ)
+                    next_month = start_date.replace(day=28) + timedelta(days=4)
+                    end_date = next_month - timedelta(days=next_month.day)
+
+                # Получаем все оценки ученика
                 all_assessments_records = Assessment.objects.filter(student=current_user)
+                
+                # Если период не "all", применяем фильтр по дате
+                if period != 'all':
+                    all_assessments_records = all_assessments_records.filter(date__range=[start_date, end_date])
+                
+                # Дальнейшие расчеты будут использовать уже отфильтрованный queryset
                 assessments_with_grade = all_assessments_records.filter(was_absent=False)
+                # ======================================================
+                
+                # 2.2 Считаем статистику на основе отфильтрованных данных
                 if assessments_with_grade.exists():
                     total_grades_count = assessments_with_grade.count()
                     avg_dict = assessments_with_grade.aggregate(avg_grade=Avg('grade'))
                     average_grade = avg_dict['avg_grade']
                     
+                    # Собираем данные по предметам, используя отфильтрованные оценки
                     subjects_with_grades = Subject.objects.filter(assessment__in=assessments_with_grade).distinct().order_by('name')
                     for subject in subjects_with_grades:
-                        subject_assessments_qs = assessments_with_grade.filter(subject=subject).order_by('-date')
-                        subject_avg = subject_assessments_qs.aggregate(avg=Avg('grade'))['avg']
+                        subject_grades_qs = assessments_with_grade.filter(subject=subject).order_by('-date')
+                        subject_avg = subject_grades_qs.aggregate(avg=Avg('grade'))['avg']
+                        
+                        teacher_name = "Не назначен"
+                        schedule_entry = Schedule.objects.filter(school_class=student_class, subject=subject).first()
+                        if schedule_entry and schedule_entry.teacher:
+                            teacher_name = schedule_entry.teacher.user.get_full_name()
+                        
                         grades_by_subject.append({
-                            'name': subject.name, 'count': subject_assessments_qs.count(),
-                            'average': subject_avg, 'assessments': subject_assessments_qs
+                            'subject_name': subject.name,
+                            'teacher_name': teacher_name,
+                            'average': subject_avg,
+                            'grades': subject_grades_qs
                         })
-                recent_assessments = all_assessments_records.order_by('-date')[:10]
-
-                # 2.3 Получаем ДОМАШНИЕ ЗАДАНИЯ для таба homework
-                # Получаем все ДЗ, назначенные классу этого ученика
-                all_homeworks = Homework.objects.filter(school_class=student_class).order_by('due_date')
                 
-                # Получаем все сданные этим учеником работы
+                # 2.3 Получаем ДОМАШНИЕ ЗАДАНИЯ (без изменений)
+                all_homeworks = Homework.objects.filter(school_class=student_class).order_by('due_date')
                 submissions = HomeworkSubmission.objects.filter(student=current_user, homework__in=all_homeworks)
                 submitted_homework_ids = submissions.values_list('homework_id', flat=True)
-
-                # Разделяем ДЗ на категории
                 not_submitted = all_homeworks.exclude(pk__in=submitted_homework_ids)
                 in_review = submissions.filter(grade__isnull=True)
                 checked = submissions.filter(grade__isnull=False)
 
-                # 2.4 Считаем ПРОЦЕНТ ПОСЕЩАЕМОСТИ (ПО УРОКАМ)
-                today = date.today()
-                if today.month >= 9:
-                    start_of_school_year = date(today.year, 9, 1)
-                else:
-                    start_of_school_year = date(today.year - 1, 9, 1)
-
-                attendance_records = Attendance.objects.filter(
-                    student=current_user, date__gte=start_of_school_year, date__lte=today
-                )
-                total_absences = attendance_records.exclude(status='present').count()
+                # 2.4 Считаем ПОСЕЩАЕМОСТЬ (без изменений)
+                start_of_school_year = date(today.year, 9, 1) if today.month >= 9 else date(today.year - 1, 9, 1)
+                attendance_records = Attendance.objects.filter(student=current_user, date__gte=start_of_school_year, date__lte=today)
+                total_absences = attendance_records.exclude(status='P').count()
                 
+                # (остальная логика посещаемости без изменений...)
                 total_lessons_held = 0
                 holidays = set(Holiday.objects.filter(date__gte=start_of_school_year).values_list('date', flat=True))
-                
                 class_schedule = Schedule.objects.filter(school_class=student_class)
                 lessons_per_weekday = {i: 0 for i in range(7)}
                 for lesson in class_schedule:
                     lessons_per_weekday[lesson.day_of_week - 1] += 1
-                
                 current_day = start_of_school_year
                 while current_day <= today:
-                    if current_day.weekday() < 5 and current_day not in holidays:
+                    if current_day.weekday() < 6 and current_day not in holidays:
                         total_lessons_held += lessons_per_weekday.get(current_day.weekday(), 0)
                     current_day += timedelta(days=1)
-                    
                 if total_lessons_held > 0:
                     attended_lessons = total_lessons_held - total_absences
                     attendance_percentage = (attended_lessons / total_lessons_held) * 100
 
-        # --- ЕСЛИ ЗАШЕЛ УЧИТЕЛЬ ---
-        elif role.name == 'Учитель':
-            try:
-                teacher_profile = current_user.teacher
-                schedule_list = Schedule.objects.filter(teacher=teacher_profile).order_by('start_time')
-                for lesson in schedule_list:
-                    if lesson.day_of_week in schedule_by_day:
-                        schedule_by_day[lesson.day_of_week].append(lesson)
-            except Teacher.DoesNotExist:
-                pass
-                
     # ===============================================================
-    # 3. ФОРМИРОВАНИЕ КОНТЕКСТА И РЕНДЕРИНГ ШАБЛОНА
+    # 3. ФОРМИРОВАНИЕ КОНТЕКСТА И РЕНДЕРИНГ
     # ===============================================================
     context = {
         'user_role': user_role_name,
@@ -219,11 +371,11 @@ def dashboard_view(request):
         'total_absences': total_absences,
         'attendance_percentage': attendance_percentage,
         'grades_by_subject': grades_by_subject,
-        'recent_assessments': recent_assessments,
         'active_tab': active_tab,
-        'not_submitted_list': not_submitted if role and role.name == 'Ученик' else [],
-        'in_review_list': in_review if role and role.name == 'Ученик' else [],
-        'checked_list': checked if role and role.name == 'Ученик' else [],
+        'not_submitted_list': not_submitted,
+        'in_review_list': in_review,
+        'checked_list': checked,
+        'active_period': period, # НОВОЕ: передаем активный период в шаблон
     }
     
     return render(request, 'bilimClassApp/dashboard.html', context)
@@ -811,56 +963,82 @@ def submit_homework_api(request, pk):
     else:
         return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     
-@login_required
-def get_homework_submissions_api(request, pk):
-    """
-    API, возвращающее список всех учеников класса и статусы их работ
-    по конкретному домашнему заданию.
-    """
-    try:
-        # Убеждаемся, что ДЗ существует и принадлежит текущему учителю
-        homework = get_object_or_404(Homework, pk=pk, teacher=request.user.teacher)
+# @login_required
+# def get_homework_submissions_api(request, pk):
+#     """
+#     API, возвращающее список всех учеников класса и статусы их работ
+#     по конкретному домашнему заданию.
+#     """
+#     try:
+#         # Убеждаемся, что ДЗ существует и принадлежит текущему учителю
+#         homework = get_object_or_404(Homework, pk=pk, teacher=request.user.teacher)
         
-        # Получаем всех учеников из класса, которому было дано ДЗ
-        students_in_class = homework.school_class.students.all().order_by('last_name', 'first_name')
+#         # Получаем всех учеников из класса, которому было дано ДЗ
+#         students_in_class = homework.school_class.students.all().order_by('last_name', 'first_name')
         
-        # Получаем все сданные работы по этому ДЗ
-        submissions = HomeworkSubmission.objects.filter(homework=homework)
+#         # Получаем все сданные работы по этому ДЗ
+#         submissions = HomeworkSubmission.objects.filter(homework=homework)
         
-        # Для быстрого поиска создаем словарь {student_id: submission_object}
-        submissions_map = {sub.student.id: sub for sub in submissions}
+#         # Для быстрого поиска создаем словарь {student_id: submission_object}
+#         submissions_map = {sub.student.id: sub for sub in submissions}
         
-        response_data = []
-        for student in students_in_class:
-            student_data = {
-                'student_id': student.id,
-                'full_name': student.get_full_name(),
-                'status': 'Ожидается',
-                'submitted_at': None,
-                'grade': None,
-            }
+#         response_data = []
+#         for student in students_in_class:
+#             student_data = {
+#                 'student_id': student.id,
+#                 'full_name': student.get_full_name(),
+#                 'status': 'Ожидается',
+#                 'submitted_at': None,
+#                 'grade': None,
+#             }
             
-            # Если ученик есть в словаре сданных работ
-            if student.id in submissions_map:
-                submission = submissions_map[student.id]
-                student_data['submitted_at'] = submission.submitted_at.strftime('%d.%m.%Y')
+#             # Если ученик есть в словаре сданных работ
+#             if student.id in submissions_map:
+#                 submission = submissions_map[student.id]
+#                 student_data['submitted_at'] = submission.submitted_at.strftime('%d.%m.%Y')
                 
-                # Если работа проверена (есть оценка)
-                if submission.grade is not None:
-                    student_data['status'] = 'Проверено'
-                    student_data['grade'] = submission.grade
-                else:
-                    student_data['status'] = 'Сдано'
+#                 # Если работа проверена (есть оценка)
+#                 if submission.grade is not None:
+#                     student_data['status'] = 'Проверено'
+#                     student_data['grade'] = submission.grade
+#                 else:
+#                     student_data['status'] = 'Сдано'
 
-            response_data.append(student_data)
+#             response_data.append(student_data)
             
-        return JsonResponse({'status': 'success', 'submissions': response_data})
+#         return JsonResponse({'status': 'success', 'submissions': response_data})
         
-    except Homework.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Homework not found or access denied'}, status=404)
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+#     except Homework.DoesNotExist:
+#         return JsonResponse({'status': 'error', 'message': 'Homework not found or access denied'}, status=404)
+#     except Exception as e:
+#         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     
+
+# @login_required
+# def get_homework_submissions_api(request, pk):
+#     homework = get_object_or_404(Homework, pk=pk, teacher=request.user.teacher)
+#     students_in_class = homework.school_class.students.all().order_by('last_name', 'first_name')
+#     submissions = HomeworkSubmission.objects.filter(homework=homework)
+#     submissions_map = {sub.student.id: sub for sub in submissions}
+    
+#     response_data = []
+#     for student in students_in_class:
+#         submission_obj = submissions_map.get(student.id)
+#         status = 'Ожидается'
+#         if submission_obj:
+#             status = 'Проверено' if submission_obj.grade is not None else 'Сдано'
+
+#         response_data.append({
+#             'submission_id': submission_obj.id if submission_obj else None,
+#             'student_id': student.id,
+#             'full_name': student.get_full_name(),
+#             'status': status,
+#             'submitted_at': submission_obj.submitted_at.strftime('%d.%m.%Y') if submission_obj else None,
+#             'grade': submission_obj.grade if submission_obj else None,
+#             'teacher_comment': submission_obj.teacher_comment if submission_obj else "",
+#         })
+            
+#     return JsonResponse({'status': 'success', 'submissions': response_data})
 
 @login_required
 def get_homework_submissions_api(request, pk):
@@ -884,6 +1062,11 @@ def get_homework_submissions_api(request, pk):
             'submitted_at': submission_obj.submitted_at.strftime('%d.%m.%Y') if submission_obj else None,
             'grade': submission_obj.grade if submission_obj else None,
             'teacher_comment': submission_obj.teacher_comment if submission_obj else "",
+            
+            # --- ДОБАВЛЕННЫЕ СТРОКИ ---
+            'file_url': submission_obj.submission_file.url if submission_obj and submission_obj.submission_file else None,
+            'submission_text': submission_obj.submission_text if submission_obj else None,
+            # --- КОНЕЦ ДОБАВЛЕННЫХ СТРОК ---
         })
             
     return JsonResponse({'status': 'success', 'submissions': response_data})

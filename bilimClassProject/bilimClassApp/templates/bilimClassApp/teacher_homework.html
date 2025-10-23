@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Домашние задания | Школьная Платформа</title>
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <style>
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/teacher_homework.css' %}">
+    <!-- <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         :root {
@@ -92,7 +94,7 @@
         #grading-modal .form-group label { font-weight: 600; }
         #grading-modal textarea { min-height: 90px; }
         #grading-modal .modal-footer { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border-color); }
-    </style>
+    </style> -->
         
 </head>
 <body>
@@ -223,7 +225,10 @@
         <div class="modal-header"><h2 id="submissions-modal-title"></h2><p id="submissions-modal-info"></p></div>
         <div class="submissions-table-container">
             <table class="submissions-table">
-                <thead><tr><th>Ученик</th><th>Статус</th><th>Дата сдачи</th><th>Оценка</th><th>Действие</th></tr></thead>
+                <thead>
+                    <!-- ИЗМЕНЕНА ЭТА СТРОКА -->
+                    <tr><th>Ученик</th><th>Файл</th><th>Статус</th><th>Дата сдачи</th><th>Оценка</th><th>Действие</th></tr>
+                </thead>
                 <tbody id="submissions-tbody"></tbody>
             </table>
         </div>
@@ -371,14 +376,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!response.ok || data.status !== 'success') throw new Error(data.message || 'Не удалось загрузить данные.');
 
                 submissionsTbody.innerHTML = '';
+                // ИЗМЕНЕН COLSPAN С 5 НА 6
                 if (data.submissions.length === 0) {
-                     submissionsTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Работы еще не сданы.</td></tr>';
+                     submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Работы еще не сданы.</td></tr>';
                      return;
                 }
 
                 data.submissions.forEach(sub => {
                     let statusHtml, gradeHtml = '<td>-</td>', actionHtml = '<td>-</td>';
                     let actionButton = `<button class="btn-check-grade" disabled>Проверить</button>`;
+                    
+                    // --- НОВЫЙ БЛОК ДЛЯ ГЕНЕРАЦИИ ССЫЛКИ НА ФАЙЛ ---
+                    let fileHtml = '<td>-</td>'; // По умолчанию тире, если файла нет
+                    if (sub.file_url) {
+                        fileHtml = `<td>
+                            <a href="${sub.file_url}" class="file-link" target="_blank" rel="noopener noreferrer" title="Открыть файл в новой вкладке">
+                                <i class="fas fa-paperclip"></i> Посмотреть
+                            </a>
+                        </td>`;
+                    }
+                    // --- КОНЕЦ НОВОГО БЛОКА ---
 
                     if (sub.status === 'Проверено') {
                         statusHtml = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Проверено</span>`;
@@ -393,11 +410,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     actionHtml = `<td data-submission-pk="${sub.submission_id}" data-student-name="${sub.full_name}" data-grade="${sub.grade || ''}" data-comment="${sub.teacher_comment || ''}">${actionButton}</td>`;
 
-                    const row = `<tr id="sub-row-${sub.submission_id}"><td>${sub.full_name}</td><td>${statusHtml}</td><td>${sub.submitted_at || '-'}</td>${gradeHtml}${actionHtml}</tr>`;
+                    // --- ИЗМЕНЕНА ЭТА СТРОКА: ДОБАВЛЕНА ПЕРЕМЕННАЯ fileHtml ---
+                    const row = `<tr id="sub-row-${sub.submission_id}"><td>${sub.full_name}</td>${fileHtml}<td>${statusHtml}</td><td>${sub.submitted_at || '-'}</td>${gradeHtml}${actionHtml}</tr>`;
                     submissionsTbody.insertAdjacentHTML('beforeend', row);
                 });
             } catch (error) {
-                submissionsTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: red;">${error.message}</td></tr>`;
+                // ИЗМЕНЕН COLSPAN С 5 НА 6
+                submissionsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">${error.message}</td></tr>`;
             }
         };
 

@@ -1,0 +1,259 @@
+/* =================================================================
+   student_dashboard.css
+   Стили для dashboard.html (личный кабинет ученика)
+================================================================= */
+
+/* --- Общая структура --- */
+.dashboard-container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.welcome-section { margin-bottom: 24px; }
+.welcome-section h1 { font-size: 28px; }
+.welcome-section p { color: var(--text-secondary); }
+
+/* --- Главные табы --- */
+.main-tabs ul { display: flex; list-style: none; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+.main-tabs li { margin-bottom: -1px; }
+.main-tabs a { padding: 12px 16px; display: block; text-decoration: none; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid transparent; }
+.main-tabs li.active a { color: var(--accent-primary); }
+.main-tabs li.active { border-bottom-color: var(--accent-primary); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* --- Виджет "Дневник" --- */
+.stats-cards-grid-v2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px; }
+.stat-card-v2 { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; display: flex; align-items: center; gap: 16px; }
+.stat-icon-v2 { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+.stat-icon-v2.icon-green { background-color: #ECFDF5; color: #10B981; }
+.stat-icon-v2.icon-blue { background-color: #EFF6FF; color: #3B82F6; }
+.stat-icon-v2.icon-red { background-color: #FEF2F2; color: #EF4444; }
+.stat-info-v2 { flex-grow: 1; }
+.stat-info-v2 p { font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+.stat-info-v2 span { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+.stat-card-v2 small { color: var(--text-secondary); font-size: 14px; align-self: flex-end; padding-bottom: 4px; }
+.grades-by-subject-widget-v2 { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; }
+.widget-header { margin-bottom: 24px; }
+.widget-header h2 { font-size: 20px; font-weight: 600; }
+.widget-header p { color: var(--text-secondary); }
+.grades-table-v2 { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.grades-table-v2 th { text-align: left; font-size: 12px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+.grades-table-v2 td { padding: 20px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 16px; font-weight: 600; }
+.grades-table-v2 tbody tr:last-child td { border-bottom: none; }
+.grades-table-v2 .subject-name { font-weight: 600; margin: 0; }
+.grades-table-v2 .teacher-name { font-size: 14px; font-weight: 400; color: var(--text-secondary); }
+.grades-table-v2 .average-grade { font-weight: 700; }
+
+.grades-list {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    /* --- НОВЫЕ СВОЙСТВА --- */
+    overflow-x: auto;       /* Включаем горизонтальный скролл, ТОЛЬКО если он нужен */
+    white-space: nowrap;    /* Запрещаем оценкам переноситься на новую строку, заставляя их оставаться в одну линию */
+    
+}
+
+/* --- СТИЛИЗАЦИЯ САМОГО СКРОЛЛБАРА (необязательно, но красиво) --- */
+.grades-list::-webkit-scrollbar {
+    height: 0px; /* Высота скроллбара */
+}
+
+.grades-list::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Цвет фона дорожки скролла */
+    border-radius: 10px;
+}
+
+.grades-list::-webkit-scrollbar-thumb {
+    background: #ccc; /* Цвет самого ползунка */
+    border-radius: 10px;
+}
+
+.grades-list::-webkit-scrollbar-thumb:hover {
+    background: #aaa; /* Цвет ползунка при наведении */
+}
+
+/* Firefox scrollbar settings */
+/* .grades-list { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.08) transparent; }
+
+/* If any JS-inserted scroll buttons exist, hide them as a fallback */
+.grade-badge-wrapper { position: relative; cursor: pointer; }
+.grade-comment-icon { position: absolute; top: -4px; right: -4px; font-size: 12px; background-color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+
+/* --- Виджет "Домашние задания" --- */
+.homework-widget { background-color: var(--bg-widget); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { display: flex; align-items: center; gap: 16px; padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; }
+.stat-icon { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 16px; }
+.stat-card-pending .stat-icon { background-color: var(--status-pending-bg); color: var(--status-pending-text); }
+.stat-card-review .stat-icon { background-color: var(--status-review-bg); color: var(--status-review-text); }
+.stat-card-checked .stat-icon { background-color: var(--status-checked-bg); color: var(--status-checked-text); }
+.stat-value { font-size: 24px; font-weight: 700; }
+.stat-label { font-size: 14px; color: var(--text-secondary); }
+.homework-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.homework-tabs .tab-btn { padding: 8px 16px; background-color: #F3F4F6; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-secondary); transition: all .2s; }
+.homework-tabs .tab-btn.active { background-color: var(--accent-primary); color: #fff; }
+.homework-list { display: flex; flex-direction: column; gap: 16px; }
+.homework-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+.hw-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.hw-card-header h3 { font-size: 18px; font-weight: 600; }
+.hw-status-tag { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 99px; }
+.tag-pending { background-color: var(--status-pending-bg); color: var(--status-pending-text); }
+.tag-review { background-color: var(--status-review-bg); color: var(--status-review-text); }
+.tag-checked { background-color: var(--status-checked-bg); color: var(--status-checked-text); }
+.hw-meta { color: var(--text-secondary); font-size: 14px; margin-bottom: 12px; }
+.hw-description { margin-bottom: 16px; font-size: 14px; line-height: 1.5; }
+.hw-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 16px; }
+.hw-deadline { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.btn-submitted { background-color: var(--status-review-bg); color: var(--status-review-text); cursor: default; }
+.btn-checked { background-color: var(--status-checked-bg); color: var(--status-checked-text); cursor: default; }
+.file-drop-area { border: 2px dashed var(--border-color); border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; transition: background-color .2s; }
+.file-drop-area:hover { background-color: #F9FAFB; }
+.file-drop-area i { font-size: 24px; margin-bottom: 12px; color: var(--accent-primary); }
+.file-drop-area p { font-weight: 600; }
+.file-drop-area span { font-size: 12px; margin-top: 4px; }
+
+/* --- Стили для Расписания --- */
+.schedule-section h3 { font-size: 20px; font-weight: 600; }
+.schedule-section p { color: var(--text-secondary); }
+.day-tabs { border-bottom: 1px solid var(--border-color); margin: 16px 0; }
+.day-tabs ul { display: flex; list-style: none; gap: 8px; }
+.day-tabs li { padding: 8px 16px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.day-tabs li.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+.day-schedule { display: none; flex-direction: column; gap: 12px; }
+.day-schedule.active { display: flex; }
+.lesson-card { display: flex; justify-content: space-between; align-items: center; background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+.lesson-info { display: flex; align-items: center; gap: 16px; }
+.lesson-number { width: 36px; height: 36px; border-radius: 50%; background-color: var(--accent-light); color: var(--accent-primary); font-weight: 600; display: grid; place-items: center; }
+.lesson-title { font-weight: 600; }
+.lesson-details { display: flex; gap: 16px; font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+.lesson-details i { margin-right: 6px; }
+.lesson-start-time { font-weight: 600; color: var(--text-primary); }
+/* Контейнер для бейджа должен быть 'relative', чтобы подсказка позиционировалась относительно него */
+.grade-badge-wrapper {
+    position: relative;
+    cursor: help; /* Меняем курсор, чтобы показать, что элемент интерактивен */
+}
+
+/* =================================================================
+   СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА С ДЕТАЛЯМИ ОЦЕНКИ
+================================================================= */
+.grade-badge-wrapper {
+    cursor: pointer; /* Теперь любая оценка будет выглядеть кликабельной */
+}
+
+.grade-modal-container {
+    background-color: var(--bg-widget);
+    border-radius: 16px;
+    padding: 24px;
+    width: 90%;
+    max-width: 480px; /* Оптимальная ширина для такого контента */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.grade-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.grade-modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.grade-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.grade-modal-info-item span,
+.grade-modal-comment-item span {
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.grade-modal-info-item p {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.grade-modal-comment-item p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin: 0;
+    white-space: pre-wrap; /* Сохраняет переносы строк из комментария */
+    word-break: break-word; /* Переносит длинные слова */
+}
+
+.dnevnik-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.dnevnik-filters a {
+    padding: 8px 16px;
+    background-color: #F3F4F6;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.dnevnik-filters a:hover {
+    background-color: #E5E7EB;
+}
+
+.dnevnik-filters a.active {
+    background-color: var(--accent-primary);
+    color: #fff;
+}
+
+/* =================================================================
+   СТИЛИ ДЛЯ ОТОБРАЖЕНИЯ ПРИКРЕПЛЕННОГО ФАЙЛА В ДЗ
+   (Добавить в student_dashboard.css)
+================================================================= */
+
+.hw-attachment {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    
+    padding: 8px 12px;
+    margin-top: 16px; /* Отступ от описания */
+    
+    background-color: var(--accent-light);
+    border: 1px solid #D1D5DB; /* Чуть темнее, чем основной border */
+    border-radius: 8px;
+    
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent-primary);
+    text-decoration: none;
+    
+    transition: background-color 0.2s ease;
+}
+
+.hw-attachment:hover {
+    background-color: #DBEAFE; /* Делаем фон чуть темнее при наведении */
+}
+
+.hw-attachment i {
+    font-size: 12px;
+}

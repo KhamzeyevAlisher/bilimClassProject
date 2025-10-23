@@ -1,0 +1,92 @@
+/* =================================================================
+   base.css
+   Общие стили для всего проекта Bilim Class
+================================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* --- :ROOT - Глобальные переменные --- */
+:root {
+    --bg-main: #F9FAFB;
+    --bg-widget: #FFFFFF;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --border-color: #E5E7EB;
+    --accent-primary: #4F46E5;
+    --accent-light: #EEF2FF;
+    --accent-red: #EF4444;
+    
+    /* Статусы для ДЗ и оценок */
+    --status-pending-bg: #FEF3C7; --status-pending-text: #92400E;
+    --status-review-bg: #DBEAFE; --status-review-text: #1E40AF;
+    --status-checked-bg: #D1FAE5; --status-checked-text: #065F46;
+    
+    /* Цвета для оценок */
+    --grade-5-bg: #D1FAE5; --grade-5-text: #065F46;
+    --grade-4-bg: #DBEAFE; --grade-4-text: #1E40AF;
+    --grade-3-bg: #FEF3C7; --grade-3-text: #92400E;
+}
+
+/* --- Базовые стили и сброс --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+}
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* --- ОБЩИЕ КОМПОНЕНТЫ --- */
+
+/* Шапка (Header) */
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.logo-section { display: flex; align-items: center; gap: 12px; }
+.logo-icon { width: 40px; height: 40px; background-color: var(--accent-primary); border-radius: 8px; color: white; display: grid; place-items: center; font-size: 20px; font-weight: 700; }
+.logo-section h1, .logo-section h2 { font-size: 20px; font-weight: 700; margin: 0; }
+.logo-section p, .logo-section span { font-size: 14px; color: var(--text-secondary); }
+.user-section { display: flex; align-items: center; gap: 16px; }
+.user-info { text-align: right; }
+.user-info p { font-weight: 600; }
+.user-info a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+.user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
+
+/* Главная навигация (Nav) */
+.main-nav { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px; margin-bottom: 24px; }
+.main-nav ul { display: flex; list-style: none; gap: 8px; }
+.main-nav a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--text-secondary); font-weight: 600; border-radius: 8px; transition: all 0.2s; }
+.main-nav a:hover { background-color: #F3F4F6; }
+.main-nav a.active { background-color: var(--accent-light); color: var(--accent-primary); }
+
+/* Модальные окна (Modal) */
+.modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(17, 24, 39, 0.6); justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.modal-overlay.visible { display: flex; }
+.modal-container { background-color: var(--bg-widget); border-radius: 16px; padding: 32px; width: 90%; max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,.1); position: relative; }
+.modal-header { margin-bottom: 24px; }
+.modal-header h2 { font-size: 22px; font-weight: 700; }
+.modal-header p { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+.close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; width: 32px; height: 32px; line-height: 32px; text-align: center; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color); }
+
+/* Формы (Forms) */
+.form-group { display: flex; flex-direction: column; margin-bottom: 20px; }
+.form-group label { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background-color: #F9FAFB; font-family: 'Inter', sans-serif; font-size: 14px; width: 100%; }
+.form-group textarea { resize: vertical; min-height: 90px; }
+
+/* Кнопки (Buttons) */
+.btn-submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; background-color: var(--accent-primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-secondary { padding: 10px 16px; background-color: var(--bg-widget); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+/* Бейджи оценок (Grade Badges) */
+.grade-badge { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+.grade-5 { background-color: var(--grade-5-bg); color: var(--grade-5-text); }
+.grade-4 { background-color: var(--grade-4-bg); color: var(--grade-4-text); }
+.grade-3 { background-color: var(--grade-3-bg); color: var(--grade-3-text); }

@@ -1,4 +1,4 @@
-<!-- bilimClassApp/templates/bilimClassApp/dashboard.html -->
+<!-- bilimClassApp/templates/bilimClassApp/dashboard.html (ИСПРАВЛЕННАЯ ВЕРСИЯ) -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="ru">
@@ -6,116 +6,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд - Bilim Class</title>
-    <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        :root{
-            --bg-main:#F9FAFB;
-            --bg-widget:#FFFFFF;
-            --text-primary:#111827;
-            --text-secondary:#6B7280;
-            --border-color:#E5E7EB;
-            --accent-primary:#4F46E5;
-            --accent-light:#EEF2FF;
-            --status-pending-bg:#FEF3C7;
-            --status-pending-text:#92400E;
-            --status-review-bg:#DBEAFE;
-            --status-review-text:#1E40AF;
-            --status-checked-bg:#D1FAE5;
-            --status-checked-text:#065F46
-        }
-        /* Базовые стили */
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Inter',sans-serif;background-color:var(--bg-main);color:var(--text-primary)}
-        
-        /* Стили для домашних заданий */
-        .homework-widget{background-color:var(--bg-widget);border-radius:16px;padding:24px}
-        .widget-header{margin-bottom:24px}
-        .widget-header h2{font-size:20px;font-weight:600}
-        .widget-header p{color:var(--text-secondary)}
-        .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-        .stat-card{display:flex;align-items:center;gap:16px;padding:20px;border:1px solid var(--border-color);border-radius:12px}
-        .stat-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:16px}
-        .stat-card-pending .stat-icon{background-color:var(--status-pending-bg);color:var(--status-pending-text)}
-        .stat-card-review .stat-icon{background-color:var(--status-review-bg);color:var(--status-review-text)}
-        .stat-card-checked .stat-icon{background-color:var(--status-checked-bg);color:var(--status-checked-text)}
-        .stat-value{font-size:24px;font-weight:700}
-        .stat-label{font-size:14px;color:var(--text-secondary)}
-        
-        /* Стили для табов домашних заданий */
-        .homework-tabs{display:flex;gap:8px;margin-bottom:24px; border-bottom: 1px solid var(--border-color);}
-        .homework-tabs .tab-btn{padding:8px 16px;background-color:transparent;border:none;border-bottom: 2px solid transparent; border-radius: 0; font-weight:600;cursor:pointer;color:var(--text-secondary);transition:all .2s; margin-bottom: -1px;}
-        .homework-tabs .tab-btn.active{border-bottom-color:var(--accent-primary);color:var(--accent-primary)}
-        .homework-list{display:flex;flex-direction:column;gap:16px}
-        .tab-pane .tab-pane {display:none} /* вложенность */
-        #tab-content-homework .tab-pane.active{display:flex;flex-direction:column;gap:16px}
-        
-        /* Стили для карточек домашних заданий */
-        .homework-card{border:1px solid var(--border-color);border-radius:12px;padding:20px}
-        .hw-card-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-        .hw-card-header h3{font-size:18px;font-weight:600}
-        .hw-status-tag{font-size:12px;font-weight:500;padding:4px 10px;border-radius:99px}
-        .tag-pending{background-color:var(--status-pending-bg);color:var(--status-pending-text)}
-        .tag-review{background-color:var(--status-review-bg);color:var(--status-review-text)}
-        .tag-checked{background-color:var(--status-checked-bg);color:var(--status-checked-text)}
-        .hw-meta{color:var(--text-secondary);font-size:14px;margin-bottom:12px}
-        .hw-description{margin-bottom:16px}
-        .hw-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border-color);padding-top:16px;margin-top:16px}
-        .hw-deadline{display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:14px}
-        .btn-submit{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;background-color:var(--accent-primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
-        .btn-submitted{background-color:var(--status-review-bg);color:var(--status-review-text);cursor:default}
-        .btn-checked{background-color:var(--status-checked-bg);color:var(--status-checked-text);cursor:default}
-        .btn-submit.open-submission-modal {width: 150px;}
-
-        /* Стили для модального окна */
-        .modal-overlay{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(17, 24, 39, 0.6);justify-content:center;align-items:center; backdrop-filter: blur(4px);}
-        .modal-overlay.visible {display: flex;}
-        .modal-container{background-color:var(--bg-widget);border-radius:16px;padding:32px;width:90%;max-width:600px;box-shadow:0 10px 25px rgba(0,0,0,.1);position:relative}
-        
-        .modal-header{margin-bottom:24px;}
-        .modal-header h2{font-size:22px;font-weight:700; color: var(--text-primary);}
-        .modal-header p{color:var(--text-secondary); font-size: 14px; margin-top: 4px;}
-        .close-btn{position:absolute;top:16px;right:16px;background:0 0;border:none;font-size:24px;color:var(--text-secondary);cursor:pointer; width: 32px; height: 32px; line-height: 32px; text-align: center;}
-        
-        .task-description { margin-bottom: 24px; font-size: 14px; line-height: 1.5;}
-        
-        .form-group{display:flex;flex-direction:column;margin-bottom:20px}
-        .form-group label{font-size:14px;font-weight:600;margin-bottom:8px; color: var(--text-primary);}
-        .form-group textarea{padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;background-color:#F9FAFB;font-family:'Inter',sans-serif;font-size:14px;resize:vertical;min-height:90px}
-        .form-group textarea::placeholder {color: var(--text-secondary);}
-        
-        .file-drop-area{border:2px dashed var(--border-color);border-radius:8px;padding:32px;text-align:center;color:var(--text-secondary); cursor: pointer; transition: background-color .2s;}
-        .file-drop-area:hover { background-color: #F9FAFB; }
-        .file-drop-area i{font-size:24px;margin-bottom:12px; color: var(--accent-primary);}
-        .file-drop-area p{font-weight:600; color: var(--text-primary);}
-        .file-drop-area span{font-size:12px; margin-top: 4px;}
-        
-        .modal-footer{display:flex;justify-content:flex-end;gap:12px;margin-top:24px; padding-top: 24px; border-top: 1px solid var(--border-color);}
-        .btn-secondary{padding:10px 16px;background-color:var(--bg-widget);color:var(--text-primary);border:1px solid var(--border-color);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
-
-    </style>
+    <!-- ИСПРАВЛЕНО: Убран лишний style.css, который вызывал конфликты -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/student_dashboard.css' %}">
 </head>
-<body class="dashboard-body">
+<body>
 
     <div class="dashboard-container">
-        <!-- Шапка -->
-        <header class="dashboard-header">
-            <div class="header-logo">
-                <div class="logo-icon-wrapper-dash">🎓</div>
+        <!-- ИСПРАВЛЕНО: Классы в шапке теперь соответствуют base.css -->
+        <header class="site-header">
+            <div class="logo-section">
+                <div class="logo-icon">🎓</div>
                 <div>
-                    <h2>Bilim Class</h2>
+                    <h1>Bilim Class</h1>
                     <span>{{ user_role }}</span>
                 </div>
             </div>
-            <div class="header-user-profile">
-                <i class="fas fa-bell"></i>
-                <div class="user-avatar">
-                    <span>{{ request.user.first_name|first }}{{ request.user.last_name|first }}</span>
-                </div>
-                <div class="user-info">
+            <div class="user-section">
+                <i class="fas fa-bell" style="cursor: pointer; font-size: 18px; color: var(--text-secondary);"></i>
+                <div class="user-info" style="text-align: left;">
                     <p>{{ request.user.get_full_name }}</p>
                     <a href="{% url 'logout' %}">Выйти</a>
+                </div>
+                <div class="user-avatar">
+                    <span>{{ request.user.first_name|first }}{{ request.user.last_name|first }}</span>
                 </div>
             </div>
         </header>
@@ -126,7 +41,7 @@
                 <h1>Добро пожаловать, {{ request.user.first_name }}!</h1>
                 <p>Личный кабинет {{ user_role|lower }}а</p>
             </div>
-            
+
             <!-- Табы навигации -->
             <nav class="main-tabs">
                 <ul>
@@ -137,8 +52,8 @@
                 </ul>
             </nav>
 
+            <!-- ВКЛАДКА: РАСПИСАНИЕ -->
             <div id="tab-content-schedule" class="tab-pane {% if active_tab == 'schedule' or not active_tab %}active{% endif %}">
-                 <!-- Содержимое Расписания -->
                  <section class="schedule-section">
                     <h3>Расписание уроков</h3>
                     <p>Ваше расписание на неделю</p>
@@ -171,16 +86,73 @@
                 </section>
             </div>
 
+            <!-- ВКЛАДКА: ДНЕВНИК -->
             <div id="tab-content-dnevnik" class="tab-pane {% if active_tab == 'dnevnik' %}active{% endif %}">
-                <!-- Содержимое Дневника -->
-                <div class="stats-cards-grid">
-                    <div class="stat-card"><div class="stat-icon green"><i class="fas fa-chart-line"></i></div><div class="stat-info"><p>Средний балл</p><span>{{ average_grade|floatformat:2 }}</span></div><small>из 100.0</small></div>
-                    <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-book-open"></i></div><div class="stat-info"><p>Всего оценок</p><span>{{ total_grades_count }}</span></div><small class="stat-meta">за период</small></div>
-                    <div class="stat-card"><div class="stat-icon red"><i class="fas fa-user-clock"></i></div><div class="stat-info"><p>Посещаемость</p><span>{{ attendance_percentage|floatformat:1 }}<small class="percent-sign">%</small></span></div><small>{{ total_absences }} пропусков</small></div>
+                <div class="stats-cards-grid-v2">
+                    <div class="stat-card-v2">
+                        <div class="stat-icon-v2 icon-green"><i class="fas fa-chart-line"></i></div>
+                        <div class="stat-info-v2"><p>Средний балл</p><span>{{ average_grade|floatformat:2 }}</span></div><small>общий</small>
+                    </div>
+                    <div class="stat-card-v2">
+                        <div class="stat-icon-v2 icon-blue"><i class="fas fa-book-open"></i></div>
+                        <div class="stat-info-v2"><p>Всего оценок</p><span>{{ total_grades_count }}</span></div><small>за период</small>
+                    </div>
+                    <div class="stat-card-v2">
+                        <div class="stat-icon-v2 icon-red"><i class="fas fa-user-clock"></i></div>
+                        <div class="stat-info-v2"><p>Посещаемость</p><span>{{ attendance_percentage|floatformat:1 }}%</span></div><small>{{ total_absences }} пропусков</small>
+                    </div>
+                </div>
+
+                <!-- <div class="grades-by-subject-widget-v2">
+                    <div class="widget-header"><h2>Оценки по предметам</h2><p>Ваша успеваемость за текущий период</p></div> -->
+                <div class="grades-by-subject-widget-v2">
+                    <div class="widget-header">
+                        <h2>Оценки по предметам</h2>
+                        <p>Ваша успеваемость за текущий период</p>
+                    </div>
+
+                    <!-- ===== НАЧАЛО НОВОГО БЛОКА С ФИЛЬТРАМИ ===== -->
+                    <div class="dnevnik-filters">
+                        <a href="?tab=dnevnik&period=week" class="{% if active_period == 'week' %}active{% endif %}">За неделю</a>
+                        <a href="?tab=dnevnik&period=month" class="{% if active_period == 'month' %}active{% endif %}">За месяц</a>
+                        <a href="?tab=dnevnik&period=all" class="{% if active_period == 'all' %}active{% endif %}">За всё время</a>
+                    </div>
+                    <!-- жж -->
+                    <table class="grades-table-v2">
+                        <thead><tr><th>Предмет</th><th>Оценки</th><th style="text-align: right;">Средний балл</th></tr></thead>
+                        <tbody>
+                            {% for subject_data in grades_by_subject %}
+                            <tr>
+                                <td>
+                                    <p class="subject-name">{{ subject_data.subject_name }}</p>
+                                    <span class="teacher-name">{{ subject_data.teacher_name }}</span>
+                                </td>
+                                <td class="grades-list">
+                                    {% for grade in subject_data.grades %}
+                                        <!-- КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Добавлены data-comment и data-date, убран title -->
+                                        <div class="grade-badge-wrapper" 
+                                             data-comment="{{ grade.comment|default:'' }}" 
+                                             data-date="{{ grade.date|date:'d.m.Y' }}">
+                                            <div class="grade-badge {% if grade.grade >= 85 %}grade-5{% elif grade.grade >= 65 %}grade-4{% else %}grade-3{% endif %}">{{ grade.grade }}</div>
+                                            {% if grade.comment %}<span class="grade-comment-icon">💬</span>{% endif %}
+                                        </div>
+                                    {% empty %}
+                                        <span class="no-grades">-</span>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align: right;">
+                                    <span class="average-grade">{{ subject_data.average|floatformat:2|default:"-" }}</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" style="text-align: center; padding: 30px; color: var(--text-secondary);">Оценок за этот период пока нет.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- ===== СЕКЦИЯ ДОМАШНИХ ЗАДАНИЙ ===== -->
+            <!-- ВКЛАДКА: ДОМАШНИЕ ЗАДАНИЯ -->
             <div id="tab-content-homework" class="tab-pane {% if active_tab == 'homework' %}active{% endif %}">
                 <div class="homework-widget">
                     <div class="widget-header"><h2>Домашние задания</h2><p>Все задания по предметам</p></div>
@@ -194,76 +166,264 @@
                         <button class="tab-btn" data-tab="in_review">На проверке ({{ in_review_list.count }})</button>
                         <button class="tab-btn" data-tab="checked">Проверено ({{ checked_list.count }})</button>
                     </div>
-            
                     <div class="homework-list" id="homework-list-container">
                         <div id="tab-content-not_submitted" class="tab-pane active">
                             {% for hw in not_submitted_list %}
                             <div class="homework-card">
                                 <div class="hw-card-header"><h3>{{ hw.title }}</h3><span class="hw-status-tag tag-pending">Не сдано</span></div>
                                 <p class="hw-meta">{{ hw.subject.name }} • {{ hw.teacher.user.get_full_name }}</p>
-                                <p class="hw-description">{{ hw.description|truncatewords:20 }}</p>
-                                
-                                <!-- ИЗМЕНЕНИЕ 1: Скрытый div для полного описания -->
-                                <div class="hw-full-description" style="display: none;">{{ hw.description }}</div>
-
+                                <p class="hw-description">{{ hw.description }}</p>
+                                {% if hw.attached_file %}
+                                    <a href="{{ hw.attached_file.url }}" class="hw-attachment" target="_blank">
+                                        <i class="fas fa-paperclip"></i>
+                                        <span>Прикрепленный файл</span>
+                                    </a>
+                                {% endif %}
                                 <div class="hw-footer">
                                     <div class="hw-deadline"><i class="far fa-clock"></i> Срок сдачи: {{ hw.due_date|date:"d.m.Y H:i" }}</div>
-                                    
-                                    <!-- ИЗМЕНЕНИЕ 2: Удален data-hw-description -->
-                                    <button class="btn-submit open-submission-modal" 
-                                            data-hw-pk="{{ hw.pk }}"
-                                            data-hw-title="{{ hw.title }}"
-                                            data-hw-subject="{{ hw.subject.name }}"
-                                            data-hw-teacher="{{ hw.teacher.user.get_full_name }}">Сдать работу</button>
+                                    <button class="btn-submit open-submission-modal" data-hw-pk="{{ hw.pk }}" data-hw-title="{{ hw.title }}" data-hw-subject="{{ hw.subject.name }}" data-hw-description="{{ hw.description }}">Сдать работу</button>
                                 </div>
                             </div>
                             {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет заданий, которые нужно сдать.</p> {% endfor %}
                         </div>
-                        <!-- ... остальные вкладки ... -->
+                        <div id="tab-content-in_review" class="tab-pane">
+                            {% for submission in in_review_list %}
+                            <div class="homework-card">
+                                <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-review">На проверке</span></div>
+                                <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Сдано: {{ submission.submitted_at|date:"d.m.Y" }}</div>
+                                    <button class="btn-submit btn-submitted" disabled>Отправлено</button>
+                                </div>
+                            </div>
+                            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет работ на проверке.</p> {% endfor %}
+                        </div>
+                        <div id="tab-content-checked" class="tab-pane">
+                            {% for submission in checked_list %}
+                            <div class="homework-card">
+                                 <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-checked">Оценка: {{ submission.grade }}</span></div>
+                                <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
+                                <p class="hw-description"><strong>Комментарий учителя:</strong> {{ submission.teacher_comment|default:"-" }}</p>
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Проверено: {{ submission.checked_at|date:"d.m.Y" }}</div>
+                                    <button class="btn-submit btn-checked" disabled>Проверено</button>
+                                </div>
+                            </div>
+                            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет проверенных работ.</p> {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- ВКЛАДКА: ПРОФИЛЬ -->
             <div id="tab-content-profile" class="tab-pane {% if active_tab == 'profile' %}active{% endif %}">
                 <p>Раздел "Профиль" находится в разработке.</p>
             </div>
         </main>
     </div>
 
-<!-- Модальное окно для сдачи ДЗ -->
-<div class="modal-overlay" id="submission-modal">
-    <div class="modal-container">
-        <button class="close-btn" id="close-submission-modal">&times;</button>
-        <div class="modal-header">
-            <h2 id="modal-hw-title">Сдать домашнее задание</h2>
-            <p id="modal-hw-subject">Предмет • Название задания</p>
-        </div>
-        <form id="submission-form" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="task-description" id="modal-hw-description"></div>
-            <div class="form-group">
-                <label for="submission_file_input">Прикрепить файлы</label>
-                <div class="file-drop-area" id="file-drop-area">
-                    <i class="fas fa-upload"></i>
-                    <p id="file-drop-text">Нажмите или перетащите файлы сюда</p>
-                    <span id="file-drop-hint">PDF, DOC, DOCX, изображения (макс. 10 МБ)</span>
-                    <input type="file" id="submission_file_input" name="submission_file" style="display: none;">
+    <!-- Модальное окно для сдачи ДЗ -->
+    <div class="modal-overlay" id="submission-modal">
+        <div class="modal-container">
+            <button class="close-btn" id="close-submission-modal">&times;</button>
+            <div class="modal-header">
+                <h2 id="modal-hw-title">Сдать домашнее задание</h2>
+                <p id="modal-hw-subject">Предмет • Название задания</p>
+            </div>
+            <form id="submission-form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="task-description" id="modal-hw-description"></div>
+                <div class="form-group">
+                    <label for="submission_file_input">Прикрепить файлы</label>
+                    <div class="file-drop-area" id="file-drop-area">
+                        <i class="fas fa-upload"></i>
+                        <p id="file-drop-text">Нажмите или перетащите файлы сюда</p>
+                        <span id="file-drop-hint">PDF, DOC, DOCX, изображения (макс. 10 МБ)</span>
+                        <input type="file" id="submission_file_input" name="submission_file" style="display: none;" multiple>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="submission_text">Комментарий (необязательно)</label>
-                <textarea id="submission_text" name="submission_text" placeholder="Добавьте комментарий к работе..."></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" id="cancel-submission-btn">Отмена</button>
-                <button type="submit" class="btn-submit">Отправить работу</button>
-            </div>
-        </form>
+                <div class="form-group">
+                    <label for="submission_text">Комментарий (необязательно)</label>
+                    <textarea id="submission_text" name="submission_text" placeholder="Добавьте комментарий к работе..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-submission-btn">Отмена</button>
+                    <button type="submit" class="btn-submit">Отправить работу</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+    
+    <!-- Модальное окно для деталей оценки -->
+    <div class="modal-overlay" id="grade-details-modal-overlay">
+        <div class="grade-modal-container">
+            <div class="grade-modal-header">
+                <h2>Детали оценки</h2>
+                <button class="close-btn" id="close-grade-modal">&times;</button>
+            </div>
+            <div class="grade-modal-body">
+                <div class="grade-modal-info-item"><span>Дата</span><p id="modal-grade-date">--.--.----</p></div>
+                <div class="grade-modal-info-item"><span>Оценка</span><p id="modal-grade-value">--</p></div>
+                <div class="grade-modal-comment-item"><span>Комментарий учителя</span><p id="modal-grade-comment">Здесь будет текст комментария...</p></div>
+            </div>
+        </div>
+    </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // --- УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ДЛЯ ПЕРЕКЛЮЧЕНИЯ ТАБОВ ---
+    function setupTabs(tabButtonsSelector, tabPanesSelector, activeClass = 'active') {
+        const tabs = document.querySelectorAll(tabButtonsSelector);
+        const panes = document.querySelectorAll(tabPanesSelector);
+        if (tabs.length === 0 || panes.length === 0) return;
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabId = this.dataset.tab || this.dataset.day;
+                tabs.forEach(t => t.classList.remove(activeClass));
+                this.classList.add(activeClass);
+                panes.forEach(p => {
+                    const paneId = p.id.split('-').pop();
+                    const dayId = p.id.replace('day-', '');
+                    p.classList.toggle(activeClass, paneId === tabId || dayId === tabId);
+                });
+            });
+        });
+    }
+    setupTabs('.main-tabs li', '.dashboard-main > .tab-pane');
+    setupTabs('.day-tabs li', '.schedule-content .day-schedule');
+    setupTabs('.homework-tabs .tab-btn', '#tab-content-homework .tab-pane');
+
+    // --- ЛОГИКА ДЛЯ МОДАЛЬНОГО ОКНА СДАЧИ ДЗ ---
+    const submissionModal = document.getElementById('submission-modal');
+    const dashboardMain = document.querySelector('.dashboard-main');
+    if (submissionModal && dashboardMain) {
+        const submissionForm = document.getElementById('submission-form');
+        const fileInput = document.getElementById('submission_file_input');
+        const fileDropArea = document.getElementById('file-drop-area');
+        const fileDropText = document.getElementById('file-drop-text');
+
+        dashboardMain.addEventListener('click', function(e) {
+            const openBtn = e.target.closest('.open-submission-modal');
+            if (openBtn) {
+                const { hwPk, hwTitle, hwSubject, hwDescription } = openBtn.dataset;
+                submissionModal.querySelector('#modal-hw-title').textContent = hwTitle;
+                submissionModal.querySelector('#modal-hw-subject').textContent = hwSubject;
+                submissionModal.querySelector('#modal-hw-description').innerHTML = `<p><strong>Задание:</strong> ${hwDescription}</p>`;
+                submissionForm.action = `/api/homework/${hwPk}/submit/`;
+                submissionModal.classList.add('visible');
+            }
+        });
+
+        const closeSubmissionModal = () => {
+            submissionModal.classList.remove('visible');
+            submissionForm.reset();
+            fileDropText.textContent = 'Нажмите или перетащите файлы сюда';
+            fileInput.value = '';
+        };
+        submissionModal.querySelector('#close-submission-modal').addEventListener('click', closeSubmissionModal);
+        submissionModal.querySelector('#cancel-submission-btn').addEventListener('click', closeSubmissionModal);
+        submissionModal.addEventListener('click', (e) => { if (e.target === submissionModal) closeSubmissionModal(); });
+
+        submissionForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Отправка...';
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message || 'Работа успешно отправлена!');
+                    window.location.reload();
+                } else {
+                    alert(`Ошибка: ${result.message || 'Не удалось отправить работу.'}`);
+                }
+            } catch(error) {
+                console.error("Fetch Error:", error);
+                alert('Произошла сетевая или серверная ошибка. Попробуйте позже.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Отправить работу';
+            }
+        });
+
+        fileDropArea.addEventListener('click', () => fileInput.click());
+        const handleFiles = (files) => {
+            if (files.length > 0) {
+                 fileDropText.textContent = files.length > 1 ? `Выбрано файлов: ${files.length}` : files[0].name;
+            } else {
+                fileDropText.textContent = 'Нажмите или перетащите файлы сюда';
+            }
+        };
+        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+        fileDropArea.addEventListener('dragover', (e) => { e.preventDefault(); fileDropArea.style.backgroundColor = '#EEF2FF'; });
+        fileDropArea.addEventListener('dragleave', () => { fileDropArea.style.backgroundColor = 'transparent'; });
+        fileDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropArea.style.backgroundColor = 'transparent';
+            fileInput.files = e.dataTransfer.files;
+            handleFiles(fileInput.files);
+        });
+    }
+
+    // --- ЛОГИКА ДЛЯ МОДАЛЬНОГО ОКНА С ДЕТАЛЯМИ ОЦЕНКИ ---
+    const gradeModalOverlay = document.getElementById('grade-details-modal-overlay');
+    const closeGradeModalBtn = document.getElementById('close-grade-modal');
+    const modalGradeDate = document.getElementById('modal-grade-date');
+    const modalGradeValue = document.getElementById('modal-grade-value');
+    const modalGradeComment = document.getElementById('modal-grade-comment');
+
+    const closeGradeModal = () => {
+        gradeModalOverlay.classList.remove('visible');
+    };
+
+    if (dashboardMain && gradeModalOverlay) {
+        dashboardMain.addEventListener('click', (event) => {
+            const wrapper = event.target.closest('.grade-badge-wrapper');
+
+            // ИЗМЕНЕНИЕ 1: Условие теперь проще - открываем окно для ЛЮБОЙ оценки.
+            if (wrapper) {
+                const date = wrapper.dataset.date;
+                const gradeValue = wrapper.querySelector('.grade-badge').textContent.trim();
+                const comment = wrapper.dataset.comment.trim();
+
+                // 1. Заполняем модальное окно данными
+                modalGradeDate.textContent = date;
+                modalGradeValue.textContent = gradeValue;
+                
+                // ИЗМЕНЕНИЕ 2: Если комментарий пустой, выводим текст-заглушку.
+                if (comment) {
+                    modalGradeComment.textContent = comment;
+                } else {
+                    modalGradeComment.textContent = "Комментарий от учителя отсутствует.";
+                }
+                
+                // 2. Показываем модальное окно
+                gradeModalOverlay.classList.add('visible');
+            }
+        });
+
+        // Навешиваем события для закрытия окна (код остался без изменений)
+        closeGradeModalBtn.addEventListener('click', closeGradeModal);
+        gradeModalOverlay.addEventListener('click', (event) => {
+            if (event.target === gradeModalOverlay) {
+                closeGradeModal();
+            }
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && gradeModalOverlay.classList.contains('visible')) {
+                closeGradeModal();
+            }
+        });
+    }
+
+    // --- Утилита для получения CSRF-токена ---
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -278,77 +438,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
-
-    // --- Логика для модального окна СДАЧИ ДЗ ---
-    const submissionModal = document.getElementById('submission-modal');
-    const homeworkList = document.getElementById('homework-list-container');
     
-    if (submissionModal && homeworkList) {
-        const submissionForm = document.getElementById('submission-form');
-        const fileInput = document.getElementById('submission_file_input');
-        const fileDropArea = document.getElementById('file-drop-area');
-        const fileDropText = document.getElementById('file-drop-text');
-        
-        // Открытие модального окна
-        homeworkList.addEventListener('click', function(e) {
-            const openBtn = e.target.closest('.open-submission-modal');
-            if (openBtn) {
-                // ИЗМЕНЕНИЕ 3: Получаем данные из атрибутов и скрытого div
-                const card = openBtn.closest('.homework-card');
-                const fullDescription = card.querySelector('.hw-full-description').textContent;
-                const { hwPk, hwTitle, hwSubject } = openBtn.dataset;
-                
-                submissionModal.querySelector('#modal-hw-title').textContent = 'Сдать домашнее задание';
-                submissionModal.querySelector('#modal-hw-subject').textContent = `${hwSubject} • ${hwTitle}`;
-                submissionModal.querySelector('#modal-hw-description').innerHTML = `<p><strong>Задание:</strong> ${fullDescription}</p>`;
-
-                submissionForm.action = `/api/homework/${hwPk}/submit/`;
-                submissionModal.classList.add('visible'); // Используем класс для показа
-            }
-        });
-
-        // Закрытие модального окна
-        const closeSubmissionModal = () => {
-            submissionModal.classList.remove('visible');
-            submissionForm.reset(); // Сбрасываем форму
-            fileDropText.textContent = 'Нажмите или перетащите файлы сюда'; // Возвращаем исходный текст
-        };
-        submissionModal.querySelector('#close-submission-modal').addEventListener('click', closeSubmissionModal);
-        submissionModal.querySelector('#cancel-submission-btn').addEventListener('click', closeSubmissionModal);
-        submissionModal.addEventListener('click', (e) => { if (e.target === submissionModal) closeSubmissionModal(); });
-
-        // Обработка отправки формы
-        submissionForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            try {
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                    window.location.reload();
-                } else {
-                    alert(`Ошибка: ${result.message || 'Не удалось отправить работу.'}`);
-                }
-            } catch(error) {
-                alert('Произошла сетевая ошибка.');
-            }
-        });
-
-        // ИЗМЕНЕНИЕ 4: Интерактивность для поля загрузки файла
-        fileDropArea.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                fileDropText.textContent = fileInput.files[0].name; // Показываем имя файла
-            } else {
-                fileDropText.textContent = 'Нажмите или перетащите файлы сюда';
-            }
-        });
-    }
+    // ИСПРАВЛЕНО: Удалена старая ненужная функция setupGradeTooltips
 });
 </script>
 

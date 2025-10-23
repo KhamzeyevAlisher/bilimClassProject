@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>Drag and Resize Editor</title>
+    <link rel="stylesheet" href="/static/css/mainCss.css">
+    <style>
+body {
+  background-color: rgb(18, 17, 57);
+  font-family: Arial;
+}
+
+    
+.elem_1 {
+  position: absolute;
+  width: 80%;
+  height: 50%;
+  display: flex;
+  top: 25%;
+  left: 10%;
+  color: #1e90ff;
+  font-weight: 900;
+  background-color: rgba(255,255,255,0);
+  cursor: move;
+  user-select: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  box-sizing: border-box;
+  border-color: #1e90ff;
+  border-width: 4px;
+  border-style: solid;
+  border-radius: 25px;
+  boxSizing: border-box;
+}
+
+.elem_2 {
+  position: absolute;
+  width: 80%;
+  height: 50%;
+  display: flex;
+  top: 25%;
+  left: 10%;
+  color: #ffffff;
+  font-weight: 900;
+  background-color: #1e90ff;
+  cursor: move;
+  user-select: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  box-sizing: border-box;
+  border-color: white;
+  border-width: 3px;
+  border-style: solid;
+  border-radius: 25px;
+  boxSizing: border-box;
+}
+
+.elem_3 {
+  position: relative;
+  width: 100%;
+  height: 156px;
+  display: flex;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+.elem_4 {
+  position: absolute;
+  width: 14.1933%;
+  height: 50%;
+  display: flex;
+  top: 26.262%;
+  left: 5.00416%;
+  color: rgb(255, 255, 255);
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  align-items: center;
+  font-weight: 700;
+  overflow-wrap: normal;
+  font-size: 35px;
+}
+
+.elem_5 {
+  position: absolute;
+  width: 2.78934%;
+  height: 28.0649%;
+  display: flex;
+  top: 37.1294%;
+  left: 93.0377%;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  background-size: 100% 100%;
+  background-image: url("https://nocodebyalish.pythonanywhere.com/media/uploads/Burger_Menu.svg");
+}
+
+.elem_6 {
+  position: relative;
+  width: 100%;
+  height: 1019px;
+  display: flex;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+.elem_7 {
+  position: absolute;
+  width: 41.6114%;
+  height: 46.1881%;
+  display: flex;
+  top: 2.2543880024648857%;
+  left: 51.64947756734899%;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  background-image: url("https://nocodebyalish.pythonanywhere.com/media/uploads/Right_Section.svg");
+  background-size: 100% 100%;
+}
+
+.elem_8 {
+  position: absolute;
+  width: 30.6827%;
+  height: 7.21142%;
+  display: flex;
+  top: 11.776249729265057%;
+  left: 5.7214300140361285%;
+  color: rgb(145, 48, 244);
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-wrap: normal;
+  font-size: 60px;
+  font-weight: 900;
+}
+
+.elem_9 {
+  position: absolute;
+  width: 39.1277%;
+  height: 7.20887%;
+  display: flex;
+  top: 21.587070094474512%;
+  left: 5.326690555803171%;
+  color: rgb(255, 255, 255);
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-wrap: normal;
+  font-size: 60px;
+  font-weight: 900;
+}
+
+.elem_10 {
+  position: absolute;
+  width: 42.8126%;
+  height: 15.1619%;
+  display: flex;
+  top: 30.912660967496475%;
+  left: 4.210245987644955%;
+  color: rgb(255, 255, 255);
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  font-size: 25px;
+  justify-content: flex-start;
+  align-items: center;
+  font-weight: 700;
+  overflow-wrap: normal;
+}
+
+.elem_11 {
+  position: absolute;
+  width: 13.0383%;
+  height: 5.93566%;
+  display: flex;
+  top: 55.9341%;
+  left: 5.19667%;
+  color: rgb(255, 255, 255);
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  font-size: 25px;
+  align-items: center;
+  font-weight: 700;
+  overflow-wrap: normal;
+  justify-content: center;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(145, 48, 244);
+  border-right-color: rgb(145, 48, 244);
+  border-bottom-color: rgb(145, 48, 244);
+  border-left-color: rgb(145, 48, 244);
+  border-top-width: 4px;
+  border-right-width: 4px;
+  border-bottom-width: 4px;
+  border-left-width: 4px;
+}
+
+.elem_12 {
+  position: absolute;
+  width: 10.8756%;
+  height: 5.26711%;
+  display: flex;
+  top: 82.5319%;
+  left: 58.3916%;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  background-image: url("https://nocodebyalish.pythonanywhere.com/media/uploads/Logo_1.svg");
+  background-size: 100% 100%;
+}
+
+.elem_13 {
+  position: absolute;
+  width: 10.8114%;
+  height: 5.75779%;
+  display: flex;
+  top: 82.2375%;
+  left: 41.452%;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  background-image: url("https://nocodebyalish.pythonanywhere.com/media/uploads/Logo_2.svg");
+  background-size: 100% 100%;
+}
+
+.elem_14 {
+  position: absolute;
+  width: 10.8134%;
+  height: 6.05373%;
+  display: flex;
+  top: 82.0397%;
+  left: 21.7522%;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  background-image: url("https://nocodebyalish.pythonanywhere.com/media/uploads/Logo_3_oE5Tfip.svg");
+  background-size: 100% 100%;
+}
+
+.elem_15 {
+  position: absolute;
+  width: 10.9418%;
+  height: 5.46492%;
+  display: flex;
+  top: 82.0412%;
+  left: 77.0667%;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+  background-size: 100% 100%;
+  background-image: url("https://nocodebyalish.pythonanywhere.com/media/uploads/Logo_2.svg");
+}
+</style>
+    <script src="/static/js/style.js"></script>
+    <script src="/static/js/other.js"></script>
+    <script src="/static/js/create.js"></script>
+    <script src="/static/js/tools.js"></script>
+    <script src="/static/js/attribute.js"></script>
+    <script src="/static/js/template_style.js"></script>
+    <!--<script src="/static/js/change_style_input.js"></script>-->
+</head>
+<body class="">
+
+    	<div id="elem_3" class="elem_3">
+		<div id="elem_4" class="elem_4 text">RiseFinance			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_5" class="elem_5">
+			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div class="resize-handle s" data-direction="s">		</div>	</div>
+	<div id="elem_6" class="elem_6">
+		<div id="elem_7" class="elem_7">
+			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_8" class="elem_8 text">Scale Fintech			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_9" class="elem_9 text">Safe and Secure			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_10" class="elem_10 text">Ship your fintech products to your customers with fast and reliable processes. Secure and highly customizable. Rise Finance is the best partner for you if you want to scale your finance products worldwide.			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_11" class="elem_11 text">Consultation			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_12" class="elem_12">
+			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_13" class="elem_13">
+			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_14" class="elem_14">
+			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div id="elem_15" class="elem_15">
+			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>			<div class="resize-handle nw" data-direction="nw">			</div>			<div class="resize-handle n" data-direction="n">			</div>			<div class="resize-handle ne" data-direction="ne">			</div>			<div class="resize-handle w" data-direction="w">			</div>			<div class="resize-handle e" data-direction="e">			</div>			<div class="resize-handle sw" data-direction="sw">			</div>			<div class="resize-handle s" data-direction="s">			</div>			<div class="resize-handle se" data-direction="se">			</div>		</div>
+		<div class="resize-handle s" data-direction="s">		</div>	</div>
+</body></html>

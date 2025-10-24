@@ -10,3 +10,10 @@ class BilimclassappConfig(AppConfig):
     def ready(self):
         # Импортируем наш обработчик сигналов здесь, чтобы избежать AppRegistryNotReady
         import bilimClassApp.signals
+
+class UsersConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'users'
+
+    def ready(self):
+        import users.signals

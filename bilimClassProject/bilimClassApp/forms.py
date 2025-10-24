@@ -175,3 +175,36 @@ class UserManagementForm(forms.Form):
             Teacher.objects.filter(user=user).delete()
 
         return user
+    
+class SchoolClassForm(forms.ModelForm):
+    """
+    Форма для создания и редактирования школьного класса.
+    """
+    # Определяем поле для классного руководителя, чтобы можно было настроить его виджет и queryset
+    class_teacher = forms.ModelChoiceField(
+        queryset=Teacher.objects.select_related('user').all(),
+        required=False, # Классный руководитель может быть не назначен
+        label="Классный руководитель",
+        help_text="Выберите классного руководителя из списка учителей."
+    )
+
+    class Meta:
+        model = SchoolClass
+        # Указываем поля, которые будут в форме
+        fields = ['name', 'class_teacher']
+        # Задаем кастомные метки для полей
+        labels = {
+            'name': 'Класс (например, 9А)',
+        }
+        # Добавляем кастомные виджеты для лучшего отображения
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Введите название класса'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        """
+        Переопределяем конструктор, чтобы добавить кастомную пустую метку
+        для выбора классного руководителя.
+        """
+        super().__init__(*args, **kwargs)
+        self.fields['class_teacher'].empty_label = "Не назначен"

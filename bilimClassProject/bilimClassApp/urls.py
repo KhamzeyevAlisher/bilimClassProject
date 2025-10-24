@@ -40,4 +40,7 @@ urlpatterns = [
     path('admin_panel/', views.admin_user_list_view, name='admin_panel'),
     path('api/user/manage/', views.manage_user_view, name='api_manage_user'),
     path('api/user/<int:user_id>/details/', views.get_user_details_view, name='api_get_user_details'),
+    path('api/class/<int:class_id>/details/', views.class_details_api, name='class_details_api'),
+    path('api/class/manage/', views.manage_class_api, name='manage_class_api'),
+
 ]

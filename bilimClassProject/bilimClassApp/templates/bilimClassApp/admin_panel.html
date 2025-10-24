@@ -180,72 +180,52 @@
                 </div>
             </div>
 
-            <!-- СТРАНИЦА "СТРУКТУРА ШКОЛЫ" (ОБНОВЛЕННЫЙ КОД) -->
+            <!-- СТРАНИЦА "СТРУКТУРА ШКОЛЫ" (ИНТЕГРИРОВАННЫЙ ОБНОВЛЕННЫЙ КОД) -->
             <div id="page-structure" class="page-content">
                 <div class="page-header">
-                    <h2>
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        Управление структурой школы
-                    </h2>
+                    <h2><i class="fa-solid fa-graduation-cap"></i> Управление структурой школы</h2>
                     <p>Создание и редактирование классов и предметов</p>
                 </div>
         
                 <div class="content-card">
                     <div class="card-header">
                         <nav class="content-tabs">
-                            <a href="#" class="active">
-                                <i class="fa-solid fa-people-roof"></i>
-                                Классы
-                                <span class="count-badge">{{ structure_school_classes.count }}</span>
-                            </a>
-                            <a href="#">
-                                <i class="fa-solid fa-book"></i>
-                                Предметы
-                                <span class="count-badge">{{ subjects.count }}</span>
-                            </a>
+                            <a href="#" class="active"><i class="fa-solid fa-people-roof"></i> Классы <span class="count-badge">{{ structure_school_classes.count }}</span></a>
+                            <a href="#"><i class="fa-solid fa-book"></i> Предметы <span class="count-badge">{{ subjects.count }}</span></a>
                         </nav>
-                        <button class="btn-success">
-                            <i class="fa-solid fa-plus"></i>
-                            Создать класс
-                        </button>
+                        <button class="btn-success" id="create-class-btn"><i class="fa-solid fa-plus"></i> Создать класс</button>
                     </div>
         
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Класс</th>
-                                <th>Параллель</th>
                                 <th>Количество учеников</th>
                                 <th>Классный руководитель</th>
-                                <th>Профиль</th>
-                                <th>Действия</th>
+                                <th style="text-align: end;">Действия</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for s_class in structure_school_classes %}
                             <tr>
                                 <td><strong>{{ s_class.name }}</strong></td>
-                                <td>{{ s_class.name|slice:":-1" }} класс</td>
                                 <td class="student-count-cell"><i class="fa-solid fa-user-group"></i> {{ s_class.student_count }}</td>
                                 <td>{{ s_class.class_teacher.user.get_full_name|default:"Не назначен" }}</td>
-                                <!-- Примечание: поле "Профиль" не существует в модели SchoolClass, поэтому здесь временное значение -->
-                                <td><span class="profile-badge">Общеобразовательный</span></td>
-                                <td class="action-icons">
-                                    <i class="fa-solid fa-pencil"></i>
-                                    <i class="fa-solid fa-trash-can"></i>
+                                <td class="action-icons" style="justify-content: end; gap:40px;">
+                                    <!-- ОБНОВЛЕНО: Добавлены data-атрибуты для JS -->
+                                    <a href="#" class="edit-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-pencil"></i></a>
+                                    <a href="#" class="delete-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-trash-can"></i></a>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 24px;">Классы еще не созданы.</td>
-                            </tr>
+                            <tr><td colspan="4" style="text-align: center; padding: 24px;">Классы еще не созданы.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Другие страницы можно добавлять сюда по аналогии -->
+            <!-- Другие страницы (заглушки) -->
             <div id="page-home" class="page-content">
                  <div class="content-card"><h2>Главная страница</h2><p>Этот контент находится в разработке.</p></div>
             </div>
@@ -260,7 +240,7 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- === HTML-КОД МОДАЛЬНОГО ОКНА (скрыто по умолчанию) === -->
+    <!-- === МОДАЛЬНОЕ ОКНО ДЛЯ ПОЛЬЗОВАТЕЛЕЙ (без изменений) === -->
     <!-- ===================================================================== -->
     <div class="modal-overlay" id="user-modal-overlay">
         <div class="modal-container">
@@ -335,7 +315,50 @@
     </div>
     
     <!-- ===================================================================== -->
-    <!-- === JAVASCRIPT ДЛЯ SPA-ЛОГИКИ И УПРАВЛЕНИЯ МОДАЛЬНЫМ ОКНОМ === -->
+    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ КЛАССА (добавлено) === -->
+    <!-- ===================================================================== -->
+    <div class="modal-overlay" id="class-modal-overlay">
+        <div class="modal-container">
+            <button class="close-btn" id="close-class-modal-btn">&times;</button>
+            <div class="modal-header">
+                <h2 id="class-modal-title">Редактировать класс</h2>
+                <p>Заполните информацию о классе</p>
+            </div>
+            
+            <form id="class-form" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="class_id" id="id_class_id">
+                
+                <div class="form-group">
+                    <label for="id_class_name">Класс</label>
+                    <input type="text" name="name" id="id_class_name" placeholder="Например, 10Б" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_class_teacher">Классный руководитель</label>
+                    <select name="class_teacher" id="id_class_teacher">
+                        <option value="">Не назначен</option>
+                        {% for teacher in all_teachers %}
+                            <option value="{{ teacher.user.id }}">{{ teacher.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Количество учеников</label>
+                    <p id="student-count-display" style="font-weight: bold; margin-top: 8px;">-</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-class-btn">Отмена</button>
+                    <button type="submit" class="btn-submit" id="submit-class-btn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- === JAVASCRIPT (объединенный) === -->
     <!-- ===================================================================== -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -347,9 +370,8 @@
          * Инициализирует все скрипты, специфичные для страницы "Управление пользователями".
          */
         const initUserManagementScripts = () => {
-            // --- Получаем все нужные элементы со страницы ---
             const userPageContent = document.getElementById('page-users');
-            if (!userPageContent) return; // Если страницы пользователей нет, ничего не делаем
+            if (!userPageContent) return;
 
             const modalOverlay = document.getElementById('user-modal-overlay');
             const userForm = document.getElementById('user-form');
@@ -361,7 +383,7 @@
             const createUserBtn = document.getElementById('create-user-btn');
             const closeModalBtn = document.getElementById('close-modal-btn');
             const cancelBtn = document.getElementById('cancel-btn');
-            const editButtons = userPageContent.querySelectorAll('.edit-btn'); // Ищем кнопки только внутри контента пользователей
+            const editButtons = userPageContent.querySelectorAll('.edit-btn');
 
             if (!modalOverlay || !userForm || !createUserBtn) {
                 console.error("Не найдены ключевые элементы для модального окна пользователей.");
@@ -397,9 +419,7 @@
                     
                     try {
                         const response = await fetch(`/api/user/${userId}/details/`);
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         const data = await response.json();
 
                         userForm.querySelector('#id_user_id').value = data.id;
@@ -424,31 +444,26 @@
                         openModal();
                     } catch (error) {
                         console.error("Ошибка при загрузке данных пользователя:", error);
-                        alert("Не удалось загрузить данные пользователя. Проверьте консоль для деталей.");
+                        alert("Не удалось загрузить данные пользователя.");
                     }
                 });
             });
 
             userForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
                 const formData = new FormData(userForm);
                 const subjectSelect = document.getElementById('id_subjects');
                 if (subjectSelect.style.display !== 'none') {
                     formData.delete('subjects');
                     const selectedSubjects = Array.from(subjectSelect.selectedOptions).map(opt => opt.value);
-                    selectedSubjects.forEach(subjectId => {
-                        formData.append('subjects', subjectId);
-                    });
+                    selectedSubjects.forEach(subjectId => formData.append('subjects', subjectId));
                 }
                 
                 try {
                     const response = await fetch("/api/user/manage/", { 
                         method: 'POST',
                         body: formData,
-                        headers: {
-                            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                        }
+                        headers: {'X-CSRFToken': formData.get('csrfmiddlewaretoken')}
                     });
 
                     if (response.ok) {
@@ -460,53 +475,128 @@
                     }
                 } catch (error) {
                     console.error("Ошибка при отправке формы:", error);
-                    alert("Произошла сетевая ошибка. Пожалуйста, попробуйте снова.");
+                    alert("Произошла сетевая ошибка.");
+                }
+            });
+        };
+
+        /**
+         * Инициализирует все скрипты, специфичные для страницы "Структура школы".
+         */
+        const initSchoolStructureScripts = () => {
+            const structurePageContent = document.getElementById('page-structure');
+            if (!structurePageContent) return;
+
+            const modalOverlay = document.getElementById('class-modal-overlay');
+            const classForm = document.getElementById('class-form');
+            const modalTitle = document.getElementById('class-modal-title');
+            const submitBtn = document.getElementById('submit-class-btn');
+            const studentCountDisplay = document.getElementById('student-count-display');
+            
+            const createClassBtn = document.getElementById('create-class-btn');
+            const closeModalBtn = document.getElementById('close-class-modal-btn');
+            const cancelBtn = document.getElementById('cancel-class-btn');
+            const editButtons = structurePageContent.querySelectorAll('.edit-class-btn');
+
+            if (!modalOverlay || !classForm || !createClassBtn) {
+                console.error("Не найдены ключевые элементы для модального окна классов.");
+                return;
+            }
+
+            const openModal = () => { modalOverlay.style.display = 'flex'; };
+            const closeModal = () => { modalOverlay.style.display = 'none'; };
+
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+
+            createClassBtn.addEventListener('click', () => {
+                classForm.reset();
+                classForm.querySelector('#id_class_id').value = '';
+                modalTitle.textContent = 'Создать класс';
+                submitBtn.textContent = 'Создать';
+                studentCountDisplay.textContent = '0'; // У нового класса 0 учеников
+                openModal();
+            });
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const classId = button.dataset.classId;
+                    
+                    try {
+                        const response = await fetch(`/api/class/${classId}/details/`); 
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        
+                        const data = await response.json();
+
+                        classForm.querySelector('#id_class_id').value = data.id;
+                        classForm.querySelector('#id_class_name').value = data.name;
+                        classForm.querySelector('#id_class_teacher').value = data.class_teacher_id || '';
+                        studentCountDisplay.textContent = data.student_count;
+                        
+                        modalTitle.textContent = 'Редактировать класс';
+                        submitBtn.textContent = 'Сохранить';
+                        openModal();
+                    } catch (error) {
+                        console.error("Ошибка при загрузке данных класса:", error);
+                        alert("Не удалось загрузить данные класса.");
+                    }
+                });
+            });
+
+            classForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(classForm);
+                
+                try {
+                    const response = await fetch("/api/class/manage/", { 
+                        method: 'POST',
+                        body: formData,
+                        headers: {'X-CSRFToken': formData.get('csrfmiddlewaretoken')}
+                    });
+
+                    if (response.ok) {
+                        closeModal();
+                        location.reload(); 
+                    } else {
+                        const result = await response.json();
+                        alert('Ошибка валидации: ' + JSON.stringify(result.errors));
+                    }
+                } catch (error) {
+                    console.error("Ошибка при отправке формы:", error);
+                    alert("Произошла сетевая ошибка.");
                 }
             });
         };
 
         /**
          * Основная функция навигации. Переключает видимость страниц.
-         * @param {string} pageId - Идентификатор страницы (например, 'users', 'structure').
          */
         const navigateTo = (pageId) => {
-            // Скрываем все страницы
-            contentPages.forEach(page => {
-                page.style.display = 'none';
-            });
-            
-            // Находим и показываем нужную страницу
+            contentPages.forEach(page => { page.style.display = 'none'; });
             const targetPage = document.getElementById(`page-${pageId}`);
             if (targetPage) {
                 targetPage.style.display = 'block';
             } else {
-                 // Если страница не найдена, можно показать заглушку или первую страницу
                 document.getElementById('page-home').style.display = 'block';
             }
-
-            // Обновляем активный класс в навигации
             navLinks.forEach(link => {
                 link.classList.toggle('active', link.dataset.target === pageId);
             });
         };
 
         // --- НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
-
-        // Обработка кликов по навигационным ссылкам
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetPage = e.currentTarget.dataset.target;
-                navigateTo(targetPage);
+                navigateTo(e.currentTarget.dataset.target);
             });
         });
 
         // --- ПЕРВОНАЧАЛЬНАЯ ЗАГРУЗКА ПРИЛОЖЕНИЯ ---
-        
-        // Показываем страницу "Пользователи" по умолчанию
-        navigateTo('users');
-        // Инициализируем скрипты для модального окна пользователей
-        initUserManagementScripts();
+        navigateTo('users'); // Показываем страницу "Пользователи" по умолчанию
+        initUserManagementScripts(); // Инициализируем скрипты для модалки пользователей
+        initSchoolStructureScripts(); // Инициализируем скрипты для модалки классов
     });
     </script>
 </body>

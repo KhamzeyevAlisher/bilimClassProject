@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 from datetime import date, timedelta
@@ -1131,18 +1131,27 @@ def grade_submission_api(request, pk):
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 def is_staff_check(user):
+    """
+    Проверяет, является ли пользователь персоналом (staff),
+    чтобы предоставить доступ к панели администратора.
+    """
     return user.is_staff
 
 @login_required
 @user_passes_test(is_staff_check, login_url='/')
 def admin_user_list_view(request):
-    
+    """
+    Отображает главную страницу панели администратора,
+    обрабатывает фильтрацию и поиск пользователей.
+    """
     users_list = User.objects.select_related('profile').order_by('last_name', 'first_name')
 
+    # Получение параметров фильтрации из GET-запроса
     search_query = request.GET.get('q', '')
     role_filter = request.GET.get('role', '')
     status_filter = request.GET.get('status', '')
 
+    # Применение фильтра по поисковому запросу
     if search_query:
         users_list = users_list.filter(
             Q(first_name__icontains=search_query) |
@@ -1150,34 +1159,35 @@ def admin_user_list_view(request):
             Q(email__icontains=search_query)
         )
 
+    # Применение фильтра по роли
     if role_filter:
         users_list = users_list.filter(profile__role=role_filter)
 
+    # Применение фильтра по статусу
     if status_filter:
         if status_filter == 'active':
             users_list = users_list.filter(is_active=True)
         elif status_filter == 'inactive':
             users_list = users_list.filter(is_active=False)
 
-    # === ИЗМЕНЕНИЕ ЗДЕСЬ: Добавляем оптимизированный запрос для классов ===
-    # Получаем все классы, сразу подгружая ФИО руководителя и считая количество учеников
+    # Оптимизированный запрос для получения данных о классах для вкладки "Структура школы"
     school_classes_for_structure = SchoolClass.objects.select_related(
         'class_teacher__user'
-    ).annotate(
-        student_count=Count('students')
-    ).order_by('name')
-    # ===================================================================
+    ).annotate(student_count=Count('students')).order_by('name')
     
     context = {
         'users': users_list,
         'role_choices': Profile.ROLE_CHOICES,
         
-        # Передаем новый список классов в контекст
+        # Данные для вкладки "Структура школы"
         'structure_school_classes': school_classes_for_structure,
+        'all_teachers': Teacher.objects.select_related('user').all(), # <-- Добавлено: передаем всех учителей для модального окна
         
-        'school_classes': SchoolClass.objects.all(), # Оставляем для модального окна
+        # Данные для модального окна создания/редактирования пользователя
+        'school_classes': SchoolClass.objects.all(),
         'subjects': Subject.objects.all(),
         
+        # Текущие значения фильтров для отображения в форме
         'search_query': search_query,
         'role_filter': role_filter,
         'status_filter': status_filter,
@@ -1185,7 +1195,10 @@ def admin_user_list_view(request):
     return render(request, 'bilimClassApp/admin_panel.html', context)
 
 def get_user_details_view(request, user_id):
-    """Возвращает данные пользователя в формате JSON для формы редактирования."""
+    """
+    API-эндпоинт. Возвращает данные пользователя в формате JSON 
+    для заполнения модальной формы редактирования.
+    """
     try:
         user = User.objects.select_related('profile').get(id=user_id)
         
@@ -1195,9 +1208,8 @@ def get_user_details_view(request, user_id):
             "email": user.email,
             "is_active": user.is_active,
             "role": user.profile.role,
-            # "phone_number": user.profile.phone_number,
-            "school_class_id": "", # по умолчанию
-            "subject_ids": [], # по умолчанию
+            "school_class_id": "",
+            "subject_ids": [],
         }
         
         if user.profile.role == 'student' and user.school_classes.first():
@@ -1208,17 +1220,59 @@ def get_user_details_view(request, user_id):
                 teacher = Teacher.objects.get(user=user)
                 data['subject_ids'] = list(teacher.subjects.values_list('id', flat=True))
             except Teacher.DoesNotExist:
-                pass # У учителя еще нет записи, это нормально
+                pass 
 
         return JsonResponse(data)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
 
 def manage_user_view(request):
-    """Создает или обновляет пользователя через UserManagementForm."""
+    """
+    API-эндпоинт. Создает или обновляет пользователя, используя данные из POST-запроса.
+    """
     if request.method == 'POST':
         form = UserManagementForm(request.POST)
 
+        if form.is_valid():
+            form.save() 
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def get_class_details_view(request, class_id):
+    """
+    API-эндпоинт. Возвращает данные класса в формате JSON
+    для заполнения модальной формы редактирования.
+    """
+    try:
+        school_class = get_object_or_404(SchoolClass, id=class_id)
+        student_count = school_class.students.count() # Подсчитываем учеников
+        
+        data = {
+            "id": school_class.id,
+            "name": school_class.name,
+            "class_teacher_id": school_class.class_teacher.user_id if school_class.class_teacher else "",
+            "student_count": student_count,
+        }
+        return JsonResponse(data)
+    except SchoolClass.DoesNotExist:
+        return JsonResponse({"error": "Class not found"}, status=404)
+
+
+def manage_class_view(request):
+    """
+    API-эндпоинт. Создает или обновляет класс на основе данных из POST-запроса.
+    """
+    if request.method == 'POST':
+        class_id = request.POST.get('class_id')
+        instance = None
+        if class_id:
+            instance = get_object_or_404(SchoolClass, id=class_id)
+        
+        form = SchoolClassForm(request.POST, instance=instance)
+        
         if form.is_valid():
             form.save()
             return JsonResponse({'status': 'success'})
@@ -1226,3 +1280,54 @@ def manage_user_view(request):
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def class_details_api(request, class_id):
+    try:
+        s_class = SchoolClass.objects.get(id=class_id)
+
+        student_count = s_class.students.count()
+        
+        data = {
+            'id': s_class.id,
+            'name': s_class.name,
+            'class_teacher_id': s_class.class_teacher.user.id if s_class.class_teacher else None,
+            'student_count': student_count, # Предполагается, что это поле или метод в модели
+        }
+        return JsonResponse(data)
+    except SchoolClass.DoesNotExist:
+        return JsonResponse({'error': 'Class not found'}, status=404)
+    
+@require_POST
+def manage_class_api(request):
+    data = request.POST
+    class_id = data.get('class_id')
+    name = data.get('name')
+    teacher_user_id = data.get('class_teacher')
+
+    # Валидация
+    if not name:
+        return JsonResponse({'errors': {'name': 'Это поле обязательно'}}, status=400)
+
+    try:
+        if class_id:
+            # Редактирование
+            s_class = SchoolClass.objects.get(id=class_id)
+            s_class.name = name
+        else:
+            # Создание
+            s_class = SchoolClass(name=name)
+
+        # Назначение классного руководителя
+        if teacher_user_id:
+            teacher_profile = Teacher.objects.get(user__id=teacher_user_id)
+            s_class.class_teacher = teacher_profile
+        else:
+            s_class.class_teacher = None
+        
+        s_class.save()
+        return JsonResponse({'status': 'ok'})
+
+    except Teacher.DoesNotExist:
+        return JsonResponse({'errors': {'class_teacher': 'Учитель не найден'}}, status=400)
+    except Exception as e:
+        return JsonResponse({'errors': str(e)}, status=500)

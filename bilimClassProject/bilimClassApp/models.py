@@ -83,6 +83,13 @@ class SchoolClass(models.Model):
     students = models.ManyToManyField(User, related_name='school_classes', blank=True, verbose_name="Ученики")
     class_teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Классный руководитель")
 
+    # === НАЧАЛО НОВОГО КОДА ===
+    # @property
+    # def student_count(self):
+    #     """Возвращает количество учеников в классе."""
+    #     return self.students.count()
+    # === КОНЕЦ НОВОГО КОДА ===
+
     class Meta:
         verbose_name = "Класс"
         verbose_name_plural = "Классы"

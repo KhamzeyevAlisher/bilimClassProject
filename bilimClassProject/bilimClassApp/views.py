@@ -2,19 +2,21 @@
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 from datetime import date, timedelta
 from .decorators import group_required
-from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance, SchoolClass, School, Homework, HomeworkSubmission
+from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,Profile, SchoolClass, School, Homework, HomeworkSubmission
 from django.db.models import Avg, Q, Count
 from django.views.decorators.http import require_POST
 import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 def custom_login_view(request):
     if request.user.is_authenticated:
@@ -1127,3 +1129,100 @@ def grade_submission_api(request, pk):
         return JsonResponse({'status': 'error', 'message': 'Submission not found'}, status=404)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+def is_staff_check(user):
+    return user.is_staff
+
+@login_required
+@user_passes_test(is_staff_check, login_url='/')
+def admin_user_list_view(request):
+    
+    users_list = User.objects.select_related('profile').order_by('last_name', 'first_name')
+
+    search_query = request.GET.get('q', '')
+    role_filter = request.GET.get('role', '')
+    status_filter = request.GET.get('status', '')
+
+    if search_query:
+        users_list = users_list.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    if role_filter:
+        users_list = users_list.filter(profile__role=role_filter)
+
+    if status_filter:
+        if status_filter == 'active':
+            users_list = users_list.filter(is_active=True)
+        elif status_filter == 'inactive':
+            users_list = users_list.filter(is_active=False)
+
+    # === ИЗМЕНЕНИЕ ЗДЕСЬ: Добавляем оптимизированный запрос для классов ===
+    # Получаем все классы, сразу подгружая ФИО руководителя и считая количество учеников
+    school_classes_for_structure = SchoolClass.objects.select_related(
+        'class_teacher__user'
+    ).annotate(
+        student_count=Count('students')
+    ).order_by('name')
+    # ===================================================================
+    
+    context = {
+        'users': users_list,
+        'role_choices': Profile.ROLE_CHOICES,
+        
+        # Передаем новый список классов в контекст
+        'structure_school_classes': school_classes_for_structure,
+        
+        'school_classes': SchoolClass.objects.all(), # Оставляем для модального окна
+        'subjects': Subject.objects.all(),
+        
+        'search_query': search_query,
+        'role_filter': role_filter,
+        'status_filter': status_filter,
+    }
+    return render(request, 'bilimClassApp/admin_panel.html', context)
+
+def get_user_details_view(request, user_id):
+    """Возвращает данные пользователя в формате JSON для формы редактирования."""
+    try:
+        user = User.objects.select_related('profile').get(id=user_id)
+        
+        data = {
+            "id": user.id,
+            "full_name": user.get_full_name(),
+            "email": user.email,
+            "is_active": user.is_active,
+            "role": user.profile.role,
+            # "phone_number": user.profile.phone_number,
+            "school_class_id": "", # по умолчанию
+            "subject_ids": [], # по умолчанию
+        }
+        
+        if user.profile.role == 'student' and user.school_classes.first():
+            data['school_class_id'] = user.school_classes.first().id
+        
+        if user.profile.role == 'teacher':
+            try:
+                teacher = Teacher.objects.get(user=user)
+                data['subject_ids'] = list(teacher.subjects.values_list('id', flat=True))
+            except Teacher.DoesNotExist:
+                pass # У учителя еще нет записи, это нормально
+
+        return JsonResponse(data)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+def manage_user_view(request):
+    """Создает или обновляет пользователя через UserManagementForm."""
+    if request.method == 'POST':
+        form = UserManagementForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)

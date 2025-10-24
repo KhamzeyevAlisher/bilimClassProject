@@ -4,155 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление пользователями - Школьная Платформа</title>
+    <title>Школьная Платформа</title>
     
     <!-- Подключаем иконки Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- ПОДКЛЮЧАЕМ НАШИ СТИЛИ -->
+    <!-- ПОДКЛЮЧАЕМ ВСЕ СТИЛИ ЗДЕСЬ -->
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/admin_panel.css' %}">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/school_structure.css' %}">
     <style>
-        .page-header {
-            margin-top: 32px;
-            margin-bottom: 16px;
+        /* Добавляем стиль для скрытия неактивных страниц */
+        .page-content {
+            display: none;
         }
-        .page-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .page-header h2 i {
-            color: var(--accent-green);
-        }
-        .page-header p {
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .content-card {
-            background-color: var(--bg-widget);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .content-tabs {
-            display: flex;
-            gap: 8px;
-            background-color: #F3F4F6; /* Светло-серый фон для контейнера табов */
-            padding: 4px;
-            border-radius: 8px;
-        }
-
-        .content-tabs a {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-weight: 600;
-            border-radius: 6px;
-            transition: all 0.2s ease-in-out;
-        }
-        .content-tabs a.active {
-            background-color: var(--bg-widget);
-            color: var(--text-primary);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .content-tabs .count-badge {
-            background-color: #E5E7EB; /* Темнее фон для счетчика */
-            color: var(--text-secondary);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .content-tabs a.active .count-badge {
-            background-color: var(--accent-light);
-            color: var(--accent-primary);
-        }
-
-        .btn-success {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background-color: var(--accent-green);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .btn-success:hover { background-color: #059669; }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .data-table th, .data-table td {
-            padding: 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-            vertical-align: middle;
-        }
-        .data-table th {
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 12px;
-        }
-        .data-table tbody tr:hover { background-color: var(--bg-main); }
-        
-        .student-count-cell {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-secondary);
-        }
-
-        .profile-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 12px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-main);
-        }
-
-        .action-icons {
-            display: flex;
-            gap: 20px;
-            justify-content: flex-start;
-        }
-        .action-icons i {
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 16px;
-            transition: color 0.2s;
-        }
-        .action-icons .fa-pencil:hover { color: var(--accent-primary); }
-        .action-icons .fa-trash-can:hover { color: var(--accent-red); }
     </style>
 </head>
 <body>
     
     <div class="container">
-        <!-- Шапка -->
+        <!-- ===================================================================== -->
+        <!-- === ОБЩАЯ ШАПКА (видна на всех страницах) === -->
+        <!-- ===================================================================== -->
         <header class="site-header">
             <div class="logo-section">
                 <div class="logo-icon">ШП</div>
@@ -177,150 +50,217 @@
             </div>
         </header>
 
-        <!-- Главная навигация -->
+        <!-- ===================================================================== -->
+        <!-- === ОБЩАЯ НАВИГАЦИЯ (видна на всех страницах) === -->
+        <!-- ===================================================================== -->
         <nav class="main-nav">
             <ul>
-                <li><a href="#"><i class="fa-solid fa-house"></i> Главная</a></li>
-                <li><a href="#"><i class="fa-solid fa-users"></i> Пользователи</a></li>
-                <li><a href="#" class="active"><i class="fa-solid fa-sitemap"></i> Структура школы</a></li>
-                <li><a href="#"><i class="fa-solid fa-tags"></i> Назначения</a></li>
-                <li><a href="#"><i class="fa-solid fa-gear"></i> Настройки</a></li>
+                <!-- data-target используется JS для переключения контента -->
+                <li><a href="#" data-target="home"><i class="fa-solid fa-house"></i> Главная</a></li>
+                <li><a href="#" data-target="users" class="active"><i class="fa-solid fa-users"></i> Пользователи</a></li>
+                <li><a href="#" data-target="structure"><i class="fa-solid fa-sitemap"></i> Структура школы</a></li>
+                <li><a href="#" data-target="assignments"><i class="fa-solid fa-tags"></i> Назначения</a></li>
+                <li><a href="#" data-target="settings"><i class="fa-solid fa-gear"></i> Настройки</a></li>
             </ul>
         </nav>
 
-
-        <!-- Основной контент -->
-        <main>
-            <div class="page-header">
-                <div class="page-title">
-                    <h2>Управление пользователями</h2>
-                    <p>Создание, редактирование и управление учетными записями</p>
+        <!-- ===================================================================== -->
+        <!-- === ОСНОВНОЙ КОНТЕЙНЕР ДЛЯ ДИНАМИЧЕСКОГО КОНТЕНТА === -->
+        <!-- ===================================================================== -->
+        <main id="app-content">
+            
+            <!-- СТРАНИЦА "УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ" -->
+            <div id="page-users" class="page-content">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h2>Управление пользователями</h2>
+                        <p>Создание, редактирование и управление учетными записями</p>
+                    </div>
+                    <button class="btn-primary" id="create-user-btn">
+                        <i class="fa-solid fa-plus"></i>
+                        Создать пользователя
+                    </button>
                 </div>
-                <!-- ОБНОВЛЕНИЕ: Добавлен id для кнопки -->
-                <button class="btn-primary" id="create-user-btn">
-                    <i class="fa-solid fa-plus"></i>
-                    Создать пользователя
-                </button>
+        
+                <div class="content-card">
+                    <form method="GET" action="{% url 'admin_panel' %}" class="filters-toolbar">
+                        <div class="search-group">
+                            <i class="fa-solid fa-search"></i>
+                            <input type="text" name="q" placeholder="Поиск по имени или email..." value="{{ search_query }}">
+                        </div>
+                        <select name="role" class="filter-select">
+                            <option value="">Все роли</option>
+                            {% for value, display_name in role_choices %}
+                                <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>
+                                    {{ display_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <select name="status" class="filter-select">
+                            <option value="">Все статусы</option>
+                            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активен</option>
+                            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Заблокирован</option>
+                        </select>
+                        <button type="submit" class="btn-primary">Применить</button>
+                        <a href="{% url 'admin_panel' %}" class="btn-secondary">Сбросить</a>
+                    </form>
+        
+                    <nav class="content-tabs">
+                        <ul>
+                            <li>
+                                <a href="#" class="active">
+                                    Пользователи
+                                    <span class="count-badge">{{ users.count }}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+        
+                    <div class="table-wrapper">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ФИО</th>
+                                    <th>Email</th>
+                                    <th>Телефон</th>
+                                    <th>Роль</th>
+                                    <th>Статус</th>
+                                    <th>Последний вход</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user_obj in users %}
+                                <tr>
+                                    <td>{{ user_obj.get_full_name|default:user_obj.username }}</td>
+                                    <td class="user-name-cell">
+                                        <span>{{ user_obj.email|default:"-" }}</span>
+                                        {% if user_obj.email %}<i class="fa-regular fa-envelope"></i>{% endif %}
+                                    </td>
+                                    <td>
+                                        {{ user_obj.profile.phone_number|default:"-" }}
+                                    </td>
+                                    <td>
+                                        {% if user_obj.profile and user_obj.profile.role %}
+                                            {% if user_obj.profile.role == 'teacher' %}
+                                                <span class="role-badge role-teacher">{{ user_obj.profile.get_role_display }}</span>
+                                            {% elif user_obj.profile.role == 'student' %}
+                                                <span class="role-badge role-student">{{ user_obj.profile.get_role_display }}</span>
+                                            {% elif user_obj.profile.role == 'headteacher' %}
+                                                <span class="role-badge role-headteacher">{{ user_obj.profile.get_role_display }}</span>
+                                            {% else %}
+                                                <span>{{ user_obj.profile.get_role_display }}</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span>-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user_obj.is_active %}
+                                            <span class="status-badge status-active">Активен</span>
+                                        {% else %}
+                                            <span class="status-badge status-blocked">Заблокирован</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user_obj.last_login|date:"Y-m-d H:i"|default:"Никогда" }}</td>
+                                    <td class="action-icons">
+                                        <a href="#" class="edit-btn" data-user-id="{{ user_obj.id }}"><i class="fa-solid fa-pencil"></i></a>
+                                        <a href="#"><i class="fa-solid fa-lock{% if not user_obj.is_active %}-open{% endif %}"></i></a>
+                                        <a href="#"><i class="fa-solid fa-trash-can"></i></a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 24px;">Пользователи не найдены.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <div class="content-card">
-                <!-- Панель с фильтрами -->
-                
-                <form method="GET" action="{% url 'admin_panel' %}" class="filters-toolbar">
-    
-                    <!-- Поиск -->
-                    <div class="search-group">
-                        <i class="fa-solid fa-search"></i>
-                        <!-- `name="q"` - это ключ в GET-запросе. `value="{{ search_query }}"` - "запоминает" поиск. -->
-                        <input type="text" name="q" placeholder="Поиск по имени или email..." value="{{ search_query }}">
-                    </div>
-
-                    <!-- Фильтр по ролям -->
-                    <!-- `name="role"` - ключ. Динамически создаем опции из `role_choices` -->
-                    <select name="role" class="filter-select">
-                        <option value="">Все роли</option>
-                        {% for value, display_name in role_choices %}
-                            <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>
-                                {{ display_name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-
-                    <!-- Фильтр по статусу -->
-                    <!-- `name="status"` - ключ. Опции заданы вручную -->
-                    <select name="status" class="filter-select">
-                        <option value="">Все статусы</option>
-                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активен</option>
-                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Заблокирован</option>
-                    </select>
-                    
-                    <!-- Кнопки для применения и сброса фильтров -->
-                    <button type="submit" class="btn-primary">Применить</button>
-                    <a href="{% url 'admin_panel' %}" class="btn-secondary">Сбросить</a>
-                </form>
-
-                <!-- Табы с динамическими счетчиками -->
-                <nav class="content-tabs">
-                    <ul>
-                        <li>
+            <!-- СТРАНИЦА "СТРУКТУРА ШКОЛЫ" (ОБНОВЛЕННЫЙ КОД) -->
+            <div id="page-structure" class="page-content">
+                <div class="page-header">
+                    <h2>
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        Управление структурой школы
+                    </h2>
+                    <p>Создание и редактирование классов и предметов</p>
+                </div>
+        
+                <div class="content-card">
+                    <div class="card-header">
+                        <nav class="content-tabs">
                             <a href="#" class="active">
-                                Пользователи
-                                <span class="count-badge">{{ users.count }}</span>
+                                <i class="fa-solid fa-people-roof"></i>
+                                Классы
+                                <span class="count-badge">{{ structure_school_classes.count }}</span>
                             </a>
-                        </li>
-                    </ul>
-                </nav>
-
-                <!-- Таблица с пользователями -->
-                <div class="table-wrapper">
-                    <table class="users-table">
+                            <a href="#">
+                                <i class="fa-solid fa-book"></i>
+                                Предметы
+                                <span class="count-badge">{{ subjects.count }}</span>
+                            </a>
+                        </nav>
+                        <button class="btn-success">
+                            <i class="fa-solid fa-plus"></i>
+                            Создать класс
+                        </button>
+                    </div>
+        
+                    <table class="data-table">
                         <thead>
                             <tr>
-                                <th>ФИО</th>
-                                <th>Email</th>
-                                <th>Телефон</th>
-                                <th>Роль</th>
-                                <th>Статус</th>
-                                <th>Последний вход</th>
+                                <th>Класс</th>
+                                <th>Параллель</th>
+                                <th>Количество учеников</th>
+                                <th>Классный руководитель</th>
+                                <th>Профиль</th>
                                 <th>Действия</th>
                             </tr>
                         </thead>
-                        
                         <tbody>
-                            {% for user_obj in users %}
+                            {% for s_class in structure_school_classes %}
                             <tr>
-                                <td>{{ user_obj.get_full_name|default:user_obj.username }}</td>
-                                <td class="user-name-cell">
-                                    <span>{{ user_obj.email|default:"-" }}</span>
-                                    {% if user_obj.email %}<i class="fa-regular fa-envelope"></i>{% endif %}
-                                </td>
-                                <td>
-                                    {{ user_obj.profile.phone_number|default:"-" }}
-                                </td>
-                                <td>
-                                    {% if user_obj.profile and user_obj.profile.role %}
-                                        {% if user_obj.profile.role == 'teacher' %}
-                                            <span class="role-badge role-teacher">{{ user_obj.profile.get_role_display }}</span>
-                                        {% elif user_obj.profile.role == 'student' %}
-                                            <span class="role-badge role-student">{{ user_obj.profile.get_role_display }}</span>
-                                        {% elif user_obj.profile.role == 'headteacher' %}
-                                            <span class="role-badge role-headteacher">{{ user_obj.profile.get_role_display }}</span>
-                                        {% else %}
-                                            <span>{{ user_obj.profile.get_role_display }}</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span>-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if user_obj.is_active %}
-                                        <span class="status-badge status-active">Активен</span>
-                                    {% else %}
-                                        <span class="status-badge status-blocked">Заблокирован</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ user_obj.last_login|date:"Y-m-d H:i"|default:"Никогда" }}</td>
+                                <td><strong>{{ s_class.name }}</strong></td>
+                                <td>{{ s_class.name|slice:":-1" }} класс</td>
+                                <td class="student-count-cell"><i class="fa-solid fa-user-group"></i> {{ s_class.student_count }}</td>
+                                <td>{{ s_class.class_teacher.user.get_full_name|default:"Не назначен" }}</td>
+                                <!-- Примечание: поле "Профиль" не существует в модели SchoolClass, поэтому здесь временное значение -->
+                                <td><span class="profile-badge">Общеобразовательный</span></td>
                                 <td class="action-icons">
-                                    <!-- ОБНОВЛЕНИЕ: Добавлены класс и data-атрибут для JS -->
-                                    <a href="#" class="edit-btn" data-user-id="{{ user_obj.id }}"><i class="fa-solid fa-pencil"></i></a>
-                                    <a href="#"><i class="fa-solid fa-lock{% if not user_obj.is_active %}-open{% endif %}"></i></a>
-                                    <a href="#"><i class="fa-solid fa-trash-can"></i></a>
+                                    <i class="fa-solid fa-pencil"></i>
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 24px;">Пользователи не найдены.</td>
+                                <td colspan="6" style="text-align: center; padding: 24px;">Классы еще не созданы.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- Другие страницы можно добавлять сюда по аналогии -->
+            <div id="page-home" class="page-content">
+                 <div class="content-card"><h2>Главная страница</h2><p>Этот контент находится в разработке.</p></div>
+            </div>
+            <div id="page-assignments" class="page-content">
+                 <div class="content-card"><h2>Назначения</h2><p>Этот контент находится в разработке.</p></div>
+            </div>
+            <div id="page-settings" class="page-content">
+                 <div class="content-card"><h2>Настройки</h2><p>Этот контент находится в разработке.</p></div>
+            </div>
+
         </main>
     </div>
 
     <!-- ===================================================================== -->
-    <!-- === НАЧАЛО: HTML-КОД МОДАЛЬНОГО ОКНА (скрыто по умолчанию) === -->
+    <!-- === HTML-КОД МОДАЛЬНОГО ОКНА (скрыто по умолчанию) === -->
     <!-- ===================================================================== -->
     <div class="modal-overlay" id="user-modal-overlay">
         <div class="modal-container">
@@ -368,7 +308,6 @@
                     </div>
                 </div>
 
-                <!-- Кондиционные поля, которые появляются/исчезают -->
                 <div class="form-group" id="class-field-wrapper" style="display: none;">
                     <label for="id_school_class">Класс</label>
                     <select name="school_class" id="id_school_class">
@@ -394,131 +333,181 @@
             </form>
         </div>
     </div>
+    
     <!-- ===================================================================== -->
-    <!-- === КОНЕЦ: HTML-КОД МОДАЛЬНОГО ОКНА === -->
-    <!-- ===================================================================== -->
-
-
-    <!-- ===================================================================== -->
-    <!-- === НАЧАЛО: JAVASCRIPT ДЛЯ УПРАВЛЕНИЯ МОДАЛЬНЫМ ОКНОМ === -->
+    <!-- === JAVASCRIPT ДЛЯ SPA-ЛОГИКИ И УПРАВЛЕНИЯ МОДАЛЬНЫМ ОКНОМ === -->
     <!-- ===================================================================== -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Получаем все нужные элементы со страницы ---
-        const modalOverlay = document.getElementById('user-modal-overlay');
-        const userForm = document.getElementById('user-form');
-        const modalTitle = document.getElementById('modal-title');
-        const submitBtn = document.getElementById('submit-btn');
-        const roleSelect = document.getElementById('id_role');
-        const classFieldWrapper = document.getElementById('class-field-wrapper');
-        const subjectFieldWrapper = document.getElementById('subject-field-wrapper');
-        const createUserBtn = document.getElementById('create-user-btn');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const editButtons = document.querySelectorAll('.edit-btn');
+        // --- ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРИЛОЖЕНИЯ ---
+        const navLinks = document.querySelectorAll('.main-nav a');
+        const contentPages = document.querySelectorAll('.page-content');
 
-        // --- Функции для управления модальным окном ---
-        const openModal = () => { modalOverlay.style.display = 'flex'; };
-        const closeModal = () => { modalOverlay.style.display = 'none'; };
+        /**
+         * Инициализирует все скрипты, специфичные для страницы "Управление пользователями".
+         */
+        const initUserManagementScripts = () => {
+            // --- Получаем все нужные элементы со страницы ---
+            const userPageContent = document.getElementById('page-users');
+            if (!userPageContent) return; // Если страницы пользователей нет, ничего не делаем
 
-        // --- Функция для показа/скрытия полей в зависимости от роли ---
-        const toggleConditionalFields = () => {
-            const selectedRole = roleSelect.value;
-            classFieldWrapper.style.display = (selectedRole === 'student') ? 'block' : 'none';
-            subjectFieldWrapper.style.display = (selectedRole === 'teacher') ? 'block' : 'none';
-        };
-        
-        // --- Вешаем обработчики событий ---
-        roleSelect.addEventListener('change', toggleConditionalFields);
-        closeModalBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
+            const modalOverlay = document.getElementById('user-modal-overlay');
+            const userForm = document.getElementById('user-form');
+            const modalTitle = document.getElementById('modal-title');
+            const submitBtn = document.getElementById('submit-btn');
+            const roleSelect = document.getElementById('id_role');
+            const classFieldWrapper = document.getElementById('class-field-wrapper');
+            const subjectFieldWrapper = document.getElementById('subject-field-wrapper');
+            const createUserBtn = document.getElementById('create-user-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const editButtons = userPageContent.querySelectorAll('.edit-btn'); // Ищем кнопки только внутри контента пользователей
 
-        // --- Открытие модалки для СОЗДАНИЯ пользователя ---
-        createUserBtn.addEventListener('click', () => {
-            userForm.reset();
-            userForm.querySelector('#id_user_id').value = '';
-            modalTitle.textContent = 'Создать пользователя';
-            submitBtn.textContent = 'Создать';
-            toggleConditionalFields(); // Обновляем видимость полей
-            openModal();
-        });
+            if (!modalOverlay || !userForm || !createUserBtn) {
+                console.error("Не найдены ключевые элементы для модального окна пользователей.");
+                return;
+            }
 
-        // --- Открытие модалки для РЕДАКТИРОВАНИЯ пользователя ---
-        editButtons.forEach(button => {
-            button.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const userId = button.dataset.userId;
-                
-                // Запрашиваем данные пользователя с сервера
-                const response = await fetch(`/api/user/${userId}/details/`);
-                if (!response.ok) { alert("Не удалось загрузить данные пользователя."); return; }
-                const data = await response.json();
+            const openModal = () => { modalOverlay.style.display = 'flex'; };
+            const closeModal = () => { modalOverlay.style.display = 'none'; };
 
-                // Заполняем форму полученными данными
-                userForm.querySelector('#id_user_id').value = data.id;
-                userForm.querySelector('#id_full_name').value = data.full_name;
-                userForm.querySelector('#id_email').value = data.email;
-                userForm.querySelector('#id_phone_number').value = data.phone_number || '';
-                userForm.querySelector('#id_role').value = data.role;
-                userForm.querySelector('#id_is_active').value = data.is_active ? 'True' : 'False';
-                
-                if(data.school_class_id) {
-                    userForm.querySelector('#id_school_class').value = data.school_class_id;
-                }
+            const toggleConditionalFields = () => {
+                const selectedRole = roleSelect.value;
+                classFieldWrapper.style.display = (selectedRole === 'student') ? 'block' : 'none';
+                subjectFieldWrapper.style.display = (selectedRole === 'teacher') ? 'block' : 'none';
+            };
+            
+            roleSelect.addEventListener('change', toggleConditionalFields);
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
 
-                // Заполнение поля "Предметы" (multiple select)
-                const subjectSelect = userForm.querySelector('#id_subjects');
-                Array.from(subjectSelect.options).forEach(option => {
-                    option.selected = data.subject_ids.includes(parseInt(option.value));
-                });
-                
-                modalTitle.textContent = 'Редактировать пользователя';
-                submitBtn.textContent = 'Сохранить';
-                toggleConditionalFields(); // Обновляем видимость полей согласно роли
+            createUserBtn.addEventListener('click', () => {
+                userForm.reset();
+                userForm.querySelector('#id_user_id').value = '';
+                modalTitle.textContent = 'Создать пользователя';
+                submitBtn.textContent = 'Создать';
+                toggleConditionalFields();
                 openModal();
             });
-        });
 
-        // --- Отправка формы (Создание/Редактирование) ---
-        userForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(userForm);
-            
-            // --- Корректная обработка multiple select для FormData ---
-            const subjectSelect = document.getElementById('id_subjects');
-            if (subjectSelect.style.display !== 'none') {
-                formData.delete('subjects'); 
-                const selectedSubjects = Array.from(subjectSelect.selectedOptions).map(opt => opt.value);
-                selectedSubjects.forEach(subjectId => {
-                    formData.append('subjects', subjectId);
+            editButtons.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const userId = button.dataset.userId;
+                    
+                    try {
+                        const response = await fetch(`/api/user/${userId}/details/`);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const data = await response.json();
+
+                        userForm.querySelector('#id_user_id').value = data.id;
+                        userForm.querySelector('#id_full_name').value = data.full_name;
+                        userForm.querySelector('#id_email').value = data.email;
+                        userForm.querySelector('#id_phone_number').value = data.phone_number || '';
+                        userForm.querySelector('#id_role').value = data.role;
+                        userForm.querySelector('#id_is_active').value = data.is_active ? 'True' : 'False';
+                        
+                        if (data.school_class_id) {
+                            userForm.querySelector('#id_school_class').value = data.school_class_id;
+                        }
+
+                        const subjectSelect = userForm.querySelector('#id_subjects');
+                        Array.from(subjectSelect.options).forEach(option => {
+                            option.selected = data.subject_ids.includes(parseInt(option.value));
+                        });
+                        
+                        modalTitle.textContent = 'Редактировать пользователя';
+                        submitBtn.textContent = 'Сохранить';
+                        toggleConditionalFields();
+                        openModal();
+                    } catch (error) {
+                        console.error("Ошибка при загрузке данных пользователя:", error);
+                        alert("Не удалось загрузить данные пользователя. Проверьте консоль для деталей.");
+                    }
                 });
-            }
-            
-            // --- Отправка запроса на сервер с ПРАВИЛЬНЫМ URL ---
-            const response = await fetch("{% url 'api_manage_user' %}", {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': formData.get('csrfmiddlewaretoken') // CSRF токен обязателен!
-                }
             });
 
-            if (response.ok) {
-                // Если все успешно, закрываем модалку и перезагружаем страницу
-                closeModal();
-                location.reload(); 
+            userForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(userForm);
+                const subjectSelect = document.getElementById('id_subjects');
+                if (subjectSelect.style.display !== 'none') {
+                    formData.delete('subjects');
+                    const selectedSubjects = Array.from(subjectSelect.selectedOptions).map(opt => opt.value);
+                    selectedSubjects.forEach(subjectId => {
+                        formData.append('subjects', subjectId);
+                    });
+                }
+                
+                try {
+                    const response = await fetch("/api/user/manage/", { 
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                        }
+                    });
+
+                    if (response.ok) {
+                        closeModal();
+                        location.reload(); 
+                    } else {
+                        const result = await response.json();
+                        alert('Ошибка валидации: ' + JSON.stringify(result.errors));
+                    }
+                } catch (error) {
+                    console.error("Ошибка при отправке формы:", error);
+                    alert("Произошла сетевая ошибка. Пожалуйста, попробуйте снова.");
+                }
+            });
+        };
+
+        /**
+         * Основная функция навигации. Переключает видимость страниц.
+         * @param {string} pageId - Идентификатор страницы (например, 'users', 'structure').
+         */
+        const navigateTo = (pageId) => {
+            // Скрываем все страницы
+            contentPages.forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Находим и показываем нужную страницу
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) {
+                targetPage.style.display = 'block';
             } else {
-                // Если есть ошибки валидации, показываем их
-                const result = await response.json();
-                alert('Ошибка валидации: ' + JSON.stringify(result.errors));
+                 // Если страница не найдена, можно показать заглушку или первую страницу
+                document.getElementById('page-home').style.display = 'block';
             }
+
+            // Обновляем активный класс в навигации
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.dataset.target === pageId);
+            });
+        };
+
+        // --- НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
+
+        // Обработка кликов по навигационным ссылкам
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetPage = e.currentTarget.dataset.target;
+                navigateTo(targetPage);
+            });
         });
+
+        // --- ПЕРВОНАЧАЛЬНАЯ ЗАГРУЗКА ПРИЛОЖЕНИЯ ---
+        
+        // Показываем страницу "Пользователи" по умолчанию
+        navigateTo('users');
+        // Инициализируем скрипты для модального окна пользователей
+        initUserManagementScripts();
     });
     </script>
-    <!-- ===================================================================== -->
-    <!-- === КОНЕЦ: JAVASCRIPT === -->
-    <!-- ===================================================================== -->
-
 </body>
 </html>

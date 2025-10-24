@@ -1,8 +1,10 @@
 # bilimClassApp/forms.py
 
 from django import forms
+from django.db import transaction
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission # Импортируем нужные модели
+from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher # Импортируем нужные модели
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -88,3 +90,88 @@ class HomeworkSubmissionForm(forms.ModelForm):
         model = HomeworkSubmission
         # Указываем только те поля, которые заполняет ученик
         fields = ['submission_text', 'submission_file']
+
+
+class UserManagementForm(forms.Form):
+    # Поля из User
+    full_name = forms.CharField(label="ФИО", max_length=150, required=True)
+    email = forms.EmailField(label="Email", required=True)
+    is_active = forms.ChoiceField(label="Статус", choices=[(True, 'Активен'), (False, 'Заблокирован')])
+
+    # Поля из Profile
+    phone_number = forms.CharField(label="Телефон", max_length=20, required=False)
+    role = forms.ChoiceField(label="Роль", choices=Profile.ROLE_CHOICES)
+
+    # Поля для специфичных ролей
+    school_class = forms.ModelChoiceField(
+        queryset=SchoolClass.objects.all(),
+        label="Класс", required=False
+    )
+    subjects = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.all(),
+        label="Предметы", required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}) # для удобства
+    )
+
+    # Скрытое поле для ID при редактировании
+    user_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
+    @transaction.atomic
+    def save(self):
+        # Используем transaction.atomic, чтобы все изменения либо прошли успешно, либо откатились
+        user_id = self.cleaned_data.get('user_id')
+        user = User.objects.get(id=user_id) if user_id else None
+
+        # --- 1. Обработка User ---
+        if not user:
+            # Создание нового пользователя
+            username = self.cleaned_data['email']
+            user = User.objects.create_user(username=username, email=self.cleaned_data['email'])
+            # Устанавливаем временный пароль. В реальной системе лучше отправлять email.
+            user.set_password('defaultpassword123')
+        
+        # Обновление данных User
+        name_parts = self.cleaned_data['full_name'].split()
+        user.first_name = name_parts[0] if len(name_parts) > 0 else ''
+        user.last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+        user.email = self.cleaned_data['email']
+        user.is_active = self.cleaned_data['is_active'] == 'True'
+        user.save()
+
+        # --- 2. Обработка Profile ---
+        profile, _ = Profile.objects.get_or_create(user=user)
+        profile.role = self.cleaned_data['role']
+        # profile.phone_number = self.cleaned_data['phone_number'] # У вас нет этого поля в Profile, но есть в форме
+        profile.save()
+
+        # --- 3. Обработка в зависимости от роли ---
+        role = self.cleaned_data['role']
+
+        if role == 'student':
+            # Удаляем пользователя из всех классов, где он мог быть
+            user.school_classes.clear()
+            # Добавляем в выбранный класс
+            selected_class = self.cleaned_data.get('school_class')
+            if selected_class:
+                selected_class.students.add(user)
+            # Убеждаемся, что для этого юзера нет записи Teacher
+            Teacher.objects.filter(user=user).delete()
+
+        elif role == 'teacher':
+            # Создаем или получаем запись Teacher
+            teacher, _ = Teacher.objects.get_or_create(user=user)
+            # Обновляем его предметы
+            selected_subjects = self.cleaned_data.get('subjects')
+            if selected_subjects:
+                teacher.subjects.set(selected_subjects)
+            else:
+                teacher.subjects.clear()
+            # Убеждаемся, что ученик удален из всех классов
+            user.school_classes.clear()
+        
+        else: # Если роль - админ, завуч или другая
+            # Очищаем все связи на всякий случай
+            user.school_classes.clear()
+            Teacher.objects.filter(user=user).delete()
+
+        return user

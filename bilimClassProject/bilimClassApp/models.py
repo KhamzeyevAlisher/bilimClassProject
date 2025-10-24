@@ -50,10 +50,28 @@ class Teacher(models.Model):
 
 class Profile(models.Model):
     """Профиль пользователя для дополнительной информации."""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    ROLE_CHOICES = (
+        ('teacher', 'Учитель'),
+        ('student', 'Ученик'),
+        ('headteacher', 'Завуч'),
+        ('admin', 'Администратор'),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(max_length=500, blank=True, verbose_name="О себе")
     location = models.CharField(max_length=30, blank=True, verbose_name="Местоположение")
     birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")
+
+    role = models.CharField(
+        max_length=20, 
+        choices=ROLE_CHOICES, 
+        verbose_name="Роль",
+        # Добавляем blank=True и null=True, чтобы существующие профили не вызвали ошибку
+        blank=True, 
+        null=True
+    )
 
     def __str__(self):
         return self.user.username
@@ -63,6 +81,7 @@ class SchoolClass(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE, verbose_name="Школа")
     name = models.CharField(max_length=10, verbose_name="Название класса (например, 9А)")
     students = models.ManyToManyField(User, related_name='school_classes', blank=True, verbose_name="Ученики")
+    class_teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Классный руководитель")
 
     class Meta:
         verbose_name = "Класс"
@@ -205,9 +224,10 @@ class Holiday(models.Model):
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    """Создает профиль пользователя при создании нового пользователя."""
     if created:
-        Profile.objects.create(user=instance)
+        # Устанавливаем роль по умолчанию для всех новых пользователей.
+        # Вы можете выбрать любую, например, 'student'.
+        Profile.objects.create(user=instance, role='student')
 
 # @receiver(post_save, sender=User)
 # def save_user_profile(sender, instance, **kwargs):

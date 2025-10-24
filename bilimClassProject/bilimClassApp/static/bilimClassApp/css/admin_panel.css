@@ -1,0 +1,143 @@
+/* bilimClassApp/static/bilimClassApp/css/admin_users.css */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    margin-bottom: 24px;
+}
+.page-title h2 { font-size: 24px; font-weight: 700; }
+.page-title p { color: var(--text-secondary); margin-top: 4px; }
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-primary:hover { background-color: #4338CA; }
+
+.content-card {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.filters-toolbar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.search-group { position: relative; flex-grow: 1; }
+.search-group i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+.search-group input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+}
+.search-group input::placeholder { color: #9CA3AF; }
+
+.filter-btn, .filter-select {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-widget);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+.filter-btn { display: inline-flex; gap: 8px; align-items: center; }
+.filter-select { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+
+.content-tabs ul {
+    display: flex;
+    list-style: none;
+    gap: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+.content-tabs a {
+    display: inline-flex;
+    gap: 8px;
+    padding: 0 4px 12px 4px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    position: relative;
+    border-bottom: 2px solid transparent;
+}
+.content-tabs a.active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+.content-tabs .count-badge {
+    background-color: #F3F4F6;
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+.content-tabs a.active .count-badge {
+    background-color: var(--accent-light);
+    color: var(--accent-primary);
+}
+
+.table-wrapper { overflow-x: auto; }
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+}
+.users-table th, .users-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    vertical-align: middle;
+}
+.users-table th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+.users-table tbody tr:hover { background-color: var(--bg-main); }
+.user-name-cell { display: flex; align-items: center; gap: 12px; }
+.user-name-cell i { color: var(--text-secondary); cursor: pointer; }
+
+.role-badge, .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 12px;
+}
+.role-teacher { background-color: #DBEAFE; color: #1E40AF; }
+.role-student { background-color: #D1FAE5; color: #065F46; }
+.role-headteacher { background-color: #E9D5FF; color: #581C87; }
+
+.status-active { background-color: var(--status-active-bg); color: var(--status-active-text); }
+.status-blocked { background-color: var(--status-blocked-bg); color: var(--status-blocked-text); }
+
+.action-icons { display: flex; gap: 16px; }
+.action-icons i { color: var(--text-secondary); cursor: pointer; font-size: 16px; }
+.action-icons i:hover { color: var(--text-primary); }

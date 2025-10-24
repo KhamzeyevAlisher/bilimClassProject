@@ -1,0 +1,160 @@
+/* =================================================================
+   СТИЛИ для страницы "Структура школы"
+================================================================= */
+
+/* Заголовок страницы */
+.page-header {
+    margin-top: 32px;
+    margin-bottom: 16px;
+}
+.page-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.page-header h2 i {
+    /* Зеленая иконка для заголовка */
+    color: var(--accent-green);
+}
+.page-header p {
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* Белая карточка-контейнер для основного контента */
+.content-card {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+/* Верхняя часть карточки с табами и кнопкой */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* Стили для переключателей (табов) "Классы" / "Предметы" */
+.content-tabs {
+    display: flex;
+    gap: 8px;
+    background-color: #F3F4F6; /* Светло-серый фон для контейнера табов */
+    padding: 4px;
+    border-radius: 8px;
+}
+.content-tabs a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+.content-tabs a.active {
+    background-color: var(--bg-widget); /* Белый фон для активного таба */
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Счетчик в табах (например, "Классы [5]") */
+.content-tabs .count-badge {
+    background-color: #E5E7EB; 
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.content-tabs a.active .count-badge {
+    /* Стиль счетчика для активного таба */
+    background-color: var(--accent-light);
+    color: var(--accent-primary);
+}
+
+/* Зеленая кнопка "Создать класс" */
+.btn-success {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: var(--accent-green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-success:hover {
+    background-color: #059669; /* Более темный зеленый при наведении */
+}
+
+/* Стили для таблицы с классами */
+.data-table {
+    width: 100%;
+    border-collapse: collapse; /* Убирает двойные рамки между ячейками */
+}
+.data-table th, .data-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    vertical-align: middle;
+}
+.data-table th {
+    /* Стили для заголовков таблицы (Класс, Параллель и т.д.) */
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase; /* Обычно заголовки пишут в верхнем регистре */
+}
+.data-table tbody tr:hover {
+    background-color: var(--bg-main); /* Легкий фон при наведении на строку */
+}
+
+/* Ячейка с количеством учеников (иконка + число) */
+.student-count-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+}
+
+/* Бейдж для профиля класса (например, "Физико-математический") */
+.profile-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-main);
+}
+
+/* Иконки действий в последней колонке (карандаш, корзина) */
+.action-icons {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start;
+}
+.action-icons i {
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+.action-icons .fa-pencil:hover {
+    color: var(--accent-primary); /* Цвет иконки редактирования при наведении */
+}
+.action-icons .fa-trash-can:hover {
+    color: var(--accent-red); /* Цвет иконки удаления при наведении */
+}

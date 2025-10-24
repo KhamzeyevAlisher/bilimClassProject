@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
 
-from .models import School, Subject, SchoolClass, Teacher, Schedule, Assessment, Holiday, Attendance, Homework, HomeworkSubmission
+from .models import School, Subject, SchoolClass, Teacher, Schedule, Assessment, Holiday, Attendance, Homework, HomeworkSubmission, Profile
 
 # -----------------------------------------------------------------------------
 # ЧАСТЬ 1: Кастомизация админки для стандартной модели User
@@ -172,3 +172,5 @@ class HomeworkSubmissionAdmin(admin.ModelAdmin):
     list_filter = ('homework__school_class__school', 'homework__subject', 'grade')
     search_fields = ('student__username', 'homework__title')
     autocomplete_fields = ['homework', 'student']
+
+admin.site.register(Profile)

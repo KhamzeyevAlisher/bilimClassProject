@@ -1184,6 +1184,7 @@ def admin_user_list_view(request):
         'all_teachers': Teacher.objects.select_related('user').all(), # <-- Добавлено: передаем всех учителей для модального окна
         
         # Данные для модального окна создания/редактирования пользователя
+        'all_schools': School.objects.all().order_by('name'), 
         'school_classes': SchoolClass.objects.all(),
         'subjects': Subject.objects.all(),
         
@@ -1248,11 +1249,13 @@ def get_class_details_view(request, class_id):
     """
     try:
         school_class = get_object_or_404(SchoolClass, id=class_id)
-        student_count = school_class.students.count() # Подсчитываем учеников
+        student_count = school_class.students.count()
         
         data = {
             "id": school_class.id,
             "name": school_class.name,
+            # === ДОБАВЛЕНО: Возвращаем ID школы ===
+            "school_id": school_class.school_id,
             "class_teacher_id": school_class.class_teacher.user_id if school_class.class_teacher else "",
             "student_count": student_count,
         }
@@ -1303,21 +1306,27 @@ def manage_class_api(request):
     class_id = data.get('class_id')
     name = data.get('name')
     teacher_user_id = data.get('class_teacher')
+    # === ДОБАВЛЕНО: Получаем ID школы из формы ===
+    school_id = data.get('school')
 
-    # Валидация
+    # === ДОБАВЛЕНО: Валидация на наличие школы ===
     if not name:
         return JsonResponse({'errors': {'name': 'Это поле обязательно'}}, status=400)
+    if not school_id:
+        return JsonResponse({'errors': {'school': 'Необходимо выбрать школу'}}, status=400)
 
     try:
         if class_id:
             # Редактирование
-            s_class = SchoolClass.objects.get(id=class_id)
+            s_class = get_object_or_404(SchoolClass, id=class_id)
             s_class.name = name
+            s_class.school_id = school_id # Обновляем школу, если ее изменили
         else:
             # Создание
-            s_class = SchoolClass(name=name)
+            # === ИЗМЕНЕНО: Создаем класс, указывая школу ===
+            s_class = SchoolClass(name=name, school_id=school_id)
 
-        # Назначение классного руководителя
+        # Назначение классного руководителя (без изменений)
         if teacher_user_id:
             teacher_profile = Teacher.objects.get(user__id=teacher_user_id)
             s_class.class_teacher = teacher_profile
@@ -1329,5 +1338,86 @@ def manage_class_api(request):
 
     except Teacher.DoesNotExist:
         return JsonResponse({'errors': {'class_teacher': 'Учитель не найден'}}, status=400)
+    except School.DoesNotExist:
+        return JsonResponse({'errors': {'school': 'Выбранная школа не найдена'}}, status=400)
     except Exception as e:
         return JsonResponse({'errors': str(e)}, status=500)
+
+
+@require_POST
+@login_required
+@user_passes_test(is_staff_check) # Доступ только для персонала
+def toggle_user_status_api(request, user_id):
+    """
+    API-эндпоинт для блокировки/разблокировки пользователя (переключает is_active).
+    """
+    try:
+        user = get_object_or_404(User, pk=user_id)
+        # Не позволяем администратору заблокировать самого себя
+        if user == request.user:
+            return JsonResponse({'status': 'error', 'message': 'Вы не можете заблокировать себя.'}, status=403)
+        
+        # Переключаем статус
+        user.is_active = not user.is_active
+        user.save()
+        
+        return JsonResponse({'status': 'success', 'is_active': user.is_active})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@require_POST
+@login_required
+@user_passes_test(is_staff_check) # Доступ только для персонала
+def delete_user_api(request, user_id):
+    """
+    API-эндпоинт для полного удаления пользователя.
+    """
+    try:
+        user = get_object_or_404(User, pk=user_id)
+        # Не позволяем администратору удалить самого себя
+        if user == request.user:
+            return JsonResponse({'status': 'error', 'message': 'Вы не можете удалить себя.'}, status=403)
+        
+        user.delete()
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
+@login_required
+@user_passes_test(is_staff_check)
+def school_details_api(request, school_id):
+    """Возвращает детали школы для заполнения формы редактирования."""
+    school = get_object_or_404(School, pk=school_id)
+    data = {
+        'id': school.id,
+        'name': school.name,
+        'address': school.address, # <-- Адаптируйте, если поле называется иначе
+    }
+    return JsonResponse(data)
+
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def manage_school_api(request):
+    """Создает или обновляет школу."""
+    school_id = request.POST.get('school_id')
+    instance = get_object_or_404(School, pk=school_id) if school_id else None
+    
+    form = SchoolForm(request.POST, instance=instance)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def delete_school_api(request, school_id):
+    """Удаляет школу."""
+    school = get_object_or_404(School, pk=school_id)
+    school.delete()
+    return JsonResponse({'status': 'success'})
+
+# === КОНЕЦ НОВЫХ ФУНКЦИЙ ===

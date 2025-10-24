@@ -42,5 +42,11 @@ urlpatterns = [
     path('api/user/<int:user_id>/details/', views.get_user_details_view, name='api_get_user_details'),
     path('api/class/<int:class_id>/details/', views.class_details_api, name='class_details_api'),
     path('api/class/manage/', views.manage_class_api, name='manage_class_api'),
-
+    # === НАЧАЛО НОВЫХ МАРШРУТОВ ===
+    path('api/user/<int:user_id>/toggle-status/', views.toggle_user_status_api, name='toggle_user_status_api'),
+    path('api/user/<int:user_id>/delete/', views.delete_user_api, name='delete_user_api'),
+    # === КОНЕЦ НОВЫХ МАРШРУТОВ ===
+    path('api/school/manage/', views.manage_school_api, name='manage_school_api'),
+    path('api/school/<int:school_id>/details/', views.school_details_api, name='school_details_api'),
+    path('api/school/<int:school_id>/delete/', views.delete_school_api, name='delete_school_api'),
 ]

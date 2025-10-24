@@ -84,6 +84,8 @@
         
                 <div class="content-card">
                     <form method="GET" action="{% url 'admin_panel' %}" class="filters-toolbar">
+                        <!-- Добавлен для получения токена в JS -->
+                        {% csrf_token %}
                         <div class="search-group">
                             <i class="fa-solid fa-search"></i>
                             <input type="text" name="q" placeholder="Поиск по имени или email..." value="{{ search_query }}">
@@ -131,7 +133,8 @@
                             </thead>
                             <tbody>
                                 {% for user_obj in users %}
-                                <tr>
+                                <!-- ИЗМЕНЕНИЕ: Добавлен data-атрибут для легкого поиска строки -->
+                                <tr data-user-row-id="{{ user_obj.id }}">
                                     <td>{{ user_obj.get_full_name|default:user_obj.username }}</td>
                                     <td class="user-name-cell">
                                         <span>{{ user_obj.email|default:"-" }}</span>
@@ -164,9 +167,12 @@
                                     </td>
                                     <td>{{ user_obj.last_login|date:"Y-m-d H:i"|default:"Никогда" }}</td>
                                     <td class="action-icons">
-                                        <a href="#" class="edit-btn" data-user-id="{{ user_obj.id }}"><i class="fa-solid fa-pencil"></i></a>
-                                        <a href="#"><i class="fa-solid fa-lock{% if not user_obj.is_active %}-open{% endif %}"></i></a>
-                                        <a href="#"><i class="fa-solid fa-trash-can"></i></a>
+                                        <!-- ИЗМЕНЕНИЕ: Оборачиваем все иконки в теги <a> и добавляем классы/атрибуты -->
+                                        <a href="#" class="edit-btn" data-user-id="{{ user_obj.id }}" title="Редактировать"><i class="fa-solid fa-pencil"></i></a>
+                                        <a href="#" class="block-user-btn" data-user-id="{{ user_obj.id }}" title="{% if user_obj.is_active %}Заблокировать{% else %}Разблокировать{% endif %}">
+                                            <i class="fa-solid fa-lock{% if not user_obj.is_active %}-open{% endif %}"></i>
+                                        </a>
+                                        <a href="#" class="delete-user-btn" data-user-id="{{ user_obj.id }}" title="Удалить"><i class="fa-solid fa-trash-can"></i></a>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -315,7 +321,7 @@
     </div>
     
     <!-- ===================================================================== -->
-    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ КЛАССА (добавлено) === -->
+    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ КЛАССА (без изменений) === -->
     <!-- ===================================================================== -->
     <div class="modal-overlay" id="class-modal-overlay">
         <div class="modal-container">
@@ -329,8 +335,19 @@
                 {% csrf_token %}
                 <input type="hidden" name="class_id" id="id_class_id">
                 
+                <!-- === НОВОЕ ПОЛЕ ДЛЯ ВЫБОРА ШКОЛЫ === -->
                 <div class="form-group">
-                    <label for="id_class_name">Класс</label>
+                    <label for="id_school_for_class">Школа</label>
+                    <select name="school" id="id_school_for_class" required>
+                        <option value="">-- Выберите школу --</option>
+                        {% for school in all_schools %}
+                            <option value="{{ school.id }}">{{ school.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_class_name">Название класса</label>
                     <input type="text" name="name" id="id_class_name" placeholder="Например, 10Б" required>
                 </div>
 
@@ -358,245 +375,353 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- === JAVASCRIPT (объединенный) === -->
+    <!-- === JAVASCRIPT === -->
     <!-- ===================================================================== -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРИЛОЖЕНИЯ ---
         const navLinks = document.querySelectorAll('.main-nav a');
         const contentPages = document.querySelectorAll('.page-content');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        /**
-         * Инициализирует все скрипты, специфичные для страницы "Управление пользователями".
-         */
         const initUserManagementScripts = () => {
-            const userPageContent = document.getElementById('page-users');
-            if (!userPageContent) return;
+            const page = document.getElementById('page-users');
+            if (!page) return;
 
             const modalOverlay = document.getElementById('user-modal-overlay');
-            const userForm = document.getElementById('user-form');
+            const form = document.getElementById('user-form');
             const modalTitle = document.getElementById('modal-title');
             const submitBtn = document.getElementById('submit-btn');
             const roleSelect = document.getElementById('id_role');
-            const classFieldWrapper = document.getElementById('class-field-wrapper');
-            const subjectFieldWrapper = document.getElementById('subject-field-wrapper');
-            const createUserBtn = document.getElementById('create-user-btn');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            const cancelBtn = document.getElementById('cancel-btn');
-            const editButtons = userPageContent.querySelectorAll('.edit-btn');
+            const classField = document.getElementById('class-field-wrapper');
+            const subjectField = document.getElementById('subject-field-wrapper');
 
-            if (!modalOverlay || !userForm || !createUserBtn) {
-                console.error("Не найдены ключевые элементы для модального окна пользователей.");
-                return;
-            }
-
-            const openModal = () => { modalOverlay.style.display = 'flex'; };
-            const closeModal = () => { modalOverlay.style.display = 'none'; };
+            const openModal = () => modalOverlay.style.display = 'flex';
+            const closeModal = () => modalOverlay.style.display = 'none';
 
             const toggleConditionalFields = () => {
-                const selectedRole = roleSelect.value;
-                classFieldWrapper.style.display = (selectedRole === 'student') ? 'block' : 'none';
-                subjectFieldWrapper.style.display = (selectedRole === 'teacher') ? 'block' : 'none';
+                const role = roleSelect.value;
+                classField.style.display = (role === 'student') ? 'block' : 'none';
+                subjectField.style.display = (role === 'teacher') ? 'block' : 'none';
             };
-            
-            roleSelect.addEventListener('change', toggleConditionalFields);
-            closeModalBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
 
-            createUserBtn.addEventListener('click', () => {
-                userForm.reset();
-                userForm.querySelector('#id_user_id').value = '';
+            document.getElementById('create-user-btn').addEventListener('click', () => {
+                form.reset();
+                form.querySelector('#id_user_id').value = '';
                 modalTitle.textContent = 'Создать пользователя';
                 submitBtn.textContent = 'Создать';
                 toggleConditionalFields();
                 openModal();
             });
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', async (e) => {
+            document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+            document.getElementById('cancel-btn').addEventListener('click', closeModal);
+            roleSelect.addEventListener('change', toggleConditionalFields);
+
+            page.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', async e => {
                     e.preventDefault();
                     const userId = button.dataset.userId;
-                    
-                    try {
-                        const response = await fetch(`/api/user/${userId}/details/`);
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const response = await fetch(`/api/user/${userId}/details/`);
+                    if (response.ok) {
                         const data = await response.json();
-
-                        userForm.querySelector('#id_user_id').value = data.id;
-                        userForm.querySelector('#id_full_name').value = data.full_name;
-                        userForm.querySelector('#id_email').value = data.email;
-                        userForm.querySelector('#id_phone_number').value = data.phone_number || '';
-                        userForm.querySelector('#id_role').value = data.role;
-                        userForm.querySelector('#id_is_active').value = data.is_active ? 'True' : 'False';
-                        
-                        if (data.school_class_id) {
-                            userForm.querySelector('#id_school_class').value = data.school_class_id;
-                        }
-
-                        const subjectSelect = userForm.querySelector('#id_subjects');
-                        Array.from(subjectSelect.options).forEach(option => {
-                            option.selected = data.subject_ids.includes(parseInt(option.value));
-                        });
-                        
+                        form.querySelector('#id_user_id').value = data.id;
+                        form.querySelector('#id_full_name').value = data.full_name;
+                        form.querySelector('#id_email').value = data.email;
+                        form.querySelector('#id_phone_number').value = data.phone_number || '';
+                        form.querySelector('#id_role').value = data.role;
+                        form.querySelector('#id_is_active').value = data.is_active ? 'True' : 'False';
+                        if (data.school_class_id) form.querySelector('#id_school_class').value = data.school_class_id;
+                        const subjectSelect = form.querySelector('#id_subjects');
+                        Array.from(subjectSelect.options).forEach(opt => opt.selected = data.subject_ids.includes(parseInt(opt.value)));
                         modalTitle.textContent = 'Редактировать пользователя';
                         submitBtn.textContent = 'Сохранить';
                         toggleConditionalFields();
                         openModal();
-                    } catch (error) {
-                        console.error("Ошибка при загрузке данных пользователя:", error);
-                        alert("Не удалось загрузить данные пользователя.");
                     }
                 });
             });
 
-            userForm.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', async e => {
                 e.preventDefault();
-                const formData = new FormData(userForm);
+                const formData = new FormData(form);
                 const subjectSelect = document.getElementById('id_subjects');
                 if (subjectSelect.style.display !== 'none') {
                     formData.delete('subjects');
-                    const selectedSubjects = Array.from(subjectSelect.selectedOptions).map(opt => opt.value);
-                    selectedSubjects.forEach(subjectId => formData.append('subjects', subjectId));
+                    Array.from(subjectSelect.selectedOptions).forEach(opt => formData.append('subjects', opt.value));
                 }
-                
-                try {
-                    const response = await fetch("/api/user/manage/", { 
-                        method: 'POST',
-                        body: formData,
-                        headers: {'X-CSRFToken': formData.get('csrfmiddlewaretoken')}
-                    });
+                const response = await fetch("/api/user/manage/", { method: 'POST', body: formData, headers: {'X-CSRFToken': csrfToken}});
+                if (response.ok) location.reload();
+                else alert('Ошибка валидации');
+            });
 
+            page.querySelectorAll('.block-user-btn').forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    const userId = button.dataset.userId;
+                    const response = await fetch(`/api/user/${userId}/toggle-status/`, { method: 'POST', headers: {'X-CSRFToken': csrfToken }});
                     if (response.ok) {
-                        closeModal();
-                        location.reload(); 
-                    } else {
                         const result = await response.json();
-                        alert('Ошибка валидации: ' + JSON.stringify(result.errors));
+                        const row = document.querySelector(`tr[data-user-row-id="${userId}"]`);
+                        const statusBadge = row.querySelector('.status-badge');
+                        const lockIcon = button.querySelector('i');
+                        if (result.is_active) {
+                            statusBadge.textContent = 'Активен';
+                            statusBadge.className = 'status-badge status-active';
+                            lockIcon.className = 'fa-solid fa-lock';
+                            button.title = 'Заблокировать';
+                        } else {
+                            statusBadge.textContent = 'Заблокирован';
+                            statusBadge.className = 'status-badge status-blocked';
+                            lockIcon.className = 'fa-solid fa-lock-open';
+                            button.title = 'Разблокировать';
+                        }
                     }
-                } catch (error) {
-                    console.error("Ошибка при отправке формы:", error);
-                    alert("Произошла сетевая ошибка.");
-                }
+                });
+            });
+
+            page.querySelectorAll('.delete-user-btn').forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+                        const userId = button.dataset.userId;
+                        const response = await fetch(`/api/user/${userId}/delete/`, { method: 'POST', headers: {'X-CSRFToken': csrfToken }});
+                        if (response.ok) button.closest('tr').remove();
+                        else alert('Не удалось удалить пользователя.');
+                    }
+                });
             });
         };
 
-        /**
-         * Инициализирует все скрипты, специфичные для страницы "Структура школы".
-         */
         const initSchoolStructureScripts = () => {
-            const structurePageContent = document.getElementById('page-structure');
-            if (!structurePageContent) return;
+            const page = document.getElementById('page-structure');
+            if (!page) return;
 
             const modalOverlay = document.getElementById('class-modal-overlay');
-            const classForm = document.getElementById('class-form');
+            const form = document.getElementById('class-form');
             const modalTitle = document.getElementById('class-modal-title');
             const submitBtn = document.getElementById('submit-class-btn');
-            const studentCountDisplay = document.getElementById('student-count-display');
+            const studentCount = document.getElementById('student-count-display');
             
-            const createClassBtn = document.getElementById('create-class-btn');
-            const closeModalBtn = document.getElementById('close-class-modal-btn');
-            const cancelBtn = document.getElementById('cancel-class-btn');
-            const editButtons = structurePageContent.querySelectorAll('.edit-class-btn');
+            const openModal = () => modalOverlay.style.display = 'flex';
+            const closeModal = () => modalOverlay.style.display = 'none';
 
-            if (!modalOverlay || !classForm || !createClassBtn) {
-                console.error("Не найдены ключевые элементы для модального окна классов.");
-                return;
-            }
-
-            const openModal = () => { modalOverlay.style.display = 'flex'; };
-            const closeModal = () => { modalOverlay.style.display = 'none'; };
-
-            closeModalBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
-
-            createClassBtn.addEventListener('click', () => {
-                classForm.reset();
-                classForm.querySelector('#id_class_id').value = '';
-                modalTitle.textContent = 'Создать класс';
+            document.getElementById('create-class-btn').addEventListener('click', () => {
+                form.reset();
+                form.querySelector('#id_class_id').value = '';
+                modalTitle.textContent = 'Создать новый класс';
                 submitBtn.textContent = 'Создать';
-                studentCountDisplay.textContent = '0'; // У нового класса 0 учеников
+                studentCount.textContent = '0';
                 openModal();
             });
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', async (e) => {
+            document.getElementById('close-class-modal-btn').addEventListener('click', closeModal);
+            document.getElementById('cancel-class-btn').addEventListener('click', closeModal);
+            
+            page.querySelectorAll('.edit-class-btn').forEach(button => {
+                button.addEventListener('click', async e => {
                     e.preventDefault();
                     const classId = button.dataset.classId;
-                    
                     try {
-                        const response = await fetch(`/api/class/${classId}/details/`); 
+                        const response = await fetch(`/api/class/${classId}/details/`);
                         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        
                         const data = await response.json();
 
-                        classForm.querySelector('#id_class_id').value = data.id;
-                        classForm.querySelector('#id_class_name').value = data.name;
-                        classForm.querySelector('#id_class_teacher').value = data.class_teacher_id || '';
-                        studentCountDisplay.textContent = data.student_count;
-                        
+                        form.querySelector('#id_class_id').value = data.id;
+                        form.querySelector('#id_class_name').value = data.name;
+                        form.querySelector('#id_school_for_class').value = data.school_id; // Установка школы
+                        form.querySelector('#id_class_teacher').value = data.class_teacher_id || '';
+                        studentCount.textContent = data.student_count;
                         modalTitle.textContent = 'Редактировать класс';
                         submitBtn.textContent = 'Сохранить';
                         openModal();
                     } catch (error) {
-                        console.error("Ошибка при загрузке данных класса:", error);
-                        alert("Не удалось загрузить данные класса.");
+                         console.error("Ошибка при загрузке данных класса:", error);
+                         alert("Не удалось загрузить данные класса.");
                     }
                 });
             });
 
-            classForm.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', async e => {
                 e.preventDefault();
-                const formData = new FormData(classForm);
-                
+                const formData = new FormData(form);
                 try {
-                    const response = await fetch("/api/class/manage/", { 
+                    const response = await fetch("/api/class/manage/", {
                         method: 'POST',
                         body: formData,
-                        headers: {'X-CSRFToken': formData.get('csrfmiddlewaretoken')}
+                        headers: {'X-CSRFToken': csrfToken}
                     });
-
                     if (response.ok) {
                         closeModal();
-                        location.reload(); 
+                        location.reload();
                     } else {
                         const result = await response.json();
                         alert('Ошибка валидации: ' + JSON.stringify(result.errors));
                     }
                 } catch (error) {
-                    console.error("Ошибка при отправке формы:", error);
+                    console.error("Ошибка при отправке формы класса:", error);
                     alert("Произошла сетевая ошибка.");
                 }
             });
-        };
 
-        /**
-         * Основная функция навигации. Переключает видимость страниц.
-         */
-        const navigateTo = (pageId) => {
-            contentPages.forEach(page => { page.style.display = 'none'; });
-            const targetPage = document.getElementById(`page-${pageId}`);
-            if (targetPage) {
-                targetPage.style.display = 'block';
-            } else {
-                document.getElementById('page-home').style.display = 'block';
+            page.querySelectorAll('.delete-class-btn').forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    if (confirm('Вы уверены, что хотите удалить класс?')) {
+                        const classId = button.dataset.classId;
+                        const response = await fetch(`/api/class/${classId}/delete/`, { method: 'POST', headers: {'X-CSRFToken': csrfToken}});
+                        if (response.ok) button.closest('tr').remove();
+                        else alert('Не удалось удалить класс.');
+                    }
+                });
+            });
+
+            const tabsNav = document.getElementById('structure-tabs-nav');
+            const actionButtons = document.getElementById('structure-action-buttons');
+            const tabPanes = page.querySelectorAll('.content-tab-pane');
+            tabsNav.querySelectorAll('a').forEach(tabLink => {
+                tabLink.addEventListener('click', e => {
+                    e.preventDefault();
+                    const targetTab = tabLink.dataset.tab;
+                    tabsNav.querySelectorAll('a').forEach(link => link.classList.remove('active'));
+                    tabLink.classList.add('active');
+                    tabPanes.forEach(pane => pane.classList.toggle('active', pane.id === `tab-${targetTab}`));
+                    actionButtons.querySelectorAll('button').forEach(btn => btn.style.display = 'none');
+                    const targetBtn = document.getElementById(`create-${targetTab.slice(0, -1)}-btn`);
+                    if (targetBtn) targetBtn.style.display = 'inline-flex';
+                });
+            });
+        };
+        
+        const initSchoolManagementScripts = () => {
+            const page = document.getElementById('page-structure');
+            if (!page) return;
+
+            // Элементы модального окна для школ
+            const modalOverlay = document.getElementById('school-modal-overlay');
+            const form = document.getElementById('school-form');
+            const modalTitle = document.getElementById('school-modal-title');
+            const submitBtn = document.getElementById('submit-school-btn');
+
+            // Кнопки управления
+            const createSchoolBtn = document.getElementById('create-school-btn');
+            const closeModalBtn = document.getElementById('close-school-modal-btn');
+            const cancelBtn = document.getElementById('cancel-school-btn');
+            
+            // Кнопки в таблице
+            const editButtons = page.querySelectorAll('.edit-school-btn');
+            const deleteButtons = page.querySelectorAll('.delete-school-btn');
+
+            if (!modalOverlay || !form || !createSchoolBtn) {
+                console.error("Не найдены ключевые элементы для модального окна школ.");
+                return;
             }
-            navLinks.forEach(link => {
-                link.classList.toggle('active', link.dataset.target === pageId);
+
+            const openModal = () => modalOverlay.style.display = 'flex';
+            const closeModal = () => modalOverlay.style.display = 'none';
+
+            // Обработчики для закрытия модального окна
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+
+            // Обработчик для кнопки "Создать школу"
+            createSchoolBtn.addEventListener('click', () => {
+                form.reset();
+                form.querySelector('#id_school_id').value = '';
+                modalTitle.textContent = 'Создать новую школу';
+                submitBtn.textContent = 'Создать';
+                openModal();
+            });
+
+            // Обработчики для кнопок "Редактировать" в каждой строке таблицы
+            editButtons.forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    const schoolId = button.dataset.schoolId;
+                    try {
+                        const response = await fetch(`/api/school/${schoolId}/details/`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            form.querySelector('#id_school_id').value = data.id;
+                            form.querySelector('#id_school_name').value = data.name;
+                            form.querySelector('#id_school_address').value = data.address || '';
+                            modalTitle.textContent = 'Редактировать школу';
+                            submitBtn.textContent = 'Сохранить';
+                            openModal();
+                        } else {
+                            alert('Не удалось загрузить данные школы.');
+                        }
+                    } catch (error) {
+                        console.error("Ошибка при загрузке данных школы:", error);
+                        alert("Произошла сетевая ошибка.");
+                    }
+                });
+            });
+
+            // Обработчик отправки формы (работает и для создания, и для редактирования)
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                try {
+                    const response = await fetch('/api/school/manage/', {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: { 'X-CSRFToken': csrfToken }
+                    });
+                    if (response.ok) {
+                        location.reload(); // Перезагружаем страницу для обновления данных
+                    } else {
+                        const result = await response.json();
+                        alert('Ошибка валидации: ' + JSON.stringify(result.errors));
+                    }
+                } catch (error) {
+                    console.error("Ошибка при отправке формы школы:", error);
+                    alert("Произошла сетевая ошибка.");
+                }
+            });
+
+            // Обработчики для кнопок "Удалить" в каждой строке
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    if (confirm('Вы уверены, что хотите удалить эту школу? Все связанные данные могут быть утеряны.')) {
+                        const schoolId = button.dataset.schoolId;
+                        try {
+                            const response = await fetch(`/api/school/${schoolId}/delete/`, {
+                                method: 'POST',
+                                headers: { 'X-CSRFToken': csrfToken }
+                            });
+                            if (response.ok) {
+                                // Удаляем строку из таблицы без перезагрузки страницы
+                                button.closest('tr').remove();
+                            } else {
+                                alert('Не удалось удалить школу.');
+                            }
+                        } catch (error) {
+                            console.error("Ошибка при удалении школы:", error);
+                            alert("Произошла сетевая ошибка.");
+                        }
+                    }
+                });
             });
         };
 
-        // --- НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
+        const navigateTo = (pageId) => {
+            contentPages.forEach(page => page.style.display = 'none');
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) targetPage.style.display = 'block';
+            navLinks.forEach(link => link.classList.toggle('active', link.dataset.target === pageId));
+        };
+
         navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
+            link.addEventListener('click', e => {
                 e.preventDefault();
                 navigateTo(e.currentTarget.dataset.target);
             });
         });
 
-        // --- ПЕРВОНАЧАЛЬНАЯ ЗАГРУЗКА ПРИЛОЖЕНИЯ ---
-        navigateTo('users'); // Показываем страницу "Пользователи" по умолчанию
-        initUserManagementScripts(); // Инициализируем скрипты для модалки пользователей
-        initSchoolStructureScripts(); // Инициализируем скрипты для модалки классов
+        navigateTo('users');
+        initUserManagementScripts();
+        initSchoolStructureScripts();
+        initSchoolManagementScripts();
     });
     </script>
 </body>

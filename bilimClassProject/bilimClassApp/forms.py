@@ -208,3 +208,13 @@ class SchoolClassForm(forms.ModelForm):
         """
         super().__init__(*args, **kwargs)
         self.fields['class_teacher'].empty_label = "Не назначен"
+
+class SchoolForm(forms.ModelForm):
+    class Meta:
+        model = School
+        # Укажите поля, которые пользователь может редактировать через форму
+        fields = ['name', 'address'] # <-- Адаптируйте, если у вас другие поля
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Например, Гимназия №17'}),
+            'address': forms.TextInput(attrs={'placeholder': 'Например, г. Астана, ул. Мира, 1'}),
+        }

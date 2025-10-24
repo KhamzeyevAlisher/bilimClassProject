@@ -1,0 +1,524 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями - Школьная Платформа</title>
+    
+    <!-- Подключаем иконки Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- ПОДКЛЮЧАЕМ НАШИ СТИЛИ -->
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/admin_panel.css' %}">
+    <style>
+        .page-header {
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+        .page-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .page-header h2 i {
+            color: var(--accent-green);
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .content-card {
+            background-color: var(--bg-widget);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .content-tabs {
+            display: flex;
+            gap: 8px;
+            background-color: #F3F4F6; /* Светло-серый фон для контейнера табов */
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .content-tabs a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.2s ease-in-out;
+        }
+        .content-tabs a.active {
+            background-color: var(--bg-widget);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .content-tabs .count-badge {
+            background-color: #E5E7EB; /* Темнее фон для счетчика */
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .content-tabs a.active .count-badge {
+            background-color: var(--accent-light);
+            color: var(--accent-primary);
+        }
+
+        .btn-success {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: var(--accent-green);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-success:hover { background-color: #059669; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        .data-table th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 12px;
+        }
+        .data-table tbody tr:hover { background-color: var(--bg-main); }
+        
+        .student-count-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+        }
+
+        .profile-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-main);
+        }
+
+        .action-icons {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-start;
+        }
+        .action-icons i {
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        .action-icons .fa-pencil:hover { color: var(--accent-primary); }
+        .action-icons .fa-trash-can:hover { color: var(--accent-red); }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <!-- Шапка -->
+        <header class="site-header">
+            <div class="logo-section">
+                <div class="logo-icon">ШП</div>
+                <div class="logo-text">
+                    <h1>Школьная Платформа</h1>
+                    <span>Система управления учебным процессом</span>
+                </div>
+            </div>
+            <div class="user-section">
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p>Кузнецов Дмитрий Александрович</p>
+                        <span>Администратор</span>
+                    </div>
+                    <div class="user-avatar">ДА</div>
+                </div>
+                <div class="role-switcher">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Ученик</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Главная навигация -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#"><i class="fa-solid fa-house"></i> Главная</a></li>
+                <li><a href="#"><i class="fa-solid fa-users"></i> Пользователи</a></li>
+                <li><a href="#" class="active"><i class="fa-solid fa-sitemap"></i> Структура школы</a></li>
+                <li><a href="#"><i class="fa-solid fa-tags"></i> Назначения</a></li>
+                <li><a href="#"><i class="fa-solid fa-gear"></i> Настройки</a></li>
+            </ul>
+        </nav>
+
+
+        <!-- Основной контент -->
+        <main>
+            <div class="page-header">
+                <div class="page-title">
+                    <h2>Управление пользователями</h2>
+                    <p>Создание, редактирование и управление учетными записями</p>
+                </div>
+                <!-- ОБНОВЛЕНИЕ: Добавлен id для кнопки -->
+                <button class="btn-primary" id="create-user-btn">
+                    <i class="fa-solid fa-plus"></i>
+                    Создать пользователя
+                </button>
+            </div>
+
+            <div class="content-card">
+                <!-- Панель с фильтрами -->
+                
+                <form method="GET" action="{% url 'admin_panel' %}" class="filters-toolbar">
+    
+                    <!-- Поиск -->
+                    <div class="search-group">
+                        <i class="fa-solid fa-search"></i>
+                        <!-- `name="q"` - это ключ в GET-запросе. `value="{{ search_query }}"` - "запоминает" поиск. -->
+                        <input type="text" name="q" placeholder="Поиск по имени или email..." value="{{ search_query }}">
+                    </div>
+
+                    <!-- Фильтр по ролям -->
+                    <!-- `name="role"` - ключ. Динамически создаем опции из `role_choices` -->
+                    <select name="role" class="filter-select">
+                        <option value="">Все роли</option>
+                        {% for value, display_name in role_choices %}
+                            <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>
+                                {{ display_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Фильтр по статусу -->
+                    <!-- `name="status"` - ключ. Опции заданы вручную -->
+                    <select name="status" class="filter-select">
+                        <option value="">Все статусы</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активен</option>
+                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Заблокирован</option>
+                    </select>
+                    
+                    <!-- Кнопки для применения и сброса фильтров -->
+                    <button type="submit" class="btn-primary">Применить</button>
+                    <a href="{% url 'admin_panel' %}" class="btn-secondary">Сбросить</a>
+                </form>
+
+                <!-- Табы с динамическими счетчиками -->
+                <nav class="content-tabs">
+                    <ul>
+                        <li>
+                            <a href="#" class="active">
+                                Пользователи
+                                <span class="count-badge">{{ users.count }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Таблица с пользователями -->
+                <div class="table-wrapper">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Email</th>
+                                <th>Телефон</th>
+                                <th>Роль</th>
+                                <th>Статус</th>
+                                <th>Последний вход</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                            {% for user_obj in users %}
+                            <tr>
+                                <td>{{ user_obj.get_full_name|default:user_obj.username }}</td>
+                                <td class="user-name-cell">
+                                    <span>{{ user_obj.email|default:"-" }}</span>
+                                    {% if user_obj.email %}<i class="fa-regular fa-envelope"></i>{% endif %}
+                                </td>
+                                <td>
+                                    {{ user_obj.profile.phone_number|default:"-" }}
+                                </td>
+                                <td>
+                                    {% if user_obj.profile and user_obj.profile.role %}
+                                        {% if user_obj.profile.role == 'teacher' %}
+                                            <span class="role-badge role-teacher">{{ user_obj.profile.get_role_display }}</span>
+                                        {% elif user_obj.profile.role == 'student' %}
+                                            <span class="role-badge role-student">{{ user_obj.profile.get_role_display }}</span>
+                                        {% elif user_obj.profile.role == 'headteacher' %}
+                                            <span class="role-badge role-headteacher">{{ user_obj.profile.get_role_display }}</span>
+                                        {% else %}
+                                            <span>{{ user_obj.profile.get_role_display }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span>-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user_obj.is_active %}
+                                        <span class="status-badge status-active">Активен</span>
+                                    {% else %}
+                                        <span class="status-badge status-blocked">Заблокирован</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user_obj.last_login|date:"Y-m-d H:i"|default:"Никогда" }}</td>
+                                <td class="action-icons">
+                                    <!-- ОБНОВЛЕНИЕ: Добавлены класс и data-атрибут для JS -->
+                                    <a href="#" class="edit-btn" data-user-id="{{ user_obj.id }}"><i class="fa-solid fa-pencil"></i></a>
+                                    <a href="#"><i class="fa-solid fa-lock{% if not user_obj.is_active %}-open{% endif %}"></i></a>
+                                    <a href="#"><i class="fa-solid fa-trash-can"></i></a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 24px;">Пользователи не найдены.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- === НАЧАЛО: HTML-КОД МОДАЛЬНОГО ОКНА (скрыто по умолчанию) === -->
+    <!-- ===================================================================== -->
+    <div class="modal-overlay" id="user-modal-overlay">
+        <div class="modal-container">
+            <button class="close-btn" id="close-modal-btn">&times;</button>
+            <div class="modal-header">
+                <h2 id="modal-title">Создать пользователя</h2>
+                <p>Заполните информацию о пользователе</p>
+            </div>
+            
+            <form id="user-form" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="user_id" id="id_user_id">
+                
+                <div class="form-group">
+                    <label for="id_full_name">ФИО</label>
+                    <input type="text" name="full_name" id="id_full_name" required>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label for="id_email">Email</label>
+                        <input type="email" name="email" id="id_email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phone_number">Телефон</label>
+                        <input type="tel" name="phone_number" id="id_phone_number">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label for="id_role">Роль</label>
+                        <select name="role" id="id_role" required>
+                            {% for value, display_name in role_choices %}
+                                <option value="{{ value }}">{{ display_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_is_active">Статус</label>
+                        <select name="is_active" id="id_is_active" required>
+                            <option value="True">Активен</option>
+                            <option value="False">Заблокирован</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Кондиционные поля, которые появляются/исчезают -->
+                <div class="form-group" id="class-field-wrapper" style="display: none;">
+                    <label for="id_school_class">Класс</label>
+                    <select name="school_class" id="id_school_class">
+                        <option value="">Выберите класс</option>
+                        {% for class in school_classes %}
+                            <option value="{{ class.id }}">{{ class.name }} ({{ class.school.name }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" id="subject-field-wrapper" style="display: none;">
+                    <label for="id_subjects">Предметы</label>
+                    <select name="subjects" id="id_subjects" multiple>
+                        {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-btn">Отмена</button>
+                    <button type="submit" class="btn-submit" id="submit-btn">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ===================================================================== -->
+    <!-- === КОНЕЦ: HTML-КОД МОДАЛЬНОГО ОКНА === -->
+    <!-- ===================================================================== -->
+
+
+    <!-- ===================================================================== -->
+    <!-- === НАЧАЛО: JAVASCRIPT ДЛЯ УПРАВЛЕНИЯ МОДАЛЬНЫМ ОКНОМ === -->
+    <!-- ===================================================================== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Получаем все нужные элементы со страницы ---
+        const modalOverlay = document.getElementById('user-modal-overlay');
+        const userForm = document.getElementById('user-form');
+        const modalTitle = document.getElementById('modal-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const roleSelect = document.getElementById('id_role');
+        const classFieldWrapper = document.getElementById('class-field-wrapper');
+        const subjectFieldWrapper = document.getElementById('subject-field-wrapper');
+        const createUserBtn = document.getElementById('create-user-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const editButtons = document.querySelectorAll('.edit-btn');
+
+        // --- Функции для управления модальным окном ---
+        const openModal = () => { modalOverlay.style.display = 'flex'; };
+        const closeModal = () => { modalOverlay.style.display = 'none'; };
+
+        // --- Функция для показа/скрытия полей в зависимости от роли ---
+        const toggleConditionalFields = () => {
+            const selectedRole = roleSelect.value;
+            classFieldWrapper.style.display = (selectedRole === 'student') ? 'block' : 'none';
+            subjectFieldWrapper.style.display = (selectedRole === 'teacher') ? 'block' : 'none';
+        };
+        
+        // --- Вешаем обработчики событий ---
+        roleSelect.addEventListener('change', toggleConditionalFields);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // --- Открытие модалки для СОЗДАНИЯ пользователя ---
+        createUserBtn.addEventListener('click', () => {
+            userForm.reset();
+            userForm.querySelector('#id_user_id').value = '';
+            modalTitle.textContent = 'Создать пользователя';
+            submitBtn.textContent = 'Создать';
+            toggleConditionalFields(); // Обновляем видимость полей
+            openModal();
+        });
+
+        // --- Открытие модалки для РЕДАКТИРОВАНИЯ пользователя ---
+        editButtons.forEach(button => {
+            button.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const userId = button.dataset.userId;
+                
+                // Запрашиваем данные пользователя с сервера
+                const response = await fetch(`/api/user/${userId}/details/`);
+                if (!response.ok) { alert("Не удалось загрузить данные пользователя."); return; }
+                const data = await response.json();
+
+                // Заполняем форму полученными данными
+                userForm.querySelector('#id_user_id').value = data.id;
+                userForm.querySelector('#id_full_name').value = data.full_name;
+                userForm.querySelector('#id_email').value = data.email;
+                userForm.querySelector('#id_phone_number').value = data.phone_number || '';
+                userForm.querySelector('#id_role').value = data.role;
+                userForm.querySelector('#id_is_active').value = data.is_active ? 'True' : 'False';
+                
+                if(data.school_class_id) {
+                    userForm.querySelector('#id_school_class').value = data.school_class_id;
+                }
+
+                // Заполнение поля "Предметы" (multiple select)
+                const subjectSelect = userForm.querySelector('#id_subjects');
+                Array.from(subjectSelect.options).forEach(option => {
+                    option.selected = data.subject_ids.includes(parseInt(option.value));
+                });
+                
+                modalTitle.textContent = 'Редактировать пользователя';
+                submitBtn.textContent = 'Сохранить';
+                toggleConditionalFields(); // Обновляем видимость полей согласно роли
+                openModal();
+            });
+        });
+
+        // --- Отправка формы (Создание/Редактирование) ---
+        userForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(userForm);
+            
+            // --- Корректная обработка multiple select для FormData ---
+            const subjectSelect = document.getElementById('id_subjects');
+            if (subjectSelect.style.display !== 'none') {
+                formData.delete('subjects'); 
+                const selectedSubjects = Array.from(subjectSelect.selectedOptions).map(opt => opt.value);
+                selectedSubjects.forEach(subjectId => {
+                    formData.append('subjects', subjectId);
+                });
+            }
+            
+            // --- Отправка запроса на сервер с ПРАВИЛЬНЫМ URL ---
+            const response = await fetch("{% url 'api_manage_user' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken') // CSRF токен обязателен!
+                }
+            });
+
+            if (response.ok) {
+                // Если все успешно, закрываем модалку и перезагружаем страницу
+                closeModal();
+                location.reload(); 
+            } else {
+                // Если есть ошибки валидации, показываем их
+                const result = await response.json();
+                alert('Ошибка валидации: ' + JSON.stringify(result.errors));
+            }
+        });
+    });
+    </script>
+    <!-- ===================================================================== -->
+    <!-- === КОНЕЦ: JAVASCRIPT === -->
+    <!-- ===================================================================== -->
+
+</body>
+</html>

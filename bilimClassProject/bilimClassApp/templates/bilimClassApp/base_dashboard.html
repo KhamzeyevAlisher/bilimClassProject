@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьная Платформа - {% block title %}Панель управления{% endblock %}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/admin_panel.css' %}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    
+    <div class="container">
+        <header class="site-header">
+            <div class="logo-section">
+                <div class="logo-icon">ШП</div>
+                <div class="logo-text">
+                    <h1>Школьная Платформа</h1>
+                    <span>Система управления учебным процессом</span>
+                </div>
+            </div>
+            <div class="user-section">
+                {% if user.is_authenticated %}
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p>{{ user.get_full_name|default:user.username }}</p>
+                        <span>{{ user.profile.get_role_display|default:"Пользователь" }}</span>
+                    </div>
+                    <div class="user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </header>
+
+        <nav class="main-nav">
+             <ul>
+                {% if user.is_staff %}
+                    <li><a href="{% url 'admin_panel' %}" {% if request.resolver_match.url_name == 'admin_panel' %}class="active"{% endif %}><i class="fa-solid fa-users"></i> Панель админа</a></li>
+                {% endif %}
+                
+                <!-- Ссылки для Учителя -->
+                {% if user.profile.role == 'teacher' %}
+                     <li><a href="{% url 'teacher_dashboard' %}"><i class="fa-solid fa-house"></i> Главная</a></li>
+                     <li><a href="{% url 'teacher_journal' %}"><i class="fa-solid fa-book-open-reader"></i> Журнал</a></li>
+                     <li><a href="{% url 'teacher_homework' %}"><i class="fa-solid fa-person-chalkboard"></i> Домашние задания</a></li>
+                {% endif %}
+
+                <!-- Ссылка на новую страницу Расписания (для Завуча и Админа) -->
+                {% if user.is_staff or user.profile.role == 'headteacher' %}
+                <li><a href="{% url 'school_schedule' %}" {% if request.resolver_match.url_name == 'school_schedule' %}class="active"{% endif %}><i class="fa-solid fa-calendar-days"></i> Расписание школы</a></li>
+                {% endif %}
+
+                <li><a href="{% url 'profile' %}"><i class="fa-solid fa-user-gear"></i> Профиль</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a></li>
+            </ul>
+        </nav>
+
+        <main id="app-content">
+            {% block content %}
+            <!-- Содержимое дочерних шаблонов -->
+            {% endblock %}
+        </main>
+    </div>
+
+    {% block modals %}{% endblock %}
+
+    {% block scripts_extra %}{% endblock %}
+</body>
+</html>

@@ -51,4 +51,8 @@ urlpatterns = [
     path('api/school/<int:school_id>/delete/', views.delete_school_api, name='delete_school_api'),
     path('api/assignment/manage/', views.manage_assignment_api, name='manage_assignment_api'),
     path('api/assignment/<int:assignment_id>/delete/', views.delete_assignment_api, name='delete_assignment_api'),
+
+    #завуч
+    path('school-schedule/', views.school_schedule_view, name='school_schedule'),
+    path('api/school/<int:school_id>/classes/', views.get_classes_for_school_api, name='api_get_classes_for_school'),
 ]

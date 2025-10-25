@@ -1629,3 +1629,51 @@ def delete_school_api(request, school_id):
     return JsonResponse({'status': 'success'})
 
 # === КОНЕЦ НОВЫХ ФУНКЦИЙ ===
+
+@login_required
+# @user_passes_test(is_staff_check) # Раскомментируйте, если доступ только для админов
+def school_schedule_view(request):
+    """
+    Отображает страницу с расписанием школы с возможностью фильтрации
+    по школе и классу.
+    """
+    all_schools = School.objects.all().order_by('name')
+    selected_school_id = request.GET.get('school_id')
+    selected_class_id = request.GET.get('class_id')
+
+    classes_in_school = SchoolClass.objects.none()
+    schedule_by_day = {
+        1: [], 2: [], 3: [], 4: [], 5: [], 6: [] # Пн-Сб
+    }
+
+    if selected_school_id:
+        classes_in_school = SchoolClass.objects.filter(school_id=selected_school_id).order_by('name')
+
+    if selected_class_id:
+        schedule_items = Schedule.objects.filter(
+            school_class_id=selected_class_id
+        ).select_related('subject', 'teacher__user').order_by('start_time')
+        
+        for item in schedule_items:
+            if item.day_of_week in schedule_by_day:
+                schedule_by_day[item.day_of_week].append(item)
+
+    context = {
+        'all_schools': all_schools,
+        'classes_in_school': classes_in_school,
+        'selected_school_id': int(selected_school_id) if selected_school_id else None,
+        'selected_class_id': int(selected_class_id) if selected_class_id else None,
+        'schedule_by_day': schedule_by_day,
+        'days_of_week': {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница", 6: "Суббота"},
+    }
+    return render(request, 'bilimClassApp/head_school.html', context)
+
+
+@login_required
+def get_classes_for_school_api(request, school_id):
+    """
+    API, возвращающее список классов для указанной школы.
+    """
+    classes = SchoolClass.objects.filter(school_id=school_id).order_by('name')
+    data = [{'id': c.id, 'name': c.name} for c in classes]
+    return JsonResponse(data, safe=False)

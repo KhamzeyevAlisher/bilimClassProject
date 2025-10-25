@@ -1,0 +1,129 @@
+{% extends "bilimClassApp/base_dashboard.html" %}
+{% load static %}
+{% load custom_filters %} {# Загрузка кастомного фильтра #}
+
+{% block title %}Расписание школы{% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/schedule_head_school.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h2><i class="fa-solid fa-calendar-days"></i> Управление расписанием школы</h2>
+        <p>Создание и редактирование расписания для всех классов</p>
+    </div>
+</div>
+
+<div class="content-card">
+    <form method="GET" action="{% url 'school_schedule' %}" id="schedule-filter-form" class="filters-toolbar">
+        <div class="filter-group">
+            <label for="school-select">Школа</label>
+            <select name="school_id" id="school-select" class="filter-select">
+                <option value="">-- Выберите школу --</option>
+                {% for school in all_schools %}
+                    <option value="{{ school.id }}" {% if school.id == selected_school_id %}selected{% endif %}>
+                        {{ school.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="class-select">Класс</label>
+            <select name="class_id" id="class-select" class="filter-select" {% if not selected_school_id %}disabled{% endif %}>
+                <option value="">-- Сначала выберите школу --</option>
+                {% for s_class in classes_in_school %}
+                     <option value="{{ s_class.id }}" {% if s_class.id == selected_class_id %}selected{% endif %}>
+                        {{ s_class.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+    
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-button active">Расписание</button>
+        </div>
+    </div>
+    
+    <div id="schedule-content">
+        {% if selected_class_id %}
+            <div class="schedule-grid">
+                {% for day_id, day_name in days_of_week.items %}
+                    <div class="day-column">
+                        <div class="day-header">
+                            <h3>{{ day_name }}</h3>
+                            <button class="add-lesson-to-day-btn" title="Добавить урок">+</button>
+                        </div>
+                        <div class="lessons-list">
+                            {% for lesson in schedule_by_day|get_item:day_id %}
+                                <div class="lesson-card">
+                                    <div class="lesson-time">{{ lesson.start_time|time:"H:i" }}</div>
+                                    <div class="lesson-subject">{{ lesson.subject.name }}</div>
+                                    <div class="lesson-teacher">{{ lesson.teacher.user.get_full_name|default:"Не назначен" }}</div>
+                                    <div class="lesson-classroom">Каб. {{ lesson.classroom|default:"-" }}</div>
+                                    <div class="lesson-actions">
+                                        <button><i class="fa-solid fa-pencil"></i></button>
+                                        <button><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="no-lessons">Нет уроков</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="placeholder">
+                <i class="fa-regular fa-calendar-check"></i>
+                <p>Пожалуйста, выберите школу и класс, чтобы увидеть расписание.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const schoolSelect = document.getElementById('school-select');
+    const classSelect = document.getElementById('class-select');
+    const form = document.getElementById('schedule-filter-form');
+
+    schoolSelect.addEventListener('change', async function() {
+        const schoolId = this.value;
+        classSelect.innerHTML = '<option value="">Загрузка...</option>';
+        classSelect.disabled = true;
+
+        if (schoolId) {
+            try {
+                const response = await fetch(`/api/school/${schoolId}/classes/`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const classes = await response.json();
+                
+                classSelect.innerHTML = '<option value="">-- Выберите класс --</option>';
+                classes.forEach(function(s_class) {
+                    const option = new Option(s_class.name, s_class.id);
+                    classSelect.add(option);
+                });
+                classSelect.disabled = false;
+            } catch (error) {
+                console.error('Failed to fetch classes:', error);
+                classSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+            }
+        } else {
+            classSelect.innerHTML = '<option value="">-- Сначала выберите школу --</option>';
+        }
+    });
+
+    classSelect.addEventListener('change', function() {
+        if (this.value) {
+            form.submit();
+        }
+    });
+});
+</script>
+{% endblock %}

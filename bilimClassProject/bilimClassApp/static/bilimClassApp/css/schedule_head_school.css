@@ -1,0 +1,144 @@
+/* bilimClassApp/static/bilimClassApp/css/schedule.css */
+
+.filters-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.filter-group label {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+}
+.filter-select {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    min-width: 280px;
+    background-color: #fff;
+    font-size: 1rem;
+}
+.filter-select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+.tabs-container {
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 24px;
+}
+.tabs { display: flex; }
+.tab-button {
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+    border-bottom: 3px solid transparent;
+}
+.tab-button.active {
+    color: #4A90E2;
+    border-bottom-color: #4A90E2;
+}
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
+}
+.day-column {
+    background-color: #f9f9fa;
+    border-radius: 12px;
+    padding: 16px;
+}
+.day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.day-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+.add-lesson-to-day-btn {
+    background: none;
+    border: 1.5px dashed #aab8c5;
+    color: #6c7a89;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.lesson-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #eef2f7;
+    position: relative;
+}
+.lesson-time {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+.lesson-subject {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #222;
+    margin-bottom: 8px;
+}
+.lesson-teacher, .lesson-classroom {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 4px;
+}
+.lesson-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.lesson-card:hover .lesson-actions { opacity: 1; }
+.lesson-actions button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #888;
+}
+.no-lessons {
+    color: #999;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 20px 0;
+}
+.placeholder {
+    text-align: center;
+    padding: 80px 20px;
+    color: #888;
+}
+.placeholder i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    color: #ccc;
+}

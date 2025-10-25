@@ -59,7 +59,7 @@
                 <li><a href="#" data-target="home"><i class="fa-solid fa-house"></i> Главная</a></li>
                 <li><a href="#" data-target="users" class="active"><i class="fa-solid fa-users"></i> Пользователи</a></li>
                 <li><a href="#" data-target="structure"><i class="fa-solid fa-sitemap"></i> Структура школы</a></li>
-                <li><a href="#" data-target="assignments"><i class="fa-solid fa-tags"></i> Назначения</a></li>
+                <li><a href="#" data-target="assignments"><i class="fa-solid fa-user-tag"></i> Назначения</a></li>
                 <li><a href="#" data-target="settings"><i class="fa-solid fa-gear"></i> Настройки</a></li>
             </ul>
         </nav>
@@ -186,7 +186,7 @@
                 </div>
             </div>
 
-            <!-- СТРАНИЦА "СТРУКТУРА ШКОЛЫ" (ИНТЕГРИРОВАННЫЙ ОБНОВЛЕННЫЙ КОД) -->
+            <!-- СТРАНИЦА "СТРУКТУРА ШКОЛЫ" -->
             <div id="page-structure" class="page-content">
                 <div class="page-header">
                     <h2><i class="fa-solid fa-graduation-cap"></i> Управление структурой школы</h2>
@@ -218,7 +218,6 @@
                                 <td class="student-count-cell"><i class="fa-solid fa-user-group"></i> {{ s_class.student_count }}</td>
                                 <td>{{ s_class.class_teacher.user.get_full_name|default:"Не назначен" }}</td>
                                 <td class="action-icons" style="justify-content: end; gap:40px;">
-                                    <!-- ОБНОВЛЕНО: Добавлены data-атрибуты для JS -->
                                     <a href="#" class="edit-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-pencil"></i></a>
                                     <a href="#" class="delete-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-trash-can"></i></a>
                                 </td>
@@ -230,13 +229,59 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- ========================================================== -->
+            <!-- === ОБНОВЛЕННАЯ СТРАНИЦА "НАЗНАЧЕНИЯ" === -->
+            <!-- ========================================================== -->
+            <div id="page-assignments" class="page-content">
+                <div class="page-header">
+                    <div>
+                        <h2><i class="fa-solid fa-user-tag"></i> Назначение учителей</h2>
+                        <p>Распределение учителей по классам и предметам</p>
+                    </div>
+                    <button class="btn-primary" id="create-assignment-btn">
+                        <i class="fa-solid fa-plus"></i>
+                        Создать назначение
+                    </button>
+                </div>
+                <div class="content-card">
+                    <div class="card-header">
+                        <nav class.content-tabs>
+                            <a href="#" class="active">Все назначения</a>
+                        </nav>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Учитель</th>
+                                <th>Класс</th>
+                                <th>Предмет</th>
+                                <th>Часов в неделю</th>
+                                <th style="text-align: end;">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in all_assignments %}
+                            <tr data-assignment-row-id="{{ assignment.id }}">
+                                <td><strong>{{ assignment.teacher.user.get_full_name }}</strong></td>
+                                <td><i class="fa-solid fa-user-group"></i> {{ assignment.school_class.name }}</td>
+                                <td><i class="fa-solid fa-book"></i> {{ assignment.subject.name }}</td>
+                                <td>{{ assignment.hours_per_week|default:"-" }}</td>
+                                <td class="action-icons" style="justify-content: end;">
+                                    <a href="#" class="delete-assignment-btn" data-assignment-id="{{ assignment.id }}" title="Удалить назначение"><i class="fa-solid fa-trash-can"></i></a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" style="text-align: center; padding: 24px;">Назначения еще не созданы.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <!-- Другие страницы (заглушки) -->
             <div id="page-home" class="page-content">
                  <div class="content-card"><h2>Главная страница</h2><p>Этот контент находится в разработке.</p></div>
-            </div>
-            <div id="page-assignments" class="page-content">
-                 <div class="content-card"><h2>Назначения</h2><p>Этот контент находится в разработке.</p></div>
             </div>
             <div id="page-settings" class="page-content">
                  <div class="content-card"><h2>Настройки</h2><p>Этот контент находится в разработке.</p></div>
@@ -246,7 +291,7 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- === МОДАЛЬНОЕ ОКНО ДЛЯ ПОЛЬЗОВАТЕЛЕЙ (без изменений) === -->
+    <!-- === МОДАЛЬНОЕ ОКНО ДЛЯ ПОЛЬЗОВАТЕЛЕЙ === -->
     <!-- ===================================================================== -->
     <div class="modal-overlay" id="user-modal-overlay">
         <div class="modal-container">
@@ -321,7 +366,7 @@
     </div>
     
     <!-- ===================================================================== -->
-    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ КЛАССА (без изменений) === -->
+    <!-- === МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ КЛАССА === -->
     <!-- ===================================================================== -->
     <div class="modal-overlay" id="class-modal-overlay">
         <div class="modal-container">
@@ -335,7 +380,6 @@
                 {% csrf_token %}
                 <input type="hidden" name="class_id" id="id_class_id">
                 
-                <!-- === НОВОЕ ПОЛЕ ДЛЯ ВЫБОРА ШКОЛЫ === -->
                 <div class="form-group">
                     <label for="id_school_for_class">Школа</label>
                     <select name="school" id="id_school_for_class" required>
@@ -369,6 +413,57 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancel-class-btn">Отмена</button>
                     <button type="submit" class="btn-submit" id="submit-class-btn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ НАЗНАЧЕНИЙ === -->
+    <!-- ========================================================== -->
+    <div class="modal-overlay" id="assignment-modal-overlay">
+        <div class="modal-container">
+            <button class="close-btn" id="close-assignment-modal-btn">&times;</button>
+            <div class="modal-header">
+                <h2 id="assignment-modal-title">Создать назначение</h2>
+                <p>Назначьте учителя на класс и предмет</p>
+            </div>
+            <form id="assignment-form" novalidate>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_assignment_teacher">Учитель</label>
+                    <select name="teacher" id="id_assignment_teacher" required>
+                        <option value="">Выберите учителя</option>
+                        {% for teacher in all_teachers %}
+                        <option value="{{ teacher.user.id }}">{{ teacher.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="id_assignment_class">Класс</label>
+                    <select name="school_class" id="id_assignment_class" required>
+                        <option value="">Выберите класс</option>
+                        {% for s_class in school_classes %}
+                        <option value="{{ s_class.id }}">{{ s_class.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="id_assignment_subject">Предмет</label>
+                    <select name="subject" id="id_assignment_subject" required>
+                        <option value="">Выберите предмет</option>
+                        {% for subject in subjects %}
+                        <option value="{{ subject.id }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label for="id_assignment_hours">Часов в неделю (необязательно)</label>
+                    <input type="number" name="hours_per_week" id="id_assignment_hours" min="1" placeholder="Например, 3">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-assignment-btn">Отмена</button>
+                    <button type="submit" class="btn-submit" id="submit-assignment-btn">Создать</button>
                 </div>
             </form>
         </div>
@@ -575,6 +670,10 @@
                 });
             });
 
+            // Этот код для переключения вкладок (Классы/Предметы) можно упростить или удалить, если у вас одна таблица
+            // Если у вас действительно разные таблицы под разными вкладками, оставьте его.
+            // В текущем шаблоне он не полностью используется.
+            /*
             const tabsNav = document.getElementById('structure-tabs-nav');
             const actionButtons = document.getElementById('structure-action-buttons');
             const tabPanes = page.querySelectorAll('.content-tab-pane');
@@ -590,119 +689,86 @@
                     if (targetBtn) targetBtn.style.display = 'inline-flex';
                 });
             });
+            */
         };
         
         const initSchoolManagementScripts = () => {
-            const page = document.getElementById('page-structure');
+             // Этот блок был пустым в старом коде, но я оставлю его на случай,
+             // если вы будете добавлять управление школами, как в предыдущих версиях.
+             // Если он не нужен, можно удалить.
+        };
+
+        // === НОВАЯ ФУНКЦИЯ ДЛЯ УПРАВЛЕНИЯ НАЗНАЧЕНИЯМИ ===
+        const initAssignmentsScripts = () => {
+            const page = document.getElementById('page-assignments');
             if (!page) return;
 
-            // Элементы модального окна для школ
-            const modalOverlay = document.getElementById('school-modal-overlay');
-            const form = document.getElementById('school-form');
-            const modalTitle = document.getElementById('school-modal-title');
-            const submitBtn = document.getElementById('submit-school-btn');
+            const modalOverlay = document.getElementById('assignment-modal-overlay');
+            const form = document.getElementById('assignment-form');
+            const createBtn = document.getElementById('create-assignment-btn');
+            const closeModalBtn = document.getElementById('close-assignment-modal-btn');
+            const cancelBtn = document.getElementById('cancel-assignment-btn');
+            const deleteButtons = page.querySelectorAll('.delete-assignment-btn');
 
-            // Кнопки управления
-            const createSchoolBtn = document.getElementById('create-school-btn');
-            const closeModalBtn = document.getElementById('close-school-modal-btn');
-            const cancelBtn = document.getElementById('cancel-school-btn');
-            
-            // Кнопки в таблице
-            const editButtons = page.querySelectorAll('.edit-school-btn');
-            const deleteButtons = page.querySelectorAll('.delete-school-btn');
+            const openModal = () => { modalOverlay.style.display = 'flex'; };
+            const closeModal = () => { modalOverlay.style.display = 'none'; };
 
-            if (!modalOverlay || !form || !createSchoolBtn) {
-                console.error("Не найдены ключевые элементы для модального окна школ.");
-                return;
-            }
-
-            const openModal = () => modalOverlay.style.display = 'flex';
-            const closeModal = () => modalOverlay.style.display = 'none';
-
-            // Обработчики для закрытия модального окна
+            createBtn.addEventListener('click', () => {
+                form.reset();
+                openModal();
+            });
             closeModalBtn.addEventListener('click', closeModal);
             cancelBtn.addEventListener('click', closeModal);
 
-            // Обработчик для кнопки "Создать школу"
-            createSchoolBtn.addEventListener('click', () => {
-                form.reset();
-                form.querySelector('#id_school_id').value = '';
-                modalTitle.textContent = 'Создать новую школу';
-                submitBtn.textContent = 'Создать';
-                openModal();
-            });
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            // Обработчики для кнопок "Редактировать" в каждой строке таблицы
-            editButtons.forEach(button => {
-                button.addEventListener('click', async e => {
-                    e.preventDefault();
-                    const schoolId = button.dataset.schoolId;
-                    try {
-                        const response = await fetch(`/api/school/${schoolId}/details/`);
-                        if (response.ok) {
-                            const data = await response.json();
-                            form.querySelector('#id_school_id').value = data.id;
-                            form.querySelector('#id_school_name').value = data.name;
-                            form.querySelector('#id_school_address').value = data.address || '';
-                            modalTitle.textContent = 'Редактировать школу';
-                            submitBtn.textContent = 'Сохранить';
-                            openModal();
-                        } else {
-                            alert('Не удалось загрузить данные школы.');
-                        }
-                    } catch (error) {
-                        console.error("Ошибка при загрузке данных школы:", error);
-                        alert("Произошла сетевая ошибка.");
-                    }
-                });
-            });
-
-            // Обработчик отправки формы (работает и для создания, и для редактирования)
-            form.addEventListener('submit', async e => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const formData = new FormData(form);
                 try {
-                    const response = await fetch('/api/school/manage/', {
+                    // УБЕДИТЕСЬ, ЧТО URL ПРАВИЛЬНЫЙ!
+                    const response = await fetch("{% url 'manage_assignment_api' %}", {
                         method: 'POST',
-                        body: new FormData(form),
-                        headers: { 'X-CSRFToken': csrfToken }
+                        body: formData,
+                        headers: {'X-CSRFToken': csrfToken}
                     });
                     if (response.ok) {
-                        location.reload(); // Перезагружаем страницу для обновления данных
+                        location.reload(); // Перезагружаем для простоты
                     } else {
                         const result = await response.json();
-                        alert('Ошибка валидации: ' + JSON.stringify(result.errors));
+                        alert(`Ошибка: ${result.message || JSON.stringify(result)}`);
                     }
                 } catch (error) {
-                    console.error("Ошибка при отправке формы школы:", error);
-                    alert("Произошла сетевая ошибка.");
+                    alert('Произошла сетевая ошибка.');
+                    console.error('Assignment form error:', error);
                 }
             });
 
-            // Обработчики для кнопок "Удалить" в каждой строке
             deleteButtons.forEach(button => {
-                button.addEventListener('click', async e => {
+                button.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    if (confirm('Вы уверены, что хотите удалить эту школу? Все связанные данные могут быть утеряны.')) {
-                        const schoolId = button.dataset.schoolId;
+                    if (confirm('Вы уверены, что хотите удалить это назначение?')) {
+                        const assignmentId = button.dataset.assignmentId;
                         try {
-                            const response = await fetch(`/api/school/${schoolId}/delete/`, {
+                             // УБЕДИТЕСЬ, ЧТО URL ПРАВИЛЬНЫЙ!
+                            const response = await fetch(`/api/assignment/${assignmentId}/delete/`, {
                                 method: 'POST',
-                                headers: { 'X-CSRFToken': csrfToken }
+                                headers: {'X-CSRFToken': csrfToken}
                             });
                             if (response.ok) {
-                                // Удаляем строку из таблицы без перезагрузки страницы
-                                button.closest('tr').remove();
+                                button.closest('tr').remove(); // Удаляем строку без перезагрузки
                             } else {
-                                alert('Не удалось удалить школу.');
+                                alert('Не удалось удалить назначение.');
                             }
                         } catch (error) {
-                            console.error("Ошибка при удалении школы:", error);
-                            alert("Произошла сетевая ошибка.");
+                            alert('Произошла сетевая ошибка.');
+                            console.error('Delete assignment error:', error);
                         }
                     }
                 });
             });
         };
+
 
         const navigateTo = (pageId) => {
             contentPages.forEach(page => page.style.display = 'none');
@@ -718,10 +784,12 @@
             });
         });
 
+        // --- ВЫЗЫВАЕМ ВСЕ ФУНКЦИИ ИНИЦИАЛИЗАЦИИ ---
         navigateTo('users');
         initUserManagementScripts();
         initSchoolStructureScripts();
         initSchoolManagementScripts();
+        initAssignmentsScripts(); // <-- Вызываем новую функцию
     });
     </script>
 </body>

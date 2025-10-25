@@ -226,6 +226,23 @@ class Holiday(models.Model):
 
     def __str__(self):
         return f"{self.date.strftime('%d-%m-%Y')} - {self.name}"
+    
+class TeacherAssignment(models.Model):
+    """Модель для назначения учителя на предмет в конкретном классе."""
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, verbose_name="Учитель")
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, verbose_name="Класс")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name="Предмет")
+    hours_per_week = models.PositiveSmallIntegerField(verbose_name="Часов в неделю", default=1, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Назначение учителя"
+        verbose_name_plural = "Назначения учителей"
+        # Убедимся, что нельзя назначить одного и того же учителя на один и тот же предмет в одном классе дважды
+        unique_together = ('teacher', 'school_class', 'subject')
+        ordering = ['teacher__user__last_name', 'school_class__name']
+
+    def __str__(self):
+        return f"{self.teacher.user.get_full_name()} -> {self.school_class.name} ({self.subject.name})"
 
 # --- 7. СИГНАЛЫ DJANGO ---
 

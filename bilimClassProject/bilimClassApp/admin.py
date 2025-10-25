@@ -5,11 +5,15 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
 
-from .models import School, Subject, SchoolClass, Teacher, Schedule, Assessment, Holiday, Attendance, Homework, HomeworkSubmission, Profile
+# Убедитесь, что все ваши модели импортированы
+from .models import (
+    School, Subject, SchoolClass, Teacher, Schedule, Assessment, Holiday,
+    Attendance, Homework, HomeworkSubmission, Profile, TeacherAssignment
+)
 
 # -----------------------------------------------------------------------------
 # ЧАСТЬ 1: Кастомизация админки для стандартной модели User
-# (Этот код у вас уже должен быть, оставляем его как есть)
+# (Этот код у вас уже был, он остается без изменений)
 # -----------------------------------------------------------------------------
 class UserChangeForm(forms.ModelForm):
     role = forms.ModelChoiceField(
@@ -42,44 +46,6 @@ class UserAdmin(BaseUserAdmin):
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    # ... (здесь могут быть ваши экшены, если вы их добавляли)
-
-@admin.register(Assessment)
-class AssessmentAdmin(admin.ModelAdmin):
-    """Настройки админ-панели для модели Оценок."""
-    
-    # Поля для отображения в списке оценок
-    list_display = ('student', 'subject', 'grade', 'date', 'assessment_type', 'school_class', 'teacher')
-    
-    # Фильтры, которые появятся справа
-    list_filter = ('date', 'school_class', 'subject', 'teacher', 'assessment_type')
-    
-    # Поля, по которым можно будет искать
-    search_fields = (
-        'student__username', 
-        'student__first_name', 
-        'student__last_name',
-        'subject__name',
-        'grade'
-    )
-    
-    # Превращаем выпадающие списки в удобные поля с поиском
-    autocomplete_fields = ('student', 'school_class', 'subject', 'teacher')
-    
-    # Позволяет редактировать дату в списке (если нужно быстро исправить)
-    # list_editable = ('grade',) # Можно раскомментировать для быстрого редактирования оценки прямо в списке
-
-    # Это полезная функция: когда вы ставите оценку,
-    # поле teacher автоматически заполнится текущим пользователем.
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'teacher':
-            try:
-                # Пытаемся найти профиль учителя для залогиненного админа
-                teacher = request.user.teacher
-                kwargs['initial'] = teacher.pk
-            except Exception:
-                pass
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 # Перерегистрация модели User с нашими настройками
 admin.site.unregister(User)
@@ -88,7 +54,7 @@ admin.site.register(User, UserAdmin)
 
 # -----------------------------------------------------------------------------
 # ЧАСТЬ 2: Регистрация НАШИХ моделей с улучшенными настройками
-# (Это заменяет старые admin.site.register(...))
+# (Существующие регистрации остаются, добавлены новые)
 # -----------------------------------------------------------------------------
 
 @admin.register(School)
@@ -98,12 +64,10 @@ class SchoolAdmin(admin.ModelAdmin):
 
 @admin.register(SchoolClass)
 class SchoolClassAdmin(admin.ModelAdmin):
-
     search_fields = ['name', 'school__name']
-    
-    autocomplete_fields = ['school']
+    autocomplete_fields = ['school', 'class_teacher'] # Добавлено поле class_teacher для удобного поиска
     filter_horizontal = ['students']
-    list_display = ('name', 'school')
+    list_display = ('name', 'school', 'class_teacher') # Добавлено отображение классного руководителя
     list_filter = ('school',)
 
 @admin.register(Subject)
@@ -117,46 +81,72 @@ class TeacherAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__first_name', 'user__last_name')
     autocomplete_fields = ['user', 'school', 'subjects']
 
+# =============================================================================
+# === НОВАЯ ЧАСТЬ: Регистрация модели TeacherAssignment (Назначения учителей) ===
+# =============================================================================
+@admin.register(TeacherAssignment)
+class TeacherAssignmentAdmin(admin.ModelAdmin):
+    """
+    Админка для модели "Назначения учителей".
+    Это ключевая модель, которая связывает Учителя, Класс и Предмет.
+    """
+    # Поля для отображения в списке
+    list_display = ('teacher', 'school_class', 'subject', 'hours_per_week')
+
+    # Фильтры для удобной навигации
+    list_filter = ('school_class__school', 'teacher', 'school_class', 'subject')
+
+    # Поля для поиска (позволяет искать по имени учителя, названию класса и т.д.)
+    search_fields = (
+        'teacher__user__first_name',
+        'teacher__user__last_name',
+        'school_class__name',
+        'subject__name'
+    )
+    
+    # Использование полей с поиском вместо гигантских выпадающих списков
+    autocomplete_fields = ['teacher', 'school_class', 'subject']
+    
+    # Сортировка по умолчанию
+    ordering = ('teacher', 'school_class')
+
+# =============================================================================
+
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    # --- ДОБАВЛЯЕМ ЭТУ СТРОКУ, ЧТОБЫ ПО УРОКАМ МОЖНО БЫЛО ИСКАТЬ ---
     search_fields = (
-        'subject__name',              # Искать по названию предмета (Математика)
-        'school_class__name',         # Искать по названию класса (9А)
-        'school_class__school__name', # Искать по названию школы (100 школа)
-        'teacher__user__first_name',  # Искать по имени учителя
-        'teacher__user__last_name',   # Искать по фамилии учителя
+        'subject__name',
+        'school_class__name',
+        'school_class__school__name',
+        'teacher__user__first_name',
+        'teacher__user__last_name',
     )
-
     list_display = ('__str__', 'teacher')
     list_filter = ('school_class__school', 'school_class', 'teacher', 'day_of_week')
     autocomplete_fields = ['school_class', 'subject', 'teacher']
 
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
+    list_display = ('student', 'subject', 'grade', 'date', 'assessment_type', 'school_class', 'teacher')
+    list_filter = ('date', 'school_class', 'subject', 'teacher', 'assessment_type')
+    search_fields = (
+        'student__username', 'student__first_name', 'student__last_name',
+        'subject__name', 'grade'
+    )
+    autocomplete_fields = ('student', 'school_class', 'subject', 'teacher', 'submission')
+    ordering = ('-date',)
+
 @admin.register(Holiday)
 class HolidayAdmin(admin.ModelAdmin):
-    """Админка для праздничных дней."""
     list_display = ('date', 'name')
     search_fields = ('name',)
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
-    """
-    ИСПРАВЛЕННАЯ Настройка для управления Посещаемостью.
-    Все ссылки на несуществующее поле 'lesson' убраны.
-    """
-    # Поля, которые реально существуют в модели
     list_display = ('date', 'student', 'subject', 'school_class', 'status')
-    
-    # Фильтры, которые ссылаются на существующие поля
     list_filter = ('date', 'status', 'school_class__school', 'school_class', 'subject')
-    
-    # Поля для поиска
     search_fields = ('student__username', 'student__first_name', 'student__last_name', 'subject__name')
-    
-    # Удобный поиск для полей ForeignKey
     autocomplete_fields = ['student', 'subject', 'school_class']
-    
-    # Сортировка по умолчанию
     ordering = ('-date',)
 
 @admin.register(Homework)
@@ -172,5 +162,22 @@ class HomeworkSubmissionAdmin(admin.ModelAdmin):
     list_filter = ('homework__school_class__school', 'homework__subject', 'grade')
     search_fields = ('student__username', 'homework__title')
     autocomplete_fields = ['homework', 'student']
+    ordering = ('-submitted_at',)
 
-admin.site.register(Profile)
+# =============================================================================
+# === УЛУЧШЕННАЯ ЧАСТЬ: Регистрация модели Profile ===
+# =============================================================================
+# Вместо простого admin.site.register(Profile) используем класс для лучшей настройки
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    """Админка для Профилей пользователей."""
+    list_display = ('user', 'get_full_name', 'role')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name')
+    list_filter = ('role',)
+    autocomplete_fields = ('user',)
+
+    # Добавляем метод для отображения полного имени в списке
+    @admin.display(description='Полное имя', ordering='user__first_name')
+    def get_full_name(self, obj):
+        return obj.user.get_full_name()
+# =============================================================================

@@ -4,12 +4,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 from datetime import date, timedelta
 from .decorators import group_required
-from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,Profile, SchoolClass, School, Homework, HomeworkSubmission
+from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,Profile, SchoolClass, School, Homework, HomeworkSubmission, TeacherAssignment
 from django.db.models import Avg, Q, Count
 from django.views.decorators.http import require_POST
 import datetime
@@ -601,8 +601,8 @@ def get_journal_grid_data(request):
         'attendance_data': attendance_data,
     })
 
-@login_required
-def teacher_journal_view(request):
+# @login_required
+# def teacher_journal_view(request):
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -678,6 +678,94 @@ def teacher_journal_view(request):
     
     return render(request, 'bilimClassApp/teacher_journal.html', context)
 
+@login_required
+def teacher_journal_view(request):
+    try:
+        teacher = request.user.teacher
+    except Teacher.DoesNotExist:
+        return HttpResponseForbidden("Доступ к этой странице есть только у учителей.")
+
+    selected_school_id = request.GET.get('school_id')
+    selected_class_id = request.GET.get('class_id')
+    selected_subject_id = request.GET.get('subject_id')
+
+    # 1. Получаем только те школы, в которых у учителя есть назначения.
+    # Мы фильтруем школы через связанные модели SchoolClass и TeacherAssignment.
+    teacher_schools = School.objects.filter(
+        schoolclass__teacherassignment__teacher=teacher
+    ).distinct()
+
+    # 2. Если школа выбрана, получаем классы учителя только в этой школе.
+    teacher_classes = SchoolClass.objects.none()
+    if selected_school_id:
+        teacher_classes = SchoolClass.objects.filter(
+            school_id=selected_school_id,
+            teacherassignment__teacher=teacher
+        ).distinct()
+
+    # 3. Если класс выбран, получаем предметы, которые учитель ведет в этом классе.
+    teacher_subjects = Subject.objects.none()
+    if selected_class_id:
+        teacher_subjects = Subject.objects.filter(
+            teacherassignment__school_class_id=selected_class_id,
+            teacherassignment__teacher=teacher
+        ).distinct()
+
+    context = {
+        'teacher': teacher,
+        'all_schools': teacher_schools,        # Передаем отфильтрованный список школ
+        'teacher_classes': teacher_classes,    # Передаем отфильтрованный список классов
+        'teacher_subjects': teacher_subjects,  # Передаем отфильтрованный список предметов
+        'selected_school_id': int(selected_school_id) if selected_school_id else None,
+        'selected_class_id': int(selected_class_id) if selected_class_id else None,
+        'selected_subject_id': int(selected_subject_id) if selected_subject_id else None,
+        'journal_data': [],
+        'date_range': []
+    }
+
+    # --- Остальная часть функции остается без изменений ---
+    # Она корректно работает с уже выбранными и переданными ID
+    if selected_school_id and selected_class_id and selected_subject_id:
+        selected_class = get_object_or_404(SchoolClass, pk=selected_class_id)
+        students = selected_class.students.all().order_by('last_name', 'first_name')
+        
+        date_range = [datetime.date.today() - datetime.timedelta(days=i) for i in range(5)][::-1]
+        context['date_range'] = date_range
+
+        all_grades = Assessment.objects.filter(
+            school_class_id=selected_class_id,
+            subject_id=selected_subject_id,
+            date__in=date_range
+        ).select_related('student')
+
+        grades_by_student_and_date = {}
+        for grade in all_grades:
+            if grade.student_id not in grades_by_student_and_date:
+                grades_by_student_and_date[grade.student_id] = {}
+            grades_by_student_and_date[grade.student_id][grade.date] = grade
+
+        journal_data = []
+        for student in students:
+            cells = []
+            for date in date_range:
+                cells.append({
+                    'date': date,
+                    'grade': grades_by_student_and_date.get(student.pk, {}).get(date)
+                })
+            
+            average_grade = Assessment.objects.filter(
+                student=student, subject_id=selected_subject_id, grade__isnull=False
+            ).aggregate(avg=Avg('grade'))['avg']
+
+            journal_data.append({
+                'student': student,
+                'cells': cells,
+                'average': average_grade
+            })
+        
+        context['journal_data'] = journal_data
+    
+    return render(request, 'bilimClassApp/teacher_journal.html', context)
 @login_required
 def set_grade_api(request):
     if request.method != 'POST':
@@ -1137,6 +1225,70 @@ def is_staff_check(user):
     """
     return user.is_staff
 
+# @login_required
+# @user_passes_test(is_staff_check, login_url='/')
+# def admin_user_list_view(request):
+#     """
+#     Отображает главную страницу панели администратора,
+#     обрабатывает фильтрацию и поиск пользователей.
+#     """
+#     users_list = User.objects.select_related('profile').order_by('last_name', 'first_name')
+
+#     # Получение параметров фильтрации из GET-запроса
+#     search_query = request.GET.get('q', '')
+#     role_filter = request.GET.get('role', '')
+#     status_filter = request.GET.get('status', '')
+
+#     # Применение фильтра по поисковому запросу
+#     if search_query:
+#         users_list = users_list.filter(
+#             Q(first_name__icontains=search_query) |
+#             Q(last_name__icontains=search_query) |
+#             Q(email__icontains=search_query)
+#         )
+
+#     # Применение фильтра по роли
+#     if role_filter:
+#         users_list = users_list.filter(profile__role=role_filter)
+
+#     # Применение фильтра по статусу
+#     if status_filter:
+#         if status_filter == 'active':
+#             users_list = users_list.filter(is_active=True)
+#         elif status_filter == 'inactive':
+#             users_list = users_list.filter(is_active=False)
+
+#     # Оптимизированный запрос для получения данных о классах для вкладки "Структура школы"
+#     school_classes_for_structure = SchoolClass.objects.select_related(
+#         'class_teacher__user'
+#     ).annotate(student_count=Count('students')).order_by('name')
+
+#     all_assignments = TeacherAssignment.objects.select_related(
+#         'teacher__user', 
+#         'school_class', 
+#         'subject'
+#     ).all()
+    
+#     context = {
+#         'users': users_list,
+#         'role_choices': Profile.ROLE_CHOICES,
+        
+#         # Данные для вкладки "Структура школы"
+#         'structure_school_classes': school_classes_for_structure,
+#         'all_teachers': Teacher.objects.select_related('user').all(), # <-- Добавлено: передаем всех учителей для модального окна
+        
+#         # Данные для модального окна создания/редактирования пользователя
+#         'all_schools': School.objects.all().order_by('name'), 
+#         'school_classes': SchoolClass.objects.all(),
+#         'subjects': Subject.objects.all(),
+        
+#         # Текущие значения фильтров для отображения в форме
+#         'search_query': search_query,
+#         'role_filter': role_filter,
+#         'status_filter': status_filter,
+#     }
+#     return render(request, 'bilimClassApp/admin_panel.html', context)
+
 @login_required
 @user_passes_test(is_staff_check, login_url='/')
 def admin_user_list_view(request):
@@ -1174,17 +1326,35 @@ def admin_user_list_view(request):
     school_classes_for_structure = SchoolClass.objects.select_related(
         'class_teacher__user'
     ).annotate(student_count=Count('students')).order_by('name')
-    
+
+    # =====================================================================
+    # === ИЗМЕНЕНИЕ №1: ДОБАВЛЯЕМ ЗАПРОС ДЛЯ ПОЛУЧЕНИЯ НАЗНАЧЕНИЙ ===
+    # =====================================================================
+    # Используем select_related для оптимизации запроса и предотвращения
+    # лишних обращений к БД при отрисовке таблицы в шаблоне.
+    all_assignments = TeacherAssignment.objects.select_related(
+        'teacher__user',
+        'school_class',
+        'subject'
+    ).all()
+    # =====================================================================
+
     context = {
         'users': users_list,
         'role_choices': Profile.ROLE_CHOICES,
         
         # Данные для вкладки "Структура школы"
         'structure_school_classes': school_classes_for_structure,
-        'all_teachers': Teacher.objects.select_related('user').all(), # <-- Добавлено: передаем всех учителей для модального окна
         
+        # =====================================================================
+        # === ИЗМЕНЕНИЕ №2: ПЕРЕДАЕМ НАЗНАЧЕНИЯ В КОНТЕКСТ ШАБЛОНА ===
+        # =====================================================================
+        'all_assignments': all_assignments,
+        # =====================================================================
+
         # Данные для модального окна создания/редактирования пользователя
-        'all_schools': School.objects.all().order_by('name'), 
+        'all_teachers': Teacher.objects.select_related('user').all(),
+        'all_schools': School.objects.all().order_by('name'),
         'school_classes': SchoolClass.objects.all(),
         'subjects': Subject.objects.all(),
         
@@ -1380,6 +1550,44 @@ def delete_user_api(request, user_id):
             return JsonResponse({'status': 'error', 'message': 'Вы не можете удалить себя.'}, status=403)
         
         user.delete()
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def manage_assignment_api(request):
+    """API для создания нового назначения."""
+    teacher_id = request.POST.get('teacher')
+    class_id = request.POST.get('school_class')
+    subject_id = request.POST.get('subject')
+    hours = request.POST.get('hours_per_week', 1) # По умолчанию 1 час
+
+    if not all([teacher_id, class_id, subject_id]):
+        return JsonResponse({'status': 'error', 'message': 'Все поля обязательны для заполнения.'}, status=400)
+
+    try:
+        TeacherAssignment.objects.create(
+            teacher_id=teacher_id,
+            school_class_id=class_id,
+            subject_id=subject_id,
+            hours_per_week=hours
+        )
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        # Это может быть ошибка IntegrityError, если такое назначение уже существует
+        return JsonResponse({'status': 'error', 'message': 'Не удалось создать назначение. Возможно, оно уже существует.'}, status=400)
+
+
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def delete_assignment_api(request, assignment_id):
+    """API для удаления назначения."""
+    try:
+        assignment = get_object_or_404(TeacherAssignment, pk=assignment_id)
+        assignment.delete()
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

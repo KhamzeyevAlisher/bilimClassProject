@@ -49,4 +49,6 @@ urlpatterns = [
     path('api/school/manage/', views.manage_school_api, name='manage_school_api'),
     path('api/school/<int:school_id>/details/', views.school_details_api, name='school_details_api'),
     path('api/school/<int:school_id>/delete/', views.delete_school_api, name='delete_school_api'),
+    path('api/assignment/manage/', views.manage_assignment_api, name='manage_assignment_api'),
+    path('api/assignment/<int:assignment_id>/delete/', views.delete_assignment_api, name='delete_assignment_api'),
 ]

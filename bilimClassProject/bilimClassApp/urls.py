@@ -55,4 +55,10 @@ urlpatterns = [
     #завуч
     path('school-schedule/', views.school_schedule_view, name='school_schedule'),
     path('api/school/<int:school_id>/classes/', views.get_classes_for_school_api, name='api_get_classes_for_school'),
+
+    # === НАЧАЛО НОВЫХ МАРШРУТОВ ДЛЯ API РАСПИСАНИЯ ===
+    path('api/schedule/manage/', views.manage_schedule_item_api, name='api_manage_schedule_item'),
+    path('api/schedule/<int:pk>/details/', views.get_schedule_item_details_api, name='api_get_schedule_item_details'),
+    path('api/schedule/<int:pk>/delete/', views.delete_schedule_item_api, name='api_delete_schedule_item'),
+    # === КОНЕЦ НОВЫХ МАРШРУТОВ ===
 ]

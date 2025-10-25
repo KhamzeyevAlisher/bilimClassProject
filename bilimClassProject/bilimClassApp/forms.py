@@ -4,7 +4,7 @@ from django import forms
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher # Импортируем нужные модели
+from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule # Импортируем нужные модели
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -218,3 +218,38 @@ class SchoolForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'placeholder': 'Например, Гимназия №17'}),
             'address': forms.TextInput(attrs={'placeholder': 'Например, г. Астана, ул. Мира, 1'}),
         }
+
+
+class ScheduleForm(forms.ModelForm):
+    class Meta:
+        model = Schedule
+        fields = ['subject', 'teacher', 'start_time', 'end_time', 'classroom']
+        widgets = {
+            'start_time': forms.TimeInput(attrs={'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Получаем ID школы, переданный из view
+        school_id = kwargs.pop('school_id', None)
+        super().__init__(*args, **kwargs)
+        
+        # Устанавливаем русские названия для полей
+        self.fields['subject'].label = "Предмет"
+        self.fields['teacher'].label = "Учитель"
+        self.fields['start_time'].label = "Время начала"
+        self.fields['end_time'].label = "Время окончания"
+        self.fields['classroom'].label = "Кабинет"
+
+        # Если школа выбрана, фильтруем учителей, которые к ней привязаны
+        if school_id:
+            self.fields['teacher'].queryset = Teacher.objects.filter(
+                school_id=school_id
+            ).select_related('user').order_by('user__last_name')
+        else:
+            # Если школа не выбрана, показываем пустой список
+            self.fields['teacher'].queryset = Teacher.objects.none()
+
+        # Делаем все поля обязательными для заполнения
+        for field in self.fields:
+            self.fields[field].required = True

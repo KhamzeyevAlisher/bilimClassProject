@@ -55,18 +55,18 @@
                     <div class="day-column">
                         <div class="day-header">
                             <h3>{{ day_name }}</h3>
-                            <button class="add-lesson-to-day-btn" title="Добавить урок">+</button>
+                            <button class="add-lesson-to-day-btn" data-day-id="{{ day_id }}" data-day-name="{{ day_name }}" title="Добавить урок">+</button>
                         </div>
                         <div class="lessons-list">
                             {% for lesson in schedule_by_day|get_item:day_id %}
-                                <div class="lesson-card">
-                                    <div class="lesson-time">{{ lesson.start_time|time:"H:i" }}</div>
+                                <div class="lesson-card" data-lesson-id="{{ lesson.id }}">
+                                    <div class="lesson-time">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</div>
                                     <div class="lesson-subject">{{ lesson.subject.name }}</div>
                                     <div class="lesson-teacher">{{ lesson.teacher.user.get_full_name|default:"Не назначен" }}</div>
                                     <div class="lesson-classroom">Каб. {{ lesson.classroom|default:"-" }}</div>
                                     <div class="lesson-actions">
-                                        <button><i class="fa-solid fa-pencil"></i></button>
-                                        <button><i class="fa-solid fa-trash-can"></i></button>
+                                        <button class="edit-lesson-btn" title="Редактировать"><i class="fa-solid fa-pencil"></i></button>
+                                        <button class="delete-lesson-btn" title="Удалить"><i class="fa-solid fa-trash-can"></i></button>
                                     </div>
                                 </div>
                             {% empty %}
@@ -82,6 +82,59 @@
                 <p>Пожалуйста, выберите школу и класс, чтобы увидеть расписание.</p>
             </div>
         {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- ===================================================================== -->
+<!-- === МОДАЛЬНОЕ ОКНО ДЛЯ ДОБАВЛЕНИЯ/РЕДАКТИРОВАНИЯ УРОКА === -->
+<!-- ===================================================================== -->
+<div class="modal-overlay" id="lesson-modal-overlay">
+    <div class="modal-container">
+        <button class="modal-close-btn" id="close-lesson-modal-btn">&times;</button>
+        <div class="modal-header">
+            <h2 id="lesson-modal-title">Добавить урок</h2>
+            <p id="lesson-modal-subtitle">Заполните информацию об уроке</p>
+        </div>
+        
+        <form id="lesson-form" class="modal-form" novalidate>
+            {% csrf_token %}
+            <!-- Скрытые поля для отправки на сервер -->
+            <input type="hidden" name="schedule_id" id="id_schedule_id">
+            <input type="hidden" name="school_class_id" value="{{ selected_class_id }}">
+            <input type="hidden" name="school_id" value="{{ selected_school_id }}">
+            <input type="hidden" name="day_of_week" id="id_day_of_week">
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    {{ schedule_form.start_time.label_tag }}
+                    {{ schedule_form.start_time }}
+                </div>
+                <div class="form-group">
+                    {{ schedule_form.end_time.label_tag }}
+                    {{ schedule_form.end_time }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {{ schedule_form.subject.label_tag }}
+                {{ schedule_form.subject }}
+            </div>
+            <div class="form-group">
+                {{ schedule_form.teacher.label_tag }}
+                {{ schedule_form.teacher }}
+            </div>
+            <div class="form-group">
+                {{ schedule_form.classroom.label_tag }}
+                {{ schedule_form.classroom }}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancel-lesson-btn">Отмена</button>
+                <button type="submit" class="btn-primary" id="submit-lesson-btn">Добавить</button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -124,6 +177,107 @@ document.addEventListener('DOMContentLoaded', function() {
             form.submit();
         }
     });
+
+    const modalOverlay = document.getElementById('lesson-modal-overlay');
+    if (modalOverlay) {
+        const modalTitle = document.getElementById('lesson-modal-title');
+        const modalSubtitle = document.getElementById('lesson-modal-subtitle');
+        const form = document.getElementById('lesson-form');
+        const submitBtn = document.getElementById('submit-lesson-btn');
+        const scheduleIdInput = document.getElementById('id_schedule_id');
+        const dayOfWeekInput = document.getElementById('id_day_of_week');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const openModal = () => modalOverlay.style.display = 'flex';
+        const closeModal = () => modalOverlay.style.display = 'none';
+
+        document.getElementById('close-lesson-modal-btn').addEventListener('click', closeModal);
+        document.getElementById('cancel-lesson-btn').addEventListener('click', closeModal);
+
+        // Открытие модального окна для СОЗДАНИЯ урока
+        document.querySelectorAll('.add-lesson-to-day-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                form.reset();
+                scheduleIdInput.value = ''; // Очищаем ID
+                dayOfWeekInput.value = button.dataset.dayId;
+                
+                modalTitle.textContent = 'Добавить урок';
+                const selectedClassText = document.querySelector("#class-select option:checked").textContent.trim();
+                modalSubtitle.textContent = `${button.dataset.dayName}, ${selectedClassText}`;
+                submitBtn.textContent = 'Добавить';
+                
+                openModal();
+            });
+        });
+
+        // Открытие модального окна для РЕДАКТИРОВАНИЯ урока
+        document.querySelectorAll('.edit-lesson-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const lessonCard = button.closest('.lesson-card');
+                const lessonId = lessonCard.dataset.lessonId;
+                
+                const response = await fetch(`/api/schedule/${lessonId}/details/`);
+                if (response.ok) {
+                    const data = await response.json();
+                    form.reset();
+                    scheduleIdInput.value = data.id;
+                    document.getElementById('id_start_time').value = data.start_time;
+                    document.getElementById('id_end_time').value = data.end_time;
+                    document.getElementById('id_subject').value = data.subject;
+                    document.getElementById('id_teacher').value = data.teacher;
+                    document.getElementById('id_classroom').value = data.classroom;
+                    
+                    modalTitle.textContent = 'Редактировать урок';
+                    modalSubtitle.textContent = 'Измените данные урока';
+                    submitBtn.textContent = 'Сохранить';
+                    
+                    openModal();
+                } else {
+                    alert('Не удалось загрузить данные урока.');
+                }
+            });
+        });
+        
+        // Обработка отправки формы
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch("{% url 'api_manage_schedule_item' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': csrfToken }
+            });
+            
+            if (response.ok) {
+                location.reload(); // Перезагружаем страницу для простоты
+            } else {
+                const result = await response.json();
+                alert('Ошибка: ' + JSON.stringify(result.errors));
+            }
+        });
+
+        // Удаление урока
+        document.querySelectorAll('.delete-lesson-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (confirm('Вы уверены, что хотите удалить этот урок?')) {
+                    const lessonCard = button.closest('.lesson-card');
+                    const lessonId = lessonCard.dataset.lessonId;
+                    
+                    const response = await fetch(`/api/schedule/${lessonId}/delete/`, {
+                        method: 'POST',
+                        headers: {'X-CSRFToken': csrfToken}
+                    });
+
+                    if (response.ok) {
+                        lessonCard.remove(); // Удаляем карточку урока со страницы
+                    } else {
+                        alert('Не удалось удалить урок.');
+                    }
+                }
+            });
+        });
+    }
 });
 </script>
 {% endblock %}

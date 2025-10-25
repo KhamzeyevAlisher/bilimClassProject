@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 from datetime import date, timedelta
@@ -1631,7 +1631,6 @@ def delete_school_api(request, school_id):
 # === КОНЕЦ НОВЫХ ФУНКЦИЙ ===
 
 @login_required
-# @user_passes_test(is_staff_check) # Раскомментируйте, если доступ только для админов
 def school_schedule_view(request):
     """
     Отображает страницу с расписанием школы с возможностью фильтрации
@@ -1643,8 +1642,13 @@ def school_schedule_view(request):
 
     classes_in_school = SchoolClass.objects.none()
     schedule_by_day = {
-        1: [], 2: [], 3: [], 4: [], 5: [], 6: [] # Пн-Сб
+        1: [], 2: [], 3: [], 4: [], 5: [], 6: []
     }
+    
+    # Инициализируем форму с указанием school_id, если он есть
+    schedule_form = ScheduleForm(school_id=selected_school_id)
+    all_subjects = Subject.objects.all().order_by('name')
+
 
     if selected_school_id:
         classes_in_school = SchoolClass.objects.filter(school_id=selected_school_id).order_by('name')
@@ -1665,6 +1669,8 @@ def school_schedule_view(request):
         'selected_class_id': int(selected_class_id) if selected_class_id else None,
         'schedule_by_day': schedule_by_day,
         'days_of_week': {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница", 6: "Суббота"},
+        'schedule_form': schedule_form, # Передаем форму в шаблон
+        'all_subjects': all_subjects, # Передаем все предметы для модального окна
     }
     return render(request, 'bilimClassApp/head_school.html', context)
 
@@ -1677,3 +1683,54 @@ def get_classes_for_school_api(request, school_id):
     classes = SchoolClass.objects.filter(school_id=school_id).order_by('name')
     data = [{'id': c.id, 'name': c.name} for c in classes]
     return JsonResponse(data, safe=False)
+
+
+# === НАЧАЛО НОВЫХ VIEW ДЛЯ УПРАВЛЕНИЯ РАСПИСАНИЕМ ===
+
+@require_POST
+@login_required
+def manage_schedule_item_api(request):
+    """API для создания или обновления урока в расписании."""
+    schedule_id = request.POST.get('schedule_id')
+    instance = get_object_or_404(Schedule, pk=schedule_id) if schedule_id else None
+    
+    # Важно передать school_id в форму для правильной фильтрации учителей
+    school_id = request.POST.get('school_id')
+    form = ScheduleForm(request.POST, instance=instance, school_id=school_id)
+
+    if form.is_valid():
+        item = form.save(commit=False)
+        # Добавляем недостающие данные, которые не были в форме
+        item.school_class_id = request.POST.get('school_class_id')
+        item.day_of_week = request.POST.get('day_of_week')
+        item.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+
+@login_required
+def get_schedule_item_details_api(request, pk):
+    """API для получения деталей одного урока для редактирования."""
+    item = get_object_or_404(Schedule, pk=pk)
+    data = {
+        'id': item.id,
+        'subject': item.subject_id,
+        'teacher': item.teacher_id,
+        'start_time': item.start_time.strftime('%H:%M'),
+        'end_time': item.end_time.strftime('%H:%M'),
+        'classroom': item.classroom,
+    }
+    return JsonResponse(data)
+
+
+@require_POST
+@login_required
+def delete_schedule_item_api(request, pk):
+    """API для удаления урока."""
+    try:
+        item = get_object_or_404(Schedule, pk=pk)
+        item.delete()
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

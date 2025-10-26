@@ -1,0 +1,42 @@
+{# bilimClassApp/templates/partials/_attendance_table.html #}
+<table class="journal-table" id="attendance-table">
+    <thead>
+        <tr>
+            <th>Ученик</th>
+            {% for date in date_range %}
+                <th>{{ date|date:"d.m" }}</th>
+            {% endfor %}
+            <th>Пропуски</th>
+        </tr>
+    </thead>
+    <tbody data-subject-id="{{ selected_subject_id }}" data-class-id="{{ selected_class_id }}">
+        {% for item in attendance_data %}
+        <tr>
+            <td>{{ item.student.get_full_name|default:item.student.username }}</td>
+
+            {% for cell in item.cells %}
+            {# Устанавливаем статус 'P' (Присутствовал) по умолчанию, если записи нет #}
+            {% with status=cell.record.status|default:'P' %}
+            <td class="attendance-cell" data-student-id="{{ item.student.pk }}" data-date="{{ cell.date|date:'Y-m-d' }}" data-status="{{ status }}">
+                {% if status == 'P' %}
+                    <span class="attendance-icon status-P"><i class="fas fa-check"></i></span>
+                {% elif status == 'A' %}
+                    <span class="attendance-icon status-A"><i class="fas fa-times"></i></span>
+                {% elif status == 'L' %}
+                    <span class="attendance-icon status-L"><i class="fas fa-clock"></i></span>
+                {% endif %}
+            </td>
+            {% endwith %}
+            {% endfor %}
+
+            <td class="absent-count">{{ item.absent_count|default:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="{{ date_range|length|add:2 }}" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                В этом классе нет учеников.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

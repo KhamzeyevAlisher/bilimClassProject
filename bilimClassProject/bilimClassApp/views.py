@@ -433,76 +433,127 @@ def dashboard_view(request):
 def teacher_dashboard_view(request):
     """
     Отображает главную страницу (дашборд) для учителя,
-    включая данные для вкладок "Главная" и "Расписание".
+    включая данные для всех вкладок: Главная, Расписание и Журнал.
     """
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
         return render(request, 'error.html', {'message': 'Доступ только для учителей.'})
 
+    # --- ОБЩИЕ ДАННЫЕ И ПАРАМЕТРЫ ---
     today = date.today()
-    today_weekday = today.isoweekday()  # Понедельник = 1, Воскресенье = 7
+    today_weekday = today.isoweekday()
 
     # --- ДАННЫЕ ДЛЯ ВКЛАДКИ "ГЛАВНАЯ" ---
     schedule_today = Schedule.objects.filter(
-        teacher=teacher,
-        day_of_week=today_weekday
+        teacher=teacher, day_of_week=today_weekday
     ).order_by('start_time').select_related('subject', 'school_class')
 
-    # Статистика (можете заменить на реальные запросы)
+    # === НАЧАЛО: ДАННЫЕ ДЛЯ ВКЛАДКИ "ДОМАШНИЕ ЗАДАНИЯ" ===
+
+    # Получаем все домашние задания, созданные этим учителем
+    # Аннотируем (добавляем) подсчет сданных и проверенных работ
+    homeworks = Homework.objects.filter(teacher=teacher).annotate(
+        submission_count=Count('submissions'),
+        checked_count=Count('submissions', filter=Q(submissions__grade__isnull=False))
+    ).prefetch_related('school_class', 'subject')
+
+    # Создаем экземпляр формы для создания/редактирования ДЗ,
+    # передавая в него учителя для фильтрации классов и предметов
+    homework_form = HomeworkForm(teacher=teacher)
+
+    # === КОНЕЦ: ДАННЫЕ ДЛЯ ВКЛАДКИ "ДОМАШНИЕ ЗАДАНИЯ" ===
+
     lessons_today_count = schedule_today.count()
-    plans_to_check_count = 2  # Placeholder
-    homeworks_count = 15      # Placeholder
-    unchecked_works_count = 8 # Placeholder
+    # (Placeholders - замените на реальные запросы)
+    plans_to_check_count, homeworks_count, unchecked_works_count = 2, 15, 8
 
     # --- ДАННЫЕ ДЛЯ ВКЛАДКИ "РАСПИСАНИЕ" ---
     full_schedule = Schedule.objects.filter(teacher=teacher).select_related('subject', 'school_class').order_by('start_time')
-    
-    # Группируем уроки по дням для быстрого доступа
     lessons_by_day_num = {day: [] for day in range(1, 7)}
     for lesson in full_schedule:
         if lesson.day_of_week in lessons_by_day_num:
             lessons_by_day_num[lesson.day_of_week].append(lesson)
-            
-    # === ИЗМЕНЕНИЕ: Готовим структуру данных для шаблона ===
+
     schedule_for_template = []
-    days_info = { 1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница" }
-    
-    # Находим понедельник текущей недели
+    days_info = {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница"}
     start_of_week = today - timedelta(days=today.weekday())
-
     for day_num, day_name in days_info.items():
-        current_day_date = start_of_week + timedelta(days=day_num - 1)
         schedule_for_template.append({
-            'day_number': day_num,
-            'day_name': day_name,
-            'date': current_day_date,
-            'lessons': lessons_by_day_num.get(day_num, []) # Получаем уроки для этого дня
+            'day_number': day_num, 'day_name': day_name,
+            'date': start_of_week + timedelta(days=day_num - 1),
+            'lessons': lessons_by_day_num.get(day_num, [])
         })
-    # === КОНЕЦ ИЗМЕНЕНИЯ ===
 
-    # Статистика для страницы расписания
     lessons_in_week_count = full_schedule.count()
     unique_classes_count = full_schedule.values('school_class').distinct().count()
     hours_in_week = f"{lessons_in_week_count * 0.75:.2f}".replace('.', ',')
+
+    # === НАЧАЛО: ДАННЫЕ ДЛЯ ВКЛАДКИ "ЖУРНАЛ" ===
+    selected_school_id = request.GET.get('school_id')
+    selected_class_id = request.GET.get('class_id')
+    selected_subject_id = request.GET.get('subject_id')
+
+    # Получаем школы, классы и предметы, НАЗНАЧЕННЫЕ этому учителю
+    teacher_schools = School.objects.filter(schoolclass__teacherassignment__teacher=teacher).distinct()
+    teacher_classes = SchoolClass.objects.none()
+    if selected_school_id:
+        teacher_classes = SchoolClass.objects.filter(school_id=selected_school_id, teacherassignment__teacher=teacher).distinct()
+
+    teacher_subjects = Subject.objects.none()
+    if selected_class_id:
+        teacher_subjects = Subject.objects.filter(teacherassignment__school_class_id=selected_class_id, teacherassignment__teacher=teacher).distinct()
+
+    journal_data = []
+    date_range = []
+
+    # Если все фильтры выбраны, загружаем данные журнала
+    if selected_school_id and selected_class_id and selected_subject_id:
+        selected_class = get_object_or_404(SchoolClass, pk=selected_class_id)
+        students = selected_class.students.all().order_by('last_name', 'first_name')
+        date_range = [today - timedelta(days=i) for i in range(5)][::-1]
+
+        all_grades = Assessment.objects.filter(
+            school_class_id=selected_class_id, subject_id=selected_subject_id, date__in=date_range
+        ).select_related('student')
+        grades_map = {(g.student_id, g.date): g for g in all_grades}
+
+        for student in students:
+            cells = [{'date': d, 'grade': grades_map.get((student.pk, d))} for d in date_range]
+            avg = Assessment.objects.filter(
+                student=student, subject_id=selected_subject_id, grade__isnull=False
+            ).aggregate(avg=Avg('grade'))['avg']
+            journal_data.append({'student': student, 'cells': cells, 'average': avg})
+    # === КОНЕЦ: ДАННЫЕ ДЛЯ ВКЛАДКИ "ЖУРНАЛ" ===
+
 
     context = {
         'teacher': teacher,
         'today': today,
         'today_weekday': today_weekday,
 
-        # Данные для вкладки "Главная"
-        'schedule_today': schedule_today,
-        'lessons_today_count': lessons_today_count,
-        'plans_to_check_count': plans_to_check_count,
-        'homeworks_count': homeworks_count,
+        # "Главная"
+        'schedule_today': schedule_today, 'lessons_today_count': lessons_today_count,
+        'plans_to_check_count': plans_to_check_count, 'homeworks_count': homeworks_count,
         'unchecked_works_count': unchecked_works_count,
 
-        # Данные для вкладки "Расписание"
-        'schedule_for_template': schedule_for_template, # <-- Передаем новую структуру
-        'lessons_in_week_count': lessons_in_week_count,
-        'unique_classes_count': unique_classes_count,
-        'hours_in_week': hours_in_week,
+        # "Расписание"
+        'schedule_for_template': schedule_for_template, 'lessons_in_week_count': lessons_in_week_count,
+        'unique_classes_count': unique_classes_count, 'hours_in_week': hours_in_week,
+
+        # "Журнал"
+        'all_schools': teacher_schools,
+        'teacher_classes': teacher_classes,
+        'teacher_subjects': teacher_subjects,
+        'selected_school_id': int(selected_school_id) if selected_school_id else None,
+        'selected_class_id': int(selected_class_id) if selected_class_id else None,
+        'selected_subject_id': int(selected_subject_id) if selected_subject_id else None,
+        'journal_data': journal_data,
+        'date_range': date_range,
+
+        # === Добавляем новые данные в контекст ===
+        'homeworks': homeworks,
+        'homework_form': homework_form,
     }
     return render(request, 'bilimClassApp/teacher_dashboard.html', context)
 
@@ -951,7 +1002,7 @@ def get_attendance_content(request):
         'selected_class_id': selected_class_id,
         'selected_subject_id': selected_subject_id
     }
-    return render(request, 'partials/attendance_table.html', context) # Возвращаем пустой ответ, если фильтры не выбраны
+    return render(request, 'partials/_attendance_table.html', context) # Возвращаем пустой ответ, если фильтры не выбраны
 
 
 @login_required

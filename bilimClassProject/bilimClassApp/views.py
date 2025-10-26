@@ -1694,19 +1694,24 @@ def manage_schedule_item_api(request):
     schedule_id = request.POST.get('schedule_id')
     instance = get_object_or_404(Schedule, pk=schedule_id) if schedule_id else None
     
-    # Важно передать school_id в форму для правильной фильтрации учителей
+    # Получаем все нужные ID из запроса
     school_id = request.POST.get('school_id')
-    class_id = request.POST.get('school_class_id') 
-    form = ScheduleForm(request.POST, instance=instance, school_id=school_id)
+    class_id = request.POST.get('school_class_id')
+    
+    # === ИСПРАВЛЕНИЕ ЗДЕСЬ ===
+    # Теперь передаем в форму и school_id, и class_id для корректной валидации
+    form = ScheduleForm(request.POST, instance=instance, school_id=school_id, class_id=class_id)
+    # ==========================
 
     if form.is_valid():
         item = form.save(commit=False)
         # Добавляем недостающие данные, которые не были в форме
-        item.school_class_id = request.POST.get('school_class_id')
+        item.school_class_id = class_id # Это значение уже получено выше
         item.day_of_week = request.POST.get('day_of_week')
         item.save()
         return JsonResponse({'status': 'success'})
     else:
+        # Если форма не прошла валидацию, возвращаем ошибки
         return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
 

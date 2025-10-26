@@ -51,7 +51,7 @@
 
                 <!-- Ссылка на новую страницу Расписания (для Завуча и Админа) -->
                 {% if user.is_staff or user.profile.role == 'headteacher' %}
-                <li><a href="{% url 'school_schedule' %}" {% if request.resolver_match.url_name == 'school_schedule' %}class="active"{% endif %}><i class="fa-solid fa-calendar-days"></i> Расписание школы</a></li>
+                <li><a href="{% url 'headteacher' %}" {% if request.resolver_match.url_name == 'headteacher' %}class="active"{% endif %}><i class="fa-solid fa-calendar-days"></i> Расписание школы</a></li>
                 {% endif %}
 
                 <li><a href="{% url 'profile' %}"><i class="fa-solid fa-user-gear"></i> Профиль</a></li>

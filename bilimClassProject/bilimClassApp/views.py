@@ -32,7 +32,7 @@ def _get_redirect_for_user(user):
         if role == 'admin':
             return redirect('admin_panel')
         elif role == 'headteacher':
-            return redirect('school_schedule')
+            return redirect('headteacher')
         elif role == 'teacher':
             return redirect('teacher_dashboard')
         elif role == 'student':
@@ -123,7 +123,6 @@ def profile_view(request):
         # teacher.schedule_set.all() - это альтернативный способ сделать то же самое.
         schedule = Schedule.objects.filter(teacher=teacher_profile).order_by('day_of_week', 'start_time')
 
-    print(schedule)
 
     if request.method == 'POST':
         # AJAX-запрос
@@ -433,31 +432,77 @@ def dashboard_view(request):
 @login_required
 def teacher_dashboard_view(request):
     """
-    Отображает главную страницу (дашборд) для учителя.
+    Отображает главную страницу (дашборд) для учителя,
+    включая данные для вкладок "Главная" и "Расписание".
     """
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
         return render(request, 'error.html', {'message': 'Доступ только для учителей.'})
 
-    # Получаем расписание учителя на сегодня
-    today_weekday = datetime.date.today().isoweekday()
+    today = date.today()
+    today_weekday = today.isoweekday()  # Понедельник = 1, Воскресенье = 7
+
+    # --- ДАННЫЕ ДЛЯ ВКЛАДКИ "ГЛАВНАЯ" ---
     schedule_today = Schedule.objects.filter(
         teacher=teacher,
         day_of_week=today_weekday
     ).order_by('start_time').select_related('subject', 'school_class')
 
-    # В будущем здесь будет логика для подсчета статистики
-    # непроверенных работ, посещаемости и т.д.
+    # Статистика (можете заменить на реальные запросы)
+    lessons_today_count = schedule_today.count()
+    plans_to_check_count = 2  # Placeholder
+    homeworks_count = 15      # Placeholder
+    unchecked_works_count = 8 # Placeholder
+
+    # --- ДАННЫЕ ДЛЯ ВКЛАДКИ "РАСПИСАНИЕ" ---
+    full_schedule = Schedule.objects.filter(teacher=teacher).select_related('subject', 'school_class').order_by('start_time')
+    
+    # Группируем уроки по дням для быстрого доступа
+    lessons_by_day_num = {day: [] for day in range(1, 7)}
+    for lesson in full_schedule:
+        if lesson.day_of_week in lessons_by_day_num:
+            lessons_by_day_num[lesson.day_of_week].append(lesson)
+            
+    # === ИЗМЕНЕНИЕ: Готовим структуру данных для шаблона ===
+    schedule_for_template = []
+    days_info = { 1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница" }
+    
+    # Находим понедельник текущей недели
+    start_of_week = today - timedelta(days=today.weekday())
+
+    for day_num, day_name in days_info.items():
+        current_day_date = start_of_week + timedelta(days=day_num - 1)
+        schedule_for_template.append({
+            'day_number': day_num,
+            'day_name': day_name,
+            'date': current_day_date,
+            'lessons': lessons_by_day_num.get(day_num, []) # Получаем уроки для этого дня
+        })
+    # === КОНЕЦ ИЗМЕНЕНИЯ ===
+
+    # Статистика для страницы расписания
+    lessons_in_week_count = full_schedule.count()
+    unique_classes_count = full_schedule.values('school_class').distinct().count()
+    hours_in_week = f"{lessons_in_week_count * 0.75:.2f}".replace('.', ',')
 
     context = {
         'teacher': teacher,
+        'today': today,
+        'today_weekday': today_weekday,
+
+        # Данные для вкладки "Главная"
         'schedule_today': schedule_today,
-        'today': datetime.date.today(),
-        # Заглушки для статистики
-        'lessons_this_week': 12,
-        'unchecked_works': 5,
-        'avg_attendance': 98,
+        'lessons_today_count': lessons_today_count,
+        'plans_to_check_count': plans_to_check_count,
+        'homeworks_count': homeworks_count,
+        'unchecked_works_count': unchecked_works_count,
+
+        # Данные для вкладки "Расписание"
+        'schedule_for_template': schedule_for_template, # <-- Передаем новую структуру
+        'lessons_in_week_count': lessons_in_week_count,
+        'unique_classes_count': unique_classes_count,
+        'hours_in_week': hours_in_week,
     }
     return render(request, 'bilimClassApp/teacher_dashboard.html', context)
 
@@ -1679,7 +1724,7 @@ def delete_school_api(request, school_id):
 # === КОНЕЦ НОВЫХ ФУНКЦИЙ ===
 
 @login_required
-def school_schedule_view(request):
+def headteacher_view(request):
     """
     Отображает страницу с расписанием школы с возможностью фильтрации
     по школе и классу.
@@ -1720,7 +1765,7 @@ def school_schedule_view(request):
         'schedule_form': schedule_form, # Передаем форму в шаблон
         'all_subjects': all_subjects, # Передаем все предметы для модального окна
     }
-    return render(request, 'bilimClassApp/head_school.html', context)
+    return render(request, 'bilimClassApp/headteacher.html', context)
 
 
 @login_required

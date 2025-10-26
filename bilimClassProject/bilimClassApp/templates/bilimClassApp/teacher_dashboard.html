@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд Учителя | Школьная Платформа</title>
-    <!-- Подключаем Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -22,6 +21,7 @@
             --accent-orange: #F97316;
             --accent-purple: #8B5CF6;
             --accent-red: #EF4444;
+            --accent-green: #10B981;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,7 +34,6 @@
 
         .td-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
 
-        /* --- Header --- */
         .td-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .td-logo-section { display: flex; align-items: center; gap: 12px; }
         .td-logo-icon { width: 40px; height: 40px; background-color: var(--accent-primary); border-radius: 8px; color: white; display: grid; place-items: center; font-size: 20px; }
@@ -46,31 +45,29 @@
         .td-user-info p { font-size: 14px; color: var(--text-secondary); }
         .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
 
-        /* --- Main Grid Layout --- */
-        .td-main-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr; /* 2 части для левой, 1 для правой */
-            gap: 24px;
+        .td-main-grid { 
+            display: grid; 
+            /* grid-template-columns: 2fr 1fr; 
+            gap: 24px;  */
         }
         
-        /* --- Main Navigation --- */
         .td-main-nav { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px; margin-bottom: 24px; }
         .td-main-nav ul { display: flex; list-style: none; justify-content: flex-start; gap: 8px; }
         .td-main-nav a {
             display: flex; align-items: center; gap: 8px; padding: 10px 16px;
             text-decoration: none; color: var(--text-secondary); font-weight: 600; border-radius: 8px; transition: all 0.2s;
+            cursor: pointer;
         }
         .td-main-nav a:hover { background-color: #F3F4F6; color: var(--text-primary); }
         .td-main-nav a.active { background-color: var(--accent-light); color: var(--accent-primary); }
 
-        /* --- General Card Style --- */
         .td-card { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; }
         .td-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
         .td-card-header i { color: var(--text-secondary); }
         .td-card-header h3 { font-size: 18px; font-weight: 600; }
         .td-card-subtitle { color: var(--text-secondary); margin-bottom: 20px; }
 
-        /* --- Left Column --- */
+        /* Left Column */
         .td-stats-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .td-stat-card { padding: 20px; border-radius: 12px; color: white; }
         .td-stat-card i { font-size: 20px; margin-bottom: 12px; }
@@ -83,40 +80,55 @@
 
         .td-schedule-list { display: flex; flex-direction: column; gap: 12px; }
         .td-lesson-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 10px; background-color: #F9FAFB; }
-        .td-lesson-item.current { background-color: var(--accent-light); border: 1px solid var(--accent-primary); }
         .td-lesson-time p { font-weight: 600; }
         .td-lesson-time span { font-size: 14px; color: var(--text-secondary); }
         .td-lesson-info { flex-grow: 1; }
         .td-lesson-info h4 { font-weight: 600; }
         .td-lesson-info p { font-size: 14px; color: var(--text-secondary); }
         .td-lesson-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
-        .completed { color: #374151; background-color: #F3F4F6; }
-        .current-badge { color: var(--accent-primary); background-color: var(--accent-light); }
-        .upcoming { color: var(--text-secondary); background-color: transparent; }
 
-        /* --- Right Column --- */
+        /* Right Column */
         .td-right-column { display: flex; flex-direction: column; gap: 24px; }
         .td-task-list, .td-plan-list { display: flex; flex-direction: column; gap: 16px; }
-        .td-task-item, .td-plan-item { padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
-        .td-task-item:last-child, .td-plan-item:last-child { border: none; padding: 0; }
-        .td-task-item p, .td-plan-item p { font-weight: 500; margin-bottom: 8px; }
+        .td-task-item p { font-weight: 500; margin-bottom: 8px; }
         .td-task-meta { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
         .td-task-badge { padding: 2px 8px; border-radius: 99px; font-weight: 600; }
         .urgent { background-color: #FEF2F2; color: #B91C1C; }
         .medium { background-color: #FFFBEB; color: #B45309; }
-        .td-plan-item { display: flex; align-items: center; }
-        .td-plan-item small { color: var(--text-secondary); margin-left: auto; }
-        .td-plan-status { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: white; margin-left: 12px; font-size: 12px; }
-        .approved { background-color: #10B981; }
-        .pending { background-color: #F59E0B; }
-        .rejected { background-color: #EF4444; }
 
+        /* --- НОВЫЕ СТИЛИ ДЛЯ РАСПИСАНИЯ --- */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .schedule-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .schedule-stat-item { background-color: var(--bg-main); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .schedule-stat-item .icon-bg { font-size: 18px; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; }
+        .schedule-stat-item .icon-bg.blue { background-color: #DBEAFE; color: #1D4ED8; }
+        .schedule-stat-item .icon-bg.purple { background-color: #E0E7FF; color: #4338CA; }
+        .schedule-stat-item .icon-bg.green { background-color: #D1FAE5; color: #047857; }
+        .schedule-stat-item h3 { font-size: 24px; }
+        .schedule-stat-item p { font-size: 14px; color: var(--text-secondary); }
+        
+        .schedule-week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        .schedule-day-column { background-color: var(--bg-main); border-radius: 12px; padding: 16px; }
+        .schedule-day-column.today { background-color: var(--accent-light); border: 1px solid var(--accent-primary); }
+        .day-header { margin-bottom: 16px; text-align: center; }
+        .day-header h4 { font-weight: 600; }
+        .day-header span { font-size: 13px; color: var(--text-secondary); }
+        .day-header .today-badge { background-color: var(--accent-primary); color: white; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; margin-left: 6px; }
+
+        .lessons-list { display: flex; flex-direction: column; gap: 12px; }
+        .lesson-card { display:flex; flex-direction: column; gap: 10px; background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; }
+        .lesson-card .time { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+        .lesson-card .subject { font-weight: 600; margin-bottom: 6px; }
+        .lesson-card .details { font-size: 13px; color: var(--text-secondary); }
+        .lesson-card .details i { margin-right: 4px; }
     </style>
 </head>
 <body class="td-body">
 
 <div class="td-container">
-    <!-- ===== ХЕДЕР ===== -->
     <header class="td-header">
         <div class="td-logo-section">
             <div class="td-logo-icon">🎓</div>
@@ -134,117 +146,146 @@
         </div>
     </header>
 
-    <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
     <main class="td-main-grid">
-        <!-- Левая (основная) колонка -->
         <div class="td-left-column">
             <!-- Табы навигации -->
             <nav class="td-main-nav">
                 <ul>
-                    <li><a href="{% url 'teacher_dashboard' %}" class="active"><i class="fas fa-home"></i> Главная</a></li>
-                    <li><a href="#"><i class="fas fa-tasks"></i> Поурочные планы</a></li>
+                    <li><a class="active" data-tab="dashboard"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a data-tab="plans"><i class="fas fa-tasks"></i> Поурочные планы</a></li>
                     <li><a href="{% url 'teacher_journal' %}"><i class="fas fa-book"></i> Журнал</a></li>
                     <li><a href="{% url 'teacher_homework' %}"><i class="fas fa-pencil-alt"></i> Домашние задания</a></li>
-                    <li><a href="#"><i class="far fa-calendar-alt"></i> Расписание</a></li>
+                    <li><a data-tab="schedule"><i class="far fa-calendar-alt"></i> Расписание</a></li>
                 </ul>
             </nav>
 
-            <!-- Карточки со статистикой -->
-            <section class="td-stats-cards">
-                <div class="td-stat-card blue">
-                    <i class="fas fa-calendar-day"></i>
-                    <h2>{{ lessons_today_count|default:0 }}</h2>
-                    <p>Уроков сегодня</p>
-                </div>
-                <div class="td-stat-card orange">
-                    <i class="fas fa-file-alt"></i>
-                    <h2>{{ plans_to_check_count|default:0 }}</h2>
-                    <p>Планов на проверке</p>
-                </div>
-                <div class="td-stat-card purple">
-                    <i class="fas fa-book-reader"></i>
-                    <h2>{{ homeworks_count|default:0 }}</h2>
-                    <p>Домашних заданий</p>
-                </div>
-                <div class="td-stat-card red">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <h2>{{ unchecked_works_count|default:0 }}</h2>
-                    <p>Непроверенных работ</p>
-                </div>
-            </section>
-            
-            <!-- Расписание на сегодня -->
-            <section class="td-card">
-                <div class="td-card-header">
-                    <i class="far fa-clock"></i>
-                    <h3>Расписание на сегодня</h3>
-                </div>
-                <p class="td-card-subtitle">{{ today|date:"l, j F Y" }}</p>
-
-                <div class="td-schedule-list">
-                    {% for lesson in schedule_today %}
-                    <div class="td-lesson-item">
-                        <div class="td-lesson-time">
-                            <p>{{ lesson.start_time|time:"H:i" }}</p>
-                            <span>{{ lesson.end_time|time:"H:i" }}</span>
+            <!-- Контент для вкладки "Главная" -->
+            <div id="dashboard-content" class="tab-content active">
+                <section class="td-stats-cards">
+                    <div class="td-stat-card blue"><i class="fas fa-calendar-day"></i><h2>{{ lessons_today_count|default:0 }}</h2><p>Уроков сегодня</p></div>
+                    <div class="td-stat-card orange"><i class="fas fa-file-alt"></i><h2>{{ plans_to_check_count|default:0 }}</h2><p>Планов на проверке</p></div>
+                    <div class="td-stat-card purple"><i class="fas fa-book-reader"></i><h2>{{ homeworks_count|default:0 }}</h2><p>Домашних заданий</p></div>
+                    <div class="td-stat-card red"><i class="fas fa-exclamation-circle"></i><h2>{{ unchecked_works_count|default:0 }}</h2><p>Непроверенных работ</p></div>
+                </section>
+                
+                <section class="td-card">
+                    <div class="td-card-header"><i class="far fa-clock"></i><h3>Расписание на сегодня</h3></div>
+                    <p class="td-card-subtitle">{{ today|date:"l, j F Y" }}</p>
+                    <div class="td-schedule-list">
+                        {% for lesson in schedule_today %}
+                        <div class="td-lesson-item">
+                            <div class="td-lesson-time"><p>{{ lesson.start_time|time:"H:i" }}</p><span>{{ lesson.end_time|time:"H:i" }}</span></div>
+                            <div class="td-lesson-info"><h4>{{ lesson.subject.name }}</h4><p>Класс {{ lesson.school_class.name }} • Кабинет {{ lesson.classroom }}</p></div>
+                            <span class="td-lesson-status">Предстоит</span>
                         </div>
-                        <div class="td-lesson-info">
-                            <h4>{{ lesson.subject.name }}</h4>
-                            <p>Класс {{ lesson.school_class.name }} • Кабинет {{ lesson.classroom }}</p>
-                        </div>
-                        <span class="td-lesson-status upcoming">Предстоит</span>
+                        {% empty %}
+                        <p style="text-align: center; padding: 20px; color: var(--text-secondary);">На сегодня уроков по расписанию нет.</p>
+                        {% endfor %}
                     </div>
-                    {% empty %}
-                    <p class="td-empty-message" style="text-align: center; padding: 20px; color: var(--text-secondary);">На сегодня уроков по расписанию нет.</p>
-                    {% endfor %}
-                </div>
-            </section>
+                </section>
+            </div>
+
+            <!-- Контент для вкладки "Расписание" -->
+            <div id="schedule-content" class="tab-content">
+                <section class="td-card">
+                    <div class="td-card-header"><h3>Расписание уроков</h3></div>
+                    <p class="td-card-subtitle">Расписание на текущую неделю для учителя: {{ teacher.user.get_full_name }}</p>
+
+                    <div class="schedule-stats-grid">
+                        <div class="schedule-stat-item">
+                            <div class="icon-bg blue"><i class="fas fa-calendar-alt"></i></div>
+                            <div><h3>{{ lessons_in_week_count }}</h3><p>Уроков в неделю</p></div>
+                        </div>
+                        <div class="schedule-stat-item">
+                            <div class="icon-bg purple"><i class="fas fa-users"></i></div>
+                            <div><h3>{{ unique_classes_count }}</h3><p>Классов в неделю</p></div>
+                        </div>
+                        <div class="schedule-stat-item">
+                            <div class="icon-bg green"><i class="fas fa-clock"></i></div>
+                            <div><h3>{{ hours_in_week }}</h3><p>Часов в неделю</p></div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-week-grid">
+                        {# === ИЗМЕНЕНИЕ: Упрощаем цикл, используя готовую структуру из view === #}
+                        {% for day_data in schedule_for_template %}
+                            <div class="schedule-day-column {% if today_weekday == day_data.day_number %}today{% endif %}">
+                                <div class="day-header">
+                                    <h4>{{ day_data.day_name }}</h4>
+                                    {# Теперь у нас есть реальная дата для каждого дня #}
+                                    <span>{{ day_data.date|date:"d.m.Y" }}</span>
+                                </div>
+                                <div class="lessons-list">
+                                    {# Просто итерируем по списку уроков для этого дня #}
+                                    {% for lesson in day_data.lessons %}
+                                        <div class="lesson-card">
+                                            <p class="time"><i class="far fa-clock"></i> {{ lesson.start_time|time:"H:i" }}</p>
+                                            <p class="subject">{{ lesson.subject.name }}</p>
+                                            <p class="details"><i class="fas fa-chalkboard-teacher"></i> Класс: {{ lesson.school_class.name }}</p>
+                                            <p class="details"><i class="fas fa-map-marker-alt"></i> Каб: {{ lesson.classroom }}</p>
+                                        </div>
+                                    {% empty %}
+                                        <p style="font-size: 13px; text-align: center; color: var(--text-secondary); padding-top: 20px;">Нет уроков</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {# === КОНЕЦ ИЗМЕНЕНИЯ === #}
+                    </div>
+                </section>
+            </div>
+             <!-- Здесь можно добавить другие div'ы для остальных вкладок, например, id="plans-content" -->
+             <div id="plans-content" class="tab-content">
+                <p style="text-align: center; padding: 40px; color: var(--text-secondary);">Раздел "Поурочные планы" находится в разработке.</p>
+             </div>
         </div>
         
-        <!-- Правая колонка -->
-        <div class="td-right-column">
-            <!-- Важные задачи -->
+        <!-- <div class="td-right-column">
             <section class="td-card">
-                <div class="td-card-header">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h3>Важные задачи</h3>
-                </div>
+                <div class="td-card-header"><i class="fas fa-exclamation-triangle"></i><h3>Важные задачи</h3></div>
                 <div class="td-task-list">
-                    <div class="td-task-item">
-                        <p>Проверить контрольные работы 8А</p>
-                        <div class="td-task-meta"><span class="td-task-badge urgent">Срочно</span> <span>2025-10-22</span></div>
-                    </div>
-                    <div class="td-task-item">
-                        <p>Подготовить план урока 9Б</p>
-                        <div class="td-task-meta"><span class="td-task-badge medium">Средний</span> <span>2025-10-23</span></div>
-                    </div>
+                     <div class="td-task-item"><p>Проверить контрольные работы 8А</p><div class="td-task-meta"><span class="td-task-badge urgent">Срочно</span> <span>2025-10-22</span></div></div>
+                     <div class="td-task-item"><p>Подготовить план урока 9Б</p><div class="td-task-meta"><span class="td-task-badge medium">Средний</span> <span>2025-10-23</span></div></div>
                 </div>
             </section>
             
-            <!-- Статус планов -->
-            <section class="td-card">
-                 <div class="td-card-header">
-                    <i class="fas fa-check-double"></i>
-                    <h3>Статус планов</h3>
-                </div>
-                 <div class="td-plan-list">
-                    <div class="td-plan-item">
-                        <p>Квадратные уравнения <small>(8А)</small></p>
-                        <div class="td-plan-status approved"><i class="fas fa-check"></i></div>
-                    </div>
-                    <div class="td-plan-item">
-                        <p>Теорема Пифагора <small>(9Б)</small></p>
-                        <div class="td-plan-status pending"><i class="far fa-clock"></i></div>
-                    </div>
-                     <div class="td-plan-item">
-                        <p>Производные <small>(11А)</small></p>
-                        <div class="td-plan-status rejected"><i class="fas fa-times"></i></div>
-                    </div>
-                 </div>
-            </section>
-        </div>
+        </div> -->
     </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('.td-main-nav a[data-tab]');
+    const contentPanes = document.querySelectorAll('.tab-content');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            // Если у ссылки есть href на другую страницу, переходим
+            if (this.hasAttribute('href') && this.getAttribute('href') !== '#') {
+                window.location.href = this.getAttribute('href');
+                return;
+            }
+
+            const tabId = this.getAttribute('data-tab');
+
+            // Управление активным классом для ссылок
+            navLinks.forEach(navLink => navLink.classList.remove('active'));
+            this.classList.add('active');
+
+            // Управление отображением контента
+            contentPanes.forEach(pane => {
+                if (pane.id === tabId + '-content') {
+                    pane.classList.add('active');
+                } else {
+                    pane.classList.remove('active');
+                }
+            });
+        });
+    });
+});
+</script>
 
 </body>
 </html>

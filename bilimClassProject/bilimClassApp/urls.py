@@ -53,7 +53,7 @@ urlpatterns = [
     path('api/assignment/<int:assignment_id>/delete/', views.delete_assignment_api, name='delete_assignment_api'),
 
     #завуч
-    path('school-schedule/', views.school_schedule_view, name='school_schedule'),
+    path('headteacher/', views.headteacher_view, name='headteacher'),
     path('api/school/<int:school_id>/classes/', views.get_classes_for_school_api, name='api_get_classes_for_school'),
 
     # === НАЧАЛО НОВЫХ МАРШРУТОВ ДЛЯ API РАСПИСАНИЯ ===

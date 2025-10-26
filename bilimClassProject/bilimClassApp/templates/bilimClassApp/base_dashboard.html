@@ -28,7 +28,8 @@
                 <div class="user-profile">
                     <div class="user-info">
                         <p>{{ user.get_full_name|default:user.username }}</p>
-                        <span>{{ user.profile.get_role_display|default:"Пользователь" }}</span>
+                        {# Добавлена проверка на наличие профиля для надежности #}
+                        <span>{% if user.profile %}{{ user.profile.get_role_display }}{% endif %}</span>
                     </div>
                     <div class="user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
                 </div>
@@ -38,24 +39,45 @@
 
         <nav class="main-nav">
              <ul>
-                {% if user.is_staff %}
-                    <li><a href="{% url 'admin_panel' %}" {% if request.resolver_match.url_name == 'admin_panel' %}class="active"{% endif %}><i class="fa-solid fa-users"></i> Панель админа</a></li>
-                {% endif %}
-                
-                <!-- Ссылки для Учителя -->
-                {% if user.profile.role == 'teacher' %}
-                     <li><a href="{% url 'teacher_dashboard' %}"><i class="fa-solid fa-house"></i> Главная</a></li>
-                     <li><a href="{% url 'teacher_journal' %}"><i class="fa-solid fa-book-open-reader"></i> Журнал</a></li>
-                     <li><a href="{% url 'teacher_homework' %}"><i class="fa-solid fa-person-chalkboard"></i> Домашние задания</a></li>
-                {% endif %}
+                {# === НАЧАЛО ИСПРАВЛЕНИЯ: Вся навигация для ролей обернута в проверку аутентификации === #}
+                {% if user.is_authenticated %}
+                    
+                    {% if user.is_staff %}
+                        <li><a href="{% url 'admin_panel' %}" {% if request.resolver_match.url_name == 'admin_panel' %}class="active"{% endif %}><i class="fa-solid fa-users"></i> Панель админа</a></li>
+                    {% endif %}
+                    
+                    <!-- Ссылки для Учителя -->
+                    {% if user.profile.role == 'teacher' %}
+                         <li><a href="{% url 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}class="active"{% endif %}><i class="fa-solid fa-house"></i> Главная</a></li>
+                         <li><a href="{% url 'teacher_journal' %}" {% if request.resolver_match.url_name == 'teacher_journal' %}class="active"{% endif %}><i class="fa-solid fa-book-open-reader"></i> Журнал</a></li>
+                         <li><a href="{% url 'teacher_homework' %}" {% if request.resolver_match.url_name == 'teacher_homework' %}class="active"{% endif %}><i class="fa-solid fa-person-chalkboard"></i> Домашние задания</a></li>
+                    {% endif %}
 
-                <!-- Ссылка на новую страницу Расписания (для Завуча и Админа) -->
-                {% if user.is_staff or user.profile.role == 'headteacher' %}
-                <li><a href="{% url 'headteacher' %}" {% if request.resolver_match.url_name == 'headteacher' %}class="active"{% endif %}><i class="fa-solid fa-calendar-days"></i> Расписание школы</a></li>
-                {% endif %}
+                    <!-- Ссылки для Завуча и Админа -->
+                    {% if  user.profile.role == 'headteacher' %}
+                        <li>
+                            <a href="{% url 'headteacher' %}?tab=performance" 
+                            {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab != 'schedule' %}class="active"{% endif %}>
+                            <i class="fa-solid fa-chart-line"></i> Успеваемость
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'headteacher' %}?tab=schedule"
+                            {% comment %} Активна, если открыта страница завуча И вкладка 'schedule' {% endcomment %}
+                            {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'schedule' %}class="active"{% endif %}>
+                            <i class="fa-solid fa-calendar-days"></i> Расписание школы
+                            </a>
+                        </li>
+                    {% endif %}
 
-                <li><a href="{% url 'profile' %}"><i class="fa-solid fa-user-gear"></i> Профиль</a></li>
-                <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a></li>
+                    <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}><i class="fa-solid fa-user-gear"></i> Профиль</a></li>
+                    <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a></li>
+
+                {% else %}
+                    {# Если пользователь не вошел в систему, можно показать ссылку на вход #}
+                    <li><a href="{% url 'login' %}">Войти</a></li>
+                {% endif %}
+                {# === КОНЕЦ ИСПРАВЛЕНИЯ === #}
             </ul>
         </nav>
 

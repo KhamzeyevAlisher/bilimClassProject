@@ -10,13 +10,14 @@ import json
 from datetime import date, timedelta
 from .decorators import group_required
 from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,Profile, SchoolClass, School, Homework, HomeworkSubmission, TeacherAssignment
-from django.db.models import Avg, Q, Count
+from django.db.models import Avg, Q, Count, Case, When, FloatField
 from django.views.decorators.http import require_POST
 import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db.models.functions import Coalesce
 
 def _get_redirect_for_user(user):
     """
@@ -1777,46 +1778,148 @@ def delete_school_api(request, school_id):
 @login_required
 def headteacher_view(request):
     """
-    Отображает страницу с расписанием школы с возможностью фильтрации
-    по школе и классу.
+    Отображает страницу завуча, включая управление расписанием и
+    аналитику успеваемости по школе.
     """
     all_schools = School.objects.all().order_by('name')
     selected_school_id = request.GET.get('school_id')
-    selected_class_id = request.GET.get('class_id')
-
-    classes_in_school = SchoolClass.objects.none()
-    schedule_by_day = {
-        1: [], 2: [], 3: [], 4: [], 5: [], 6: []
-    }
     
-    # Инициализируем форму с указанием school_id, если он есть
-    schedule_form = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id)
-    all_subjects = Subject.objects.all().order_by('name')
+    context = {
+        'all_schools': all_schools,
+        'selected_school_id': int(selected_school_id) if selected_school_id else None,
+        'active_tab': request.GET.get('tab', 'schedule'), # Определяем активную вкладку
+    }
 
-
+    # === ЛОГИКА ДЛЯ ВКЛАДКИ "РАСПИСАНИЕ" ===
+    selected_class_id = request.GET.get('class_id')
+    classes_in_school = SchoolClass.objects.none()
+    schedule_by_day = {day: [] for day in range(1, 7)}
+    
     if selected_school_id:
         classes_in_school = SchoolClass.objects.filter(school_id=selected_school_id).order_by('name')
 
     if selected_class_id:
-        schedule_items = Schedule.objects.filter(
-            school_class_id=selected_class_id
-        ).select_related('subject', 'teacher__user').order_by('start_time')
-        
+        schedule_items = Schedule.objects.filter(school_class_id=selected_class_id).select_related('subject', 'teacher__user').order_by('start_time')
         for item in schedule_items:
             if item.day_of_week in schedule_by_day:
                 schedule_by_day[item.day_of_week].append(item)
 
-    context = {
-        'all_schools': all_schools,
+    schedule_form = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id)
+    all_subjects = Subject.objects.all().order_by('name')
+
+    context.update({
         'classes_in_school': classes_in_school,
-        'selected_school_id': int(selected_school_id) if selected_school_id else None,
         'selected_class_id': int(selected_class_id) if selected_class_id else None,
         'schedule_by_day': schedule_by_day,
         'days_of_week': {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница", 6: "Суббота"},
         'schedule_form': schedule_form, # Передаем форму в шаблон
         'all_subjects': all_subjects, # Передаем все предметы для модального окна
-    }
+    })
+
+
+    # === ЛОГИКА ДЛЯ ВКЛАДКИ "УСПЕВАЕМОСТЬ" ===
+    if selected_school_id:
+        school_classes = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students')
+        
+        # 1. Общая статистика по школе
+        overall_stats = school_classes.aggregate(
+            total_students=Count('students', distinct=True),
+            overall_avg_grade=Avg('students__assessments__grade')
+        )
+
+        total_attendance_records = Attendance.objects.filter(school_class__school_id=selected_school_id).count()
+        present_attendance_records = Attendance.objects.filter(school_class__school_id=selected_school_id, status='P').count()
+        overall_attendance_percentage = (present_attendance_records / total_attendance_records * 100) if total_attendance_records > 0 else 0
+
+        # 2. Детальная статистика по каждому классу
+        class_performance_stats = []
+        for s_class in school_classes:
+            student_count = s_class.students.count()
+            if student_count == 0:
+                continue
+
+            # Получаем queryset студентов с их средним баллом
+            students_with_avg_grade = s_class.students.annotate(
+                avg_grade=Coalesce(Avg('assessments__grade'), 0.0, output_field=FloatField())
+            )
+            
+            # Агрегируем количество отличников, хорошистов и т.д.
+            grade_distribution = students_with_avg_grade.aggregate(
+                excellent=Count(Case(When(avg_grade__gte=4.5, then=1))),
+                good=Count(Case(When(avg_grade__gte=3.5, avg_grade__lt=4.5, then=1))),
+                satisfactory=Count(Case(When(avg_grade__gte=2.5, avg_grade__lt=3.5, then=1))),
+                poor=Count(Case(When(avg_grade__lt=2.5, avg_grade__gt=0, then=1))), # gt=0 чтобы не считать тех, у кого нет оценок
+                class_avg_grade=Avg('avg_grade')
+            )
+
+            # Посещаемость по классу
+            class_total_attendance = Attendance.objects.filter(school_class=s_class).count()
+            class_present_attendance = Attendance.objects.filter(school_class=s_class, status='P').count()
+            class_attendance_percentage = (class_present_attendance / class_total_attendance * 100) if class_total_attendance > 0 else 0
+
+            class_performance_stats.append({
+                'class_name': s_class.name,
+                'student_count': student_count,
+                'avg_grade': grade_distribution['class_avg_grade'],
+                'attendance_percentage': class_attendance_percentage,
+                'excellent_students': grade_distribution['excellent'],
+                'good_students': grade_distribution['good'],
+                'satisfactory_students': grade_distribution['satisfactory'],
+                'poor_students': grade_distribution['poor'],
+            })
+        
+        context['performance_data'] = {
+            'overall_avg_grade': overall_stats['overall_avg_grade'],
+            'overall_attendance': overall_attendance_percentage,
+            'total_students': overall_stats['total_students'],
+            'class_stats': class_performance_stats,
+        }
+
     return render(request, 'bilimClassApp/headteacher.html', context)
+
+# @login_required
+# def headteacher_view(request):
+#     """
+#     Отображает страницу с расписанием школы с возможностью фильтрации
+#     по школе и классу.
+#     """
+#     all_schools = School.objects.all().order_by('name')
+#     selected_school_id = request.GET.get('school_id')
+#     selected_class_id = request.GET.get('class_id')
+
+#     classes_in_school = SchoolClass.objects.none()
+#     schedule_by_day = {
+#         1: [], 2: [], 3: [], 4: [], 5: [], 6: []
+#     }
+    
+#     # Инициализируем форму с указанием school_id, если он есть
+#     schedule_form = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id)
+#     all_subjects = Subject.objects.all().order_by('name')
+
+
+#     if selected_school_id:
+#         classes_in_school = SchoolClass.objects.filter(school_id=selected_school_id).order_by('name')
+
+#     if selected_class_id:
+#         schedule_items = Schedule.objects.filter(
+#             school_class_id=selected_class_id
+#         ).select_related('subject', 'teacher__user').order_by('start_time')
+        
+#         for item in schedule_items:
+#             if item.day_of_week in schedule_by_day:
+#                 schedule_by_day[item.day_of_week].append(item)
+
+#     context = {
+#         'all_schools': all_schools,
+#         'classes_in_school': classes_in_school,
+#         'selected_school_id': int(selected_school_id) if selected_school_id else None,
+#         'selected_class_id': int(selected_class_id) if selected_class_id else None,
+#         'schedule_by_day': schedule_by_day,
+#         'days_of_week': {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница", 6: "Суббота"},
+#         'schedule_form': schedule_form, # Передаем форму в шаблон
+#         'all_subjects': all_subjects, # Передаем все предметы для модального окна
+#     }
+#     return render(request, 'bilimClassApp/headteacher.html', context)
 
 
 @login_required

@@ -6,69 +6,192 @@
 
 {% block head_extra %}
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/schedule_head_school.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        .page-header { margin-bottom: 24px; }
+        .page-title h2 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .page-title p { color: var(--text-secondary); margin-top: 4px; }
+        .content-card { background-color: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -2px rgba(0,0,0,.05); }
+        .filters-toolbar { display: flex; gap: 16px; margin-bottom: 24px; }
+        .filter-select { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-main); }
+        
+        /* Скрываем контент вкладок по умолчанию */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Стили для УСПЕВАЕМОСТИ */
+        :root {
+            --accent-purple-light: #F5F3FF; --accent-purple-dark: #5B21B6; --accent-green-light: #F0FDF4;
+            --accent-green-dark: #166534; --accent-blue-light: #EFF6FF; --accent-blue-dark: #1E40AF;
+            --accent-yellow-light: #FEFCE8; --accent-yellow-dark: #854D0E; --accent-red-light: #FEF2F2; --accent-red-dark: #991B1B;
+        }
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+        .summary-card { padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .summary-card .value { font-size: 28px; font-weight: 700; }
+        .summary-card .label { color: var(--text-secondary); }
+        .summary-card .icon { font-size: 24px; }
+        .card-grade { background-color: var(--accent-blue-light); color: var(--accent-blue-dark); }
+        .card-attendance { background-color: var(--accent-green-light); color: var(--accent-green-dark); }
+        .card-students { background-color: var(--accent-purple-light); color: var(--accent-purple-dark); }
+        .performance-table { width: 100%; border-collapse: collapse; }
+        .performance-table th, .performance-table td { padding: 14px 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .performance-table .avg-grade { font-weight: 600; color: var(--accent-primary); }
+        .progress-bar { width: 80px; height: 8px; background-color: #e9ecef; border-radius: 99px; overflow: hidden; }
+        .progress { height: 100%; background-color: var(--accent-green-dark); border-radius: 99px; }
+        .grade-dist-cell { display: flex; align-items: center; gap: 16px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+        .badge-excellent { background-color: var(--accent-green-light); color: var(--accent-green-dark); }
+        .badge-good { background-color: var(--accent-blue-light); color: var(--accent-blue-dark); }
+        .badge-satisfactory { background-color: var(--accent-yellow-light); color: var(--accent-yellow-dark); }
+        .badge-poor { background-color: var(--accent-red-light); color: var(--accent-red-dark); }
+        .placeholder { text-align: center; padding: 60px; color: var(--text-secondary); }
+        .placeholder i { font-size: 48px; margin-bottom: 16px; }
+
+        /* Стили для РАСПИСАНИЯ */
+        .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .day-column { background-color: var(--bg-main); border-radius: 12px; padding: 16px; }
+        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .lesson-card { background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <div class="page-title">
-        <h2><i class="fa-solid fa-calendar-days"></i> Управление расписанием школы</h2>
-        <p>Создание и редактирование расписания для всех классов</p>
-    </div>
-</div>
-
 <div class="content-card">
-    <form method="GET" action="{% url 'headteacher' %}" id="schedule-filter-form" class="filters-toolbar">
-        <div class="filter-group">
-            <label for="school-select">Школа</label>
+    
+    <!-- === КОНТЕНТ ВКЛАДКИ "УСПЕВАЕМОСТЬ" === -->
+    <div id="performance-content" class="tab-content">
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fa-solid fa-chart-line"></i> Успеваемость по школе</h2>
+                <p>Сводная ведомость успеваемости по классам, предметам и ученикам</p>
+            </div>
+        </div>
+        <form method="GET" class="filters-toolbar">
+            <input type="hidden" name="tab" value="performance">
+            <select name="school_id" class="filter-select" onchange="this.form.submit()">
+                <option value="">-- Выберите школу --</option>
+                {% for school in all_schools %}
+                    <option value="{{ school.id }}" {% if school.id == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+
+        {% if selected_school_id %}
+            {% if performance_data %}
+                <div class="summary-cards">
+                    <div class="summary-card card-grade">
+                        <div>
+                            <div class="label">Средний балл</div>
+                            <div class="value">{{ performance_data.overall_avg_grade|floatformat:2|default:"-" }}</div>
+                        </div>
+                        <div class="icon"><i class="fa-solid fa-award"></i></div>
+                    </div>
+                    <div class="summary-card card-attendance">
+                        <div>
+                            <div class="label">Средняя посещаемость</div>
+                            <div class="value">{{ performance_data.overall_attendance|floatformat:0 }}%</div>
+                        </div>
+                         <div class="icon"><i class="fa-solid fa-user-check"></i></div>
+                    </div>
+                    <div class="summary-card card-students">
+                        <div>
+                            <div class="label">Всего учеников</div>
+                            <div class="value">{{ performance_data.total_students }}</div>
+                        </div>
+                         <div class="icon"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                </div>
+
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>Класс</th><th>Учеников</th><th>Средний балл</th><th>Посещаемость</th>
+                            <th>Отличники</th><th>Хорошисты</th><th>Удовл.</th><th>Неудовл.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class_stat in performance_data.class_stats %}
+                        <tr>
+                            <td><b>{{ class_stat.class_name }}</b></td>
+                            <td>{{ class_stat.student_count }}</td>
+                            <td><span class="avg-grade">{{ class_stat.avg_grade|floatformat:2|default:"-" }}</span></td>
+                            <td>
+                                <div class="grade-dist-cell">
+                                    <div class="progress-bar"><div class="progress" style="width: {{ class_stat.attendance_percentage|floatformat:0 }}%;"></div></div>
+                                    <span>{{ class_stat.attendance_percentage|floatformat:0 }}%</span>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-excellent">{{ class_stat.excellent_students }}</span></td>
+                            <td><span class="badge badge-good">{{ class_stat.good_students }}</span></td>
+                            <td><span class="badge badge-satisfactory">{{ class_stat.satisfactory_students }}</span></td>
+                            <td><span class="badge badge-poor">{{ class_stat.poor_students }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="placeholder"><p>Нет данных для отображения.</p></div>
+            {% endif %}
+        {% else %}
+            <div class="placeholder"><i class="fa-solid fa-school"></i><p>Выберите школу для просмотра статистики успеваемости.</p></div>
+        {% endif %}
+    </div>
+
+    <!-- === КОНТЕНТ ВКЛАДКИ "РАСПИСАНИЕ ШКОЛЫ" === -->
+    <div id="schedule-content" class="tab-content">
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fa-solid fa-calendar-days"></i> Управление расписанием школы</h2>
+                <p>Создание и редактирование расписания для всех классов</p>
+            </div>
+        </div>
+        <form method="GET" id="schedule-filter-form" class="filters-toolbar">
+            <input type="hidden" name="tab" value="schedule">
             <select name="school_id" id="school-select" class="filter-select">
                 <option value="">-- Выберите школу --</option>
                 {% for school in all_schools %}
-                    <option value="{{ school.id }}" {% if school.id == selected_school_id %}selected{% endif %}>
-                        {{ school.name }}
-                    </option>
+                    <option value="{{ school.id }}" {% if school.id == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
                 {% endfor %}
             </select>
-        </div>
-        <div class="filter-group">
-            <label for="class-select">Класс</label>
             <select name="class_id" id="class-select" class="filter-select" {% if not selected_school_id %}disabled{% endif %}>
                 <option value="">-- Сначала выберите школу --</option>
                 {% for s_class in classes_in_school %}
-                     <option value="{{ s_class.id }}" {% if s_class.id == selected_class_id %}selected{% endif %}>
-                        {{ s_class.name }}
-                    </option>
+                     <option value="{{ s_class.id }}" {% if s_class.id == selected_class_id %}selected{% endif %}>{{ s_class.name }}</option>
                 {% endfor %}
             </select>
-        </div>
-    </form>
-    
-    <div class="tabs-container">
-        <div class="tabs">
-            <button class="tab-button active">Расписание</button>
-        </div>
-    </div>
-    
-    <div id="schedule-content">
+        </form>
+
         {% if selected_class_id %}
             <div class="schedule-grid">
                 {% for day_id, day_name in days_of_week.items %}
                     <div class="day-column">
                         <div class="day-header">
                             <h3>{{ day_name }}</h3>
-                            <button class="add-lesson-to-day-btn" data-day-id="{{ day_id }}" data-day-name="{{ day_name }}" title="Добавить урок">+</button>
+                            <button class="add-lesson-to-day-btn" data-day-id="{{ day_id }}" data-day-name="{{ day_name }}">+</button>
                         </div>
                         <div class="lessons-list">
                             {% for lesson in schedule_by_day|get_item:day_id %}
                                 <div class="lesson-card" data-lesson-id="{{ lesson.id }}">
-                                    <div class="lesson-time">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</div>
-                                    <div class="lesson-subject">{{ lesson.subject.name }}</div>
-                                    <div class="lesson-teacher">{{ lesson.teacher.user.get_full_name|default:"Не назначен" }}</div>
-                                    <div class="lesson-classroom">Каб. {{ lesson.classroom|default:"-" }}</div>
-                                    
-                                    <!-- Вот эти кнопки и их классы важны для JavaScript -->
-                                    <div class="lesson-actions">
-                                        <button class="edit-lesson-btn" title="Редактировать"><i class="fa-solid fa-pencil"></i></button>
-                                        <button class="delete-lesson-btn" title="Удалить"><i class="fa-solid fa-trash-can"></i></button>
+                                    <div class="lesson-card" data-lesson-id="{{ lesson.id }}">
+                                        <div class="lesson-time">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</div>
+                                        <div class="lesson-subject">{{ lesson.subject.name }}</div>
+                                        <div class="lesson-details">
+                                            <p class="lesson-teacher">
+                                                <i class="fa-solid fa-chalkboard-user"></i>
+                                                {{ lesson.teacher.user.get_full_name|default:"Не назначен" }}
+                                            </p>
+                                            <p class="lesson-classroom">
+                                                <i class="fa-solid fa-location-dot"></i>
+                                                Каб. {{ lesson.classroom|default:"-" }}
+                                            </p>
+                                        </div>
+                                        
+                                        <!-- Кнопки управления, которые будут работать с вашим JS -->
+                                        <div class="lesson-actions">
+                                            <button class="edit-lesson-btn" title="Редактировать"><i class="fa-solid fa-pencil"></i></button>
+                                            <button class="delete-lesson-btn" title="Удалить"><i class="fa-solid fa-trash-can"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             {% empty %}
@@ -78,15 +201,15 @@
                     </div>
                 {% endfor %}
             </div>
+        {% elif selected_school_id %}
+             <div class="placeholder"><i class="fa-regular fa-calendar-check"></i><p>Теперь выберите класс, чтобы увидеть расписание.</p></div>
         {% else %}
-            <div class="placeholder">
-                <i class="fa-regular fa-calendar-check"></i>
-                <p>Пожалуйста, выберите школу и класс, чтобы увидеть расписание.</p>
-            </div>
+             <div class="placeholder"><i class="fa-solid fa-school"></i><p>Выберите школу для управления расписанием.</p></div>
         {% endif %}
     </div>
 </div>
 {% endblock %}
+
 
 {% block modals %}
 <!-- ===================================================================== -->
@@ -144,6 +267,38 @@
 {% block scripts_extra %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    // --- ГЛАВНЫЙ СКРИПТ УПРАВЛЕНИЯ ВКЛАДКАМИ ---
+    const navLinks = document.querySelectorAll('.main-nav a[data-page="headteacher"]');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function switchTab(tabName) {
+        // Устанавливаем active класс на ссылке в навигации
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.tab === tabName);
+        });
+
+        // Показываем нужный контент
+        tabContents.forEach(content => {
+            content.classList.toggle('active', content.id === tabName + '-content');
+        });
+    }
+
+    // Обработчик кликов по ссылкам навигации
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault(); // Отменяем стандартный переход
+            const tabName = this.dataset.tab;
+            switchTab(tabName);
+            // Обновляем URL в браузере без перезагрузки
+            window.history.pushState({}, '', this.href);
+        });
+    });
+
+    // Активируем нужную вкладку при первоначальной загрузке страницы
+    const initialTab = '{{ active_tab }}';
+    switchTab(initialTab);
+
     // --- БЛОК 1: УПРАВЛЕНИЕ ФИЛЬТРАМИ (ШКОЛА И КЛАСС) ---
     const schoolSelect = document.getElementById('school-select');
     const classSelect = document.getElementById('class-select');

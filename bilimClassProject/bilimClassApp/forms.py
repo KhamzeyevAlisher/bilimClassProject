@@ -220,6 +220,40 @@ class SchoolForm(forms.ModelForm):
         }
 
 
+# class ScheduleForm(forms.ModelForm):
+#     class Meta:
+#         model = Schedule
+#         fields = ['subject', 'teacher', 'start_time', 'end_time', 'classroom']
+#         widgets = {
+#             'start_time': forms.TimeInput(attrs={'type': 'time'}),
+#             'end_time': forms.TimeInput(attrs={'type': 'time'}),
+#         }
+
+#     def __init__(self, *args, **kwargs):
+#         # Получаем ID школы, переданный из view
+#         school_id = kwargs.pop('school_id', None)
+#         super().__init__(*args, **kwargs)
+        
+#         # Устанавливаем русские названия для полей
+#         self.fields['subject'].label = "Предмет"
+#         self.fields['teacher'].label = "Учитель"
+#         self.fields['start_time'].label = "Время начала"
+#         self.fields['end_time'].label = "Время окончания"
+#         self.fields['classroom'].label = "Кабинет"
+
+#         # Если школа выбрана, фильтруем учителей, которые к ней привязаны
+#         if school_id:
+#             self.fields['teacher'].queryset = Teacher.objects.filter(
+#                 school_id=school_id
+#             ).select_related('user').order_by('user__last_name')
+#         else:
+#             # Если школа не выбрана, показываем пустой список
+#             self.fields['teacher'].queryset = Teacher.objects.none()
+
+#         # Делаем все поля обязательными для заполнения
+#         for field in self.fields:
+#             self.fields[field].required = True
+
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
@@ -230,26 +264,40 @@ class ScheduleForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # Получаем ID школы, переданный из view
+        # Извлекаем school_id и class_id из переданных аргументов
         school_id = kwargs.pop('school_id', None)
+        class_id = kwargs.pop('class_id', None) # <== НОВОЕ
+        
         super().__init__(*args, **kwargs)
         
-        # Устанавливаем русские названия для полей
         self.fields['subject'].label = "Предмет"
         self.fields['teacher'].label = "Учитель"
         self.fields['start_time'].label = "Время начала"
         self.fields['end_time'].label = "Время окончания"
         self.fields['classroom'].label = "Кабинет"
 
-        # Если школа выбрана, фильтруем учителей, которые к ней привязаны
-        if school_id:
+        # ЛОГИКА ФИЛЬТРАЦИИ
+        if class_id:
+            # Если выбран класс, показываем ТОЛЬКО назначенных учителей и предметы
+            self.fields['teacher'].queryset = Teacher.objects.filter(
+                teacherassignment__school_class_id=class_id
+            ).distinct().select_related('user').order_by('user__last_name')
+            
+            self.fields['subject'].queryset = Subject.objects.filter(
+                teacherassignment__school_class_id=class_id
+            ).distinct().order_by('name')
+            
+        elif school_id:
+            # Если класс не выбран, но выбрана школа - показываем всех учителей школы
             self.fields['teacher'].queryset = Teacher.objects.filter(
                 school_id=school_id
             ).select_related('user').order_by('user__last_name')
+            # Предметы оставляем все, или тоже можно как-то ограничить, если нужно
+            self.fields['subject'].queryset = Subject.objects.all().order_by('name')
         else:
-            # Если школа не выбрана, показываем пустой список
+            # Если ничего не выбрано, показываем пустые списки (чтобы не перегружать страницу)
             self.fields['teacher'].queryset = Teacher.objects.none()
+            # self.fields['subject'].queryset = Subject.objects.none() # Можно раскомментировать, если хотите скрывать и предметы
 
-        # Делаем все поля обязательными для заполнения
         for field in self.fields:
             self.fields[field].required = True

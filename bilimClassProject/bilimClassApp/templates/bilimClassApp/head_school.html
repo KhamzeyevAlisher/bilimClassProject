@@ -64,6 +64,8 @@
                                     <div class="lesson-subject">{{ lesson.subject.name }}</div>
                                     <div class="lesson-teacher">{{ lesson.teacher.user.get_full_name|default:"Не назначен" }}</div>
                                     <div class="lesson-classroom">Каб. {{ lesson.classroom|default:"-" }}</div>
+                                    
+                                    <!-- Вот эти кнопки и их классы важны для JavaScript -->
                                     <div class="lesson-actions">
                                         <button class="edit-lesson-btn" title="Редактировать"><i class="fa-solid fa-pencil"></i></button>
                                         <button class="delete-lesson-btn" title="Удалить"><i class="fa-solid fa-trash-can"></i></button>
@@ -142,9 +144,10 @@
 {% block scripts_extra %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // --- БЛОК 1: УПРАВЛЕНИЕ ФИЛЬТРАМИ (ШКОЛА И КЛАСС) ---
     const schoolSelect = document.getElementById('school-select');
     const classSelect = document.getElementById('class-select');
-    const form = document.getElementById('schedule-filter-form');
+    const filterForm = document.getElementById('schedule-filter-form');
 
     schoolSelect.addEventListener('change', async function() {
         const schoolId = this.value;
@@ -174,15 +177,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     classSelect.addEventListener('change', function() {
         if (this.value) {
-            form.submit();
+            filterForm.submit();
         }
     });
 
+    // --- БЛОК 2: УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ УРОКА ---
     const modalOverlay = document.getElementById('lesson-modal-overlay');
     if (modalOverlay) {
         const modalTitle = document.getElementById('lesson-modal-title');
         const modalSubtitle = document.getElementById('lesson-modal-subtitle');
-        const form = document.getElementById('lesson-form');
+        const lessonForm = document.getElementById('lesson-form');
         const submitBtn = document.getElementById('submit-lesson-btn');
         const scheduleIdInput = document.getElementById('id_schedule_id');
         const dayOfWeekInput = document.getElementById('id_day_of_week');
@@ -197,8 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Открытие модального окна для СОЗДАНИЯ урока
         document.querySelectorAll('.add-lesson-to-day-btn').forEach(button => {
             button.addEventListener('click', () => {
-                form.reset();
-                scheduleIdInput.value = ''; // Очищаем ID
+                lessonForm.reset();
+                scheduleIdInput.value = '';
                 dayOfWeekInput.value = button.dataset.dayId;
                 
                 modalTitle.textContent = 'Добавить урок';
@@ -219,8 +223,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(`/api/schedule/${lessonId}/details/`);
                 if (response.ok) {
                     const data = await response.json();
-                    form.reset();
+                    lessonForm.reset();
                     scheduleIdInput.value = data.id;
+
+                    // === ИЗМЕНЕНИЕ ЗДЕСЬ: УСТАНАВЛИВАЕМ ЗНАЧЕНИЕ ДЛЯ СКРЫТОГО ПОЛЯ ===
+                    dayOfWeekInput.value = data.day_of_week; 
+                    // ================================================================
+                    
                     document.getElementById('id_start_time').value = data.start_time;
                     document.getElementById('id_end_time').value = data.end_time;
                     document.getElementById('id_subject').value = data.subject;
@@ -239,9 +248,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Обработка отправки формы
-        form.addEventListener('submit', async (e) => {
+        lessonForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(form);
+            const formData = new FormData(lessonForm);
             const response = await fetch("{% url 'api_manage_schedule_item' %}", {
                 method: 'POST',
                 body: formData,
@@ -249,10 +258,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (response.ok) {
-                location.reload(); // Перезагружаем страницу для простоты
+                location.reload();
             } else {
                 const result = await response.json();
-                alert('Ошибка: ' + JSON.stringify(result.errors));
+                const errorMessages = Object.values(result.errors).map(err => err[0]).join('\n');
+                alert('Ошибка валидации:\n' + errorMessages);
             }
         });
 
@@ -270,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
                     if (response.ok) {
-                        lessonCard.remove(); // Удаляем карточку урока со страницы
+                        lessonCard.remove();
                     } else {
                         alert('Не удалось удалить урок.');
                     }

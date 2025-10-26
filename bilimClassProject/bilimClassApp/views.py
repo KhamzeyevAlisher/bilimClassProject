@@ -1646,7 +1646,7 @@ def school_schedule_view(request):
     }
     
     # Инициализируем форму с указанием school_id, если он есть
-    schedule_form = ScheduleForm(school_id=selected_school_id)
+    schedule_form = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id)
     all_subjects = Subject.objects.all().order_by('name')
 
 
@@ -1696,6 +1696,7 @@ def manage_schedule_item_api(request):
     
     # Важно передать school_id в форму для правильной фильтрации учителей
     school_id = request.POST.get('school_id')
+    class_id = request.POST.get('school_class_id') 
     form = ScheduleForm(request.POST, instance=instance, school_id=school_id)
 
     if form.is_valid():
@@ -1720,6 +1721,7 @@ def get_schedule_item_details_api(request, pk):
         'start_time': item.start_time.strftime('%H:%M'),
         'end_time': item.end_time.strftime('%H:%M'),
         'classroom': item.classroom,
+        'day_of_week': item.day_of_week, # <== ИЗМЕНЕНИЕ ЗДЕСЬ: ДОБАВЬТЕ ЭТУ СТРОКУ
     }
     return JsonResponse(data)
 

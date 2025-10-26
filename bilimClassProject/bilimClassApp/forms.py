@@ -301,3 +301,16 @@ class ScheduleForm(forms.ModelForm):
 
         for field in self.fields:
             self.fields[field].required = True
+
+class SubjectForm(forms.ModelForm):
+    """Форма для создания и редактирования учебного предмета."""
+    class Meta:
+        model = Subject
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].label = "Название предмета"
+        self.fields['name'].widget.attrs.update({
+            'placeholder': 'Например, Алгебра'
+        })

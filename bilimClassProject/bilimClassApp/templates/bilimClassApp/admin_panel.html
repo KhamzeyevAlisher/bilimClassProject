@@ -14,9 +14,12 @@
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/admin_panel.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/school_structure.css' %}">
     <style>
-        /* Добавляем стиль для скрытия неактивных страниц */
-        .page-content {
+        /* Добавляем стиль для скрытия неактивных страниц и вкладок */
+        .page-content, .content-tab-pane {
             display: none;
+        }
+        .page-content.active, .content-tab-pane.active {
+            display: block;
         }
     </style>
 </head>
@@ -70,7 +73,7 @@
         <main id="app-content">
             
             <!-- СТРАНИЦА "УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ" -->
-            <div id="page-users" class="page-content">
+            <div id="page-users" class="page-content active">
                 <div class="page-header">
                     <div class="page-title">
                         <h2>Управление пользователями</h2>
@@ -194,39 +197,72 @@
                 </div>
         
                 <div class="content-card">
-                    <div class="card-header">
-                        <nav class="content-tabs">
-                            <a href="#" class="active"><i class="fa-solid fa-people-roof"></i> Классы <span class="count-badge">{{ structure_school_classes.count }}</span></a>
-                            <a href="#"><i class="fa-solid fa-book"></i> Предметы <span class="count-badge">{{ subjects.count }}</span></a>
+                    <div class="card-header" id="structure-card-header">
+                        <nav class="content-tabs" id="structure-tabs-nav">
+                            <!-- ИЗМЕНЕНИЕ: Добавлены data-атрибуты для JS -->
+                            <a href="#" data-tab="classes" class="active"><i class="fa-solid fa-people-roof"></i> Классы <span class="count-badge">{{ structure_school_classes.count }}</span></a>
+                            <a href="#" data-tab="subjects"><i class="fa-solid fa-book"></i> Предметы <span class="count-badge">{{ subjects.count }}</span></a>
                         </nav>
-                        <button class="btn-success" id="create-class-btn"><i class="fa-solid fa-plus"></i> Создать класс</button>
+                        <!-- ИЗМЕНЕНИЕ: Кнопки для создания вынесены в отдельный контейнер для удобства переключения -->
+                        <div id="structure-action-buttons">
+                            <button class="btn-success" id="create-class-btn"><i class="fa-solid fa-plus"></i> Создать класс</button>
+                            <button class="btn-info btn-primary" id="create-subject-btn" style="display: none;"><i class="fa-solid fa-plus"></i> Создать предмет</button>
+                        </div>
                     </div>
-        
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Класс</th>
-                                <th>Количество учеников</th>
-                                <th>Классный руководитель</th>
-                                <th style="text-align: end;">Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for s_class in structure_school_classes %}
-                            <tr>
-                                <td><strong>{{ s_class.name }}</strong></td>
-                                <td class="student-count-cell"><i class="fa-solid fa-user-group"></i> {{ s_class.student_count }}</td>
-                                <td>{{ s_class.class_teacher.user.get_full_name|default:"Не назначен" }}</td>
-                                <td class="action-icons" style="justify-content: end; gap:40px;">
-                                    <a href="#" class="edit-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-pencil"></i></a>
-                                    <a href="#" class="delete-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-trash-can"></i></a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="4" style="text-align: center; padding: 24px;">Классы еще не созданы.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    
+                    <!-- ИЗМЕНЕНИЕ: Контент для вкладок обернут в отдельные div -->
+                    <div id="tab-classes" class="content-tab-pane active">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Класс</th>
+                                    <th>Количество учеников</th>
+                                    <th>Классный руководитель</th>
+                                    <th style="text-align: end;">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s_class in structure_school_classes %}
+                                <tr data-class-row-id="{{ s_class.id }}">
+                                    <td><strong>{{ s_class.name }}</strong></td>
+                                    <td class="student-count-cell"><i class="fa-solid fa-user-group"></i> {{ s_class.student_count }}</td>
+                                    <td>{{ s_class.class_teacher.user.get_full_name|default:"Не назначен" }}</td>
+                                    <td class="action-icons" style="justify-content: end; gap:40px;">
+                                        <a href="#" class="edit-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-pencil"></i></a>
+                                        <a href="#" class="delete-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-trash-can"></i></a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" style="text-align: center; padding: 24px;">Классы еще не созданы.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="tab-subjects" class="content-tab-pane">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Название предмета</th>
+                                    <th style="text-align: end;">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in subjects %}
+                                <tr data-subject-row-id="{{ subject.id }}">
+                                    <td><strong>{{ subject.name }}</strong></td>
+                                    <td class="action-icons" style="justify-content: end; gap:40px;">
+                                        <a href="#" class="edit-subject-btn" data-subject-id="{{ subject.id }}"><i class="fa-solid fa-pencil"></i></a>
+                                        <a href="#" class="delete-subject-btn" data-subject-id="{{ subject.id }}"><i class="fa-solid fa-trash-can"></i></a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="2" style="text-align: center; padding: 24px;">Предметы еще не созданы.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
             
@@ -246,7 +282,7 @@
                 </div>
                 <div class="content-card">
                     <div class="card-header">
-                        <nav class.content-tabs>
+                        <nav class="content-tabs">
                             <a href="#" class="active">Все назначения</a>
                         </nav>
                     </div>
@@ -419,6 +455,32 @@
     </div>
 
     <!-- ========================================================== -->
+    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ПРЕДМЕТОВ === -->
+    <!-- ========================================================== -->
+    <div class="modal-overlay" id="subject-modal-overlay">
+        <div class="modal-container">
+            <button class="close-btn" id="close-subject-modal-btn">&times;</button>
+            <div class="modal-header">
+                <h2 id="subject-modal-title">Создать предмет</h2>
+                <p>Введите название учебного предмета</p>
+            </div>
+            <form id="subject-form" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="subject_id" id="id_subject_id">
+                <div class="form-group">
+                    <label for="id_subject_name">Название предмета</label>
+                    <input type="text" name="name" id="id_subject_name" placeholder="Например, Алгебра" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-subject-btn">Отмена</button>
+                    <button type="submit" class="btn-submit" id="submit-subject-btn">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ========================================================== -->
     <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ НАЗНАЧЕНИЙ === -->
     <!-- ========================================================== -->
     <div class="modal-overlay" id="assignment-modal-overlay">
@@ -435,7 +497,7 @@
                     <select name="teacher" id="id_assignment_teacher" required>
                         <option value="">Выберите учителя</option>
                         {% for teacher in all_teachers %}
-                        <option value="{{ teacher.user.id }}">{{ teacher.user.get_full_name }}</option>
+                        <option value="{{ teacher.id }}">{{ teacher.user.get_full_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -478,6 +540,7 @@
         const contentPages = document.querySelectorAll('.page-content');
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+        // --- УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ (без изменений) ---
         const initUserManagementScripts = () => {
             const page = document.getElementById('page-users');
             if (!page) return;
@@ -544,7 +607,7 @@
                     formData.delete('subjects');
                     Array.from(subjectSelect.selectedOptions).forEach(opt => formData.append('subjects', opt.value));
                 }
-                const response = await fetch("/api/user/manage/", { method: 'POST', body: formData, headers: {'X-CSRFToken': csrfToken}});
+                const response = await fetch("{% url 'api_manage_user' %}", { method: 'POST', body: formData, headers: {'X-CSRFToken': csrfToken}});
                 if (response.ok) location.reload();
                 else alert('Ошибка валидации');
             });
@@ -586,119 +649,178 @@
                 });
             });
         };
-
+        
+        // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ СТРУКТУРЫ ШКОЛЫ ---
         const initSchoolStructureScripts = () => {
             const page = document.getElementById('page-structure');
             if (!page) return;
-
-            const modalOverlay = document.getElementById('class-modal-overlay');
-            const form = document.getElementById('class-form');
-            const modalTitle = document.getElementById('class-modal-title');
-            const submitBtn = document.getElementById('submit-class-btn');
+        
+            // --- Переменные для управления классами ---
+            const classModalOverlay = document.getElementById('class-modal-overlay');
+            const classForm = document.getElementById('class-form');
+            const classModalTitle = document.getElementById('class-modal-title');
+            const classSubmitBtn = document.getElementById('submit-class-btn');
             const studentCount = document.getElementById('student-count-display');
-            
-            const openModal = () => modalOverlay.style.display = 'flex';
-            const closeModal = () => modalOverlay.style.display = 'none';
-
-            document.getElementById('create-class-btn').addEventListener('click', () => {
-                form.reset();
-                form.querySelector('#id_class_id').value = '';
-                modalTitle.textContent = 'Создать новый класс';
-                submitBtn.textContent = 'Создать';
-                studentCount.textContent = '0';
-                openModal();
-            });
-
-            document.getElementById('close-class-modal-btn').addEventListener('click', closeModal);
-            document.getElementById('cancel-class-btn').addEventListener('click', closeModal);
-            
-            page.querySelectorAll('.edit-class-btn').forEach(button => {
-                button.addEventListener('click', async e => {
-                    e.preventDefault();
-                    const classId = button.dataset.classId;
-                    try {
-                        const response = await fetch(`/api/class/${classId}/details/`);
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        const data = await response.json();
-
-                        form.querySelector('#id_class_id').value = data.id;
-                        form.querySelector('#id_class_name').value = data.name;
-                        form.querySelector('#id_school_for_class').value = data.school_id; // Установка школы
-                        form.querySelector('#id_class_teacher').value = data.class_teacher_id || '';
-                        studentCount.textContent = data.student_count;
-                        modalTitle.textContent = 'Редактировать класс';
-                        submitBtn.textContent = 'Сохранить';
-                        openModal();
-                    } catch (error) {
-                         console.error("Ошибка при загрузке данных класса:", error);
-                         alert("Не удалось загрузить данные класса.");
-                    }
-                });
-            });
-
-            form.addEventListener('submit', async e => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                try {
-                    const response = await fetch("/api/class/manage/", {
-                        method: 'POST',
-                        body: formData,
-                        headers: {'X-CSRFToken': csrfToken}
-                    });
-                    if (response.ok) {
-                        closeModal();
-                        location.reload();
-                    } else {
-                        const result = await response.json();
-                        alert('Ошибка валидации: ' + JSON.stringify(result.errors));
-                    }
-                } catch (error) {
-                    console.error("Ошибка при отправке формы класса:", error);
-                    alert("Произошла сетевая ошибка.");
-                }
-            });
-
-            page.querySelectorAll('.delete-class-btn').forEach(button => {
-                button.addEventListener('click', async e => {
-                    e.preventDefault();
-                    if (confirm('Вы уверены, что хотите удалить класс?')) {
-                        const classId = button.dataset.classId;
-                        const response = await fetch(`/api/class/${classId}/delete/`, { method: 'POST', headers: {'X-CSRFToken': csrfToken}});
-                        if (response.ok) button.closest('tr').remove();
-                        else alert('Не удалось удалить класс.');
-                    }
-                });
-            });
-
-            // Этот код для переключения вкладок (Классы/Предметы) можно упростить или удалить, если у вас одна таблица
-            // Если у вас действительно разные таблицы под разными вкладками, оставьте его.
-            // В текущем шаблоне он не полностью используется.
-            /*
+            const createClassBtn = document.getElementById('create-class-btn');
+        
+            // --- НОВЫЕ переменные для управления предметами ---
+            const subjectModalOverlay = document.getElementById('subject-modal-overlay');
+            const subjectForm = document.getElementById('subject-form');
+            const subjectModalTitle = document.getElementById('subject-modal-title');
+            const subjectSubmitBtn = document.getElementById('submit-subject-btn');
+            const createSubjectBtn = document.getElementById('create-subject-btn');
+        
+            // --- Переменные для навигации по вкладкам ---
             const tabsNav = document.getElementById('structure-tabs-nav');
             const actionButtons = document.getElementById('structure-action-buttons');
             const tabPanes = page.querySelectorAll('.content-tab-pane');
+        
+            // --- Функции для модальных окон ---
+            const openClassModal = () => classModalOverlay.style.display = 'flex';
+            const closeClassModal = () => classModalOverlay.style.display = 'none';
+            const openSubjectModal = () => subjectModalOverlay.style.display = 'flex';
+            const closeSubjectModal = () => subjectModalOverlay.style.display = 'none';
+        
+            // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК ---
             tabsNav.querySelectorAll('a').forEach(tabLink => {
                 tabLink.addEventListener('click', e => {
                     e.preventDefault();
                     const targetTab = tabLink.dataset.tab;
+        
                     tabsNav.querySelectorAll('a').forEach(link => link.classList.remove('active'));
                     tabLink.classList.add('active');
+        
                     tabPanes.forEach(pane => pane.classList.toggle('active', pane.id === `tab-${targetTab}`));
+        
                     actionButtons.querySelectorAll('button').forEach(btn => btn.style.display = 'none');
                     const targetBtn = document.getElementById(`create-${targetTab.slice(0, -1)}-btn`);
                     if (targetBtn) targetBtn.style.display = 'inline-flex';
                 });
             });
-            */
-        };
         
-        const initSchoolManagementScripts = () => {
-             // Этот блок был пустым в старом коде, но я оставлю его на случай,
-             // если вы будете добавлять управление школами, как в предыдущих версиях.
-             // Если он не нужен, можно удалить.
+            // --- ЛОГИКА ДЛЯ КЛАССОВ ---
+            createClassBtn.addEventListener('click', () => {
+                classForm.reset();
+                classForm.querySelector('#id_class_id').value = '';
+                classModalTitle.textContent = 'Создать новый класс';
+                classSubmitBtn.textContent = 'Создать';
+                studentCount.textContent = '0';
+                openClassModal();
+            });
+        
+            document.getElementById('close-class-modal-btn').addEventListener('click', closeClassModal);
+            document.getElementById('cancel-class-btn').addEventListener('click', closeClassModal);
+        
+            page.querySelectorAll('.edit-class-btn').forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    const classId = button.dataset.classId;
+                    const response = await fetch(`/api/class/${classId}/details/`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        classForm.querySelector('#id_class_id').value = data.id;
+                        classForm.querySelector('#id_class_name').value = data.name;
+                        classForm.querySelector('#id_school_for_class').value = data.school_id;
+                        classForm.querySelector('#id_class_teacher').value = data.class_teacher_id || '';
+                        studentCount.textContent = data.student_count;
+                        classModalTitle.textContent = 'Редактировать класс';
+                        classSubmitBtn.textContent = 'Сохранить';
+                        openClassModal();
+                    } else {
+                        alert("Не удалось загрузить данные класса.");
+                    }
+                });
+            });
+        
+            classForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                const response = await fetch("{% url 'manage_class_api' %}", {
+                    method: 'POST', body: new FormData(classForm), headers: {'X-CSRFToken': csrfToken}
+                });
+                if (response.ok) location.reload();
+                else alert('Ошибка валидации формы класса.');
+            });
+        
+            page.querySelectorAll('.delete-class-btn').forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    if (confirm('Вы уверены, что хотите удалить этот класс?')) {
+                        const classId = button.dataset.classId;
+                        const response = await fetch(`/api/class/${classId}/delete/`, { method: 'POST', headers: {'X-CSRFToken': csrfToken}});
+                        if (response.ok) {
+                             button.closest('tr').remove();
+                             // Можно добавить обновление счетчика, но проще перезагрузить
+                             location.reload(); 
+                        } else {
+                             alert('Не удалось удалить класс.');
+                        }
+                    }
+                });
+            });
+        
+            // === НОВАЯ ЛОГИКА ДЛЯ ПРЕДМЕТОВ ===
+            createSubjectBtn.addEventListener('click', () => {
+                subjectForm.reset();
+                subjectForm.querySelector('#id_subject_id').value = '';
+                subjectModalTitle.textContent = 'Создать предмет';
+                subjectSubmitBtn.textContent = 'Создать';
+                openSubjectModal();
+            });
+        
+            document.getElementById('close-subject-modal-btn').addEventListener('click', closeSubjectModal);
+            document.getElementById('cancel-subject-btn').addEventListener('click', closeSubjectModal);
+        
+            subjectForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                const response = await fetch("{% url 'api_manage_subject' %}", {
+                    method: 'POST', body: new FormData(subjectForm), headers: {'X-CSRFToken': csrfToken}
+                });
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Ошибка валидации. Проверьте, что название предмета уникально.');
+                }
+            });
+        
+            page.querySelectorAll('.edit-subject-btn').forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    const subjectId = button.dataset.subjectId;
+                    const response = await fetch(`/api/subject/${subjectId}/details/`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        subjectForm.querySelector('#id_subject_id').value = data.id;
+                        subjectForm.querySelector('#id_subject_name').value = data.name;
+                        subjectModalTitle.textContent = 'Редактировать предмет';
+                        subjectSubmitBtn.textContent = 'Сохранить';
+                        openSubjectModal();
+                    } else {
+                        alert('Не удалось загрузить данные предмета.');
+                    }
+                });
+            });
+        
+            page.querySelectorAll('.delete-subject-btn').forEach(button => {
+                button.addEventListener('click', async e => {
+                    e.preventDefault();
+                    if (confirm('Вы уверены, что хотите удалить этот предмет?')) {
+                        const subjectId = button.dataset.subjectId;
+                        const response = await fetch(`/api/subject/${subjectId}/delete/`, {
+                            method: 'POST', headers: {'X-CSRFToken': csrfToken}
+                        });
+                        if (response.ok) {
+                            button.closest('tr').remove();
+                            // Можно добавить обновление счетчика, но проще перезагрузить
+                            location.reload();
+                        } else {
+                            alert('Не удалось удалить предмет. Возможно, он используется в расписании или назначениях.');
+                        }
+                    }
+                });
+            });
         };
 
-        // === НОВАЯ ФУНКЦИЯ ДЛЯ УПРАВЛЕНИЯ НАЗНАЧЕНИЯМИ ===
+        // --- ФУНКЦИЯ ДЛЯ УПРАВЛЕНИЯ НАЗНАЧЕНИЯМИ (без изменений) ---
         const initAssignmentsScripts = () => {
             const page = document.getElementById('page-assignments');
             if (!page) return;
@@ -720,27 +842,19 @@
             closeModalBtn.addEventListener('click', closeModal);
             cancelBtn.addEventListener('click', closeModal);
 
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
-                try {
-                    // УБЕДИТЕСЬ, ЧТО URL ПРАВИЛЬНЫЙ!
-                    const response = await fetch("{% url 'manage_assignment_api' %}", {
-                        method: 'POST',
-                        body: formData,
-                        headers: {'X-CSRFToken': csrfToken}
-                    });
-                    if (response.ok) {
-                        location.reload(); // Перезагружаем для простоты
-                    } else {
-                        const result = await response.json();
-                        alert(`Ошибка: ${result.message || JSON.stringify(result)}`);
-                    }
-                } catch (error) {
-                    alert('Произошла сетевая ошибка.');
-                    console.error('Assignment form error:', error);
+                const response = await fetch("{% url 'manage_assignment_api' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {'X-CSRFToken': csrfToken}
+                });
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    const result = await response.json();
+                    alert(`Ошибка: ${result.message || JSON.stringify(result)}`);
                 }
             });
 
@@ -749,47 +863,47 @@
                     e.preventDefault();
                     if (confirm('Вы уверены, что хотите удалить это назначение?')) {
                         const assignmentId = button.dataset.assignmentId;
-                        try {
-                             // УБЕДИТЕСЬ, ЧТО URL ПРАВИЛЬНЫЙ!
-                            const response = await fetch(`/api/assignment/${assignmentId}/delete/`, {
-                                method: 'POST',
-                                headers: {'X-CSRFToken': csrfToken}
-                            });
-                            if (response.ok) {
-                                button.closest('tr').remove(); // Удаляем строку без перезагрузки
-                            } else {
-                                alert('Не удалось удалить назначение.');
-                            }
-                        } catch (error) {
-                            alert('Произошла сетевая ошибка.');
-                            console.error('Delete assignment error:', error);
+                        const response = await fetch(`/api/assignment/${assignmentId}/delete/`, {
+                            method: 'POST',
+                            headers: {'X-CSRFToken': csrfToken}
+                        });
+                        if (response.ok) {
+                            button.closest('tr').remove();
+                        } else {
+                            alert('Не удалось удалить назначение.');
                         }
                     }
                 });
             });
         };
 
-
+        // --- ОБЩАЯ НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ---
         const navigateTo = (pageId) => {
-            contentPages.forEach(page => page.style.display = 'none');
+            contentPages.forEach(page => page.classList.remove('active'));
             const targetPage = document.getElementById(`page-${pageId}`);
-            if (targetPage) targetPage.style.display = 'block';
+            if (targetPage) targetPage.classList.add('active');
             navLinks.forEach(link => link.classList.toggle('active', link.dataset.target === pageId));
         };
 
         navLinks.forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
-                navigateTo(e.currentTarget.dataset.target);
+                const pageId = e.currentTarget.dataset.target;
+                navigateTo(pageId);
+                // Сохраняем активную вкладку в URL для перезагрузки страницы
+                window.history.pushState({page: pageId}, '', `?page=${pageId}`);
             });
         });
 
+        // --- Определение активной страницы при загрузке ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageFromUrl = urlParams.get('page') || 'users'; // по умолчанию 'users'
+        navigateTo(pageFromUrl);
+        
         // --- ВЫЗЫВАЕМ ВСЕ ФУНКЦИИ ИНИЦИАЛИЗАЦИИ ---
-        navigateTo('users');
         initUserManagementScripts();
         initSchoolStructureScripts();
-        initSchoolManagementScripts();
-        initAssignmentsScripts(); // <-- Вызываем новую функцию
+        initAssignmentsScripts();
     });
     </script>
 </body>

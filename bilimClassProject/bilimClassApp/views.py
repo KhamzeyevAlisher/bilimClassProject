@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 from datetime import date, timedelta
@@ -18,16 +18,39 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-def custom_login_view(request):
-    if request.user.is_authenticated:
-        # Если пользователь уже вошел, сразу перенаправляем
-        if hasattr(request.user, 'teacher'):
-            return redirect('teacher_dashboard')
-        # Добавьте здесь elif для ученика, если нужно
-        # elif hasattr(request.user, 'student'):
-        #     return redirect('student_dashboard')
-        return redirect('dashboard') # Запасной вариант
+def _get_redirect_for_user(user):
+    """
+    Вспомогательная функция для определения URL для переадресации
+    на основе роли пользователя.
+    """
+    # Безопасно проверяем, есть ли у пользователя профиль и установлена ли роль
+    if hasattr(user, 'profile') and user.profile.role:
+        role = user.profile.role
 
+        print(user.profile.role)
+        
+        if role == 'admin':
+            return redirect('admin_panel')
+        elif role == 'headteacher':
+            return redirect('school_schedule')
+        elif role == 'teacher':
+            return redirect('teacher_dashboard')
+        elif role == 'student':
+            return redirect('dashboard')
+            
+    # Переадресация по умолчанию (например, для учеников без явно указанной роли
+    # или на случай непредвиденных обстоятельств)
+    return redirect('dashboard')
+
+def custom_login_view(request):
+    """
+    Обрабатывает вход пользователя и перенаправляет его в зависимости от роли.
+    """
+    # 1. Если пользователь УЖЕ вошел в систему, сразу перенаправляем его.
+    if request.user.is_authenticated:
+        return _get_redirect_for_user(request.user)
+
+    # 2. Если пользователь отправляет форму для входа.
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -36,16 +59,41 @@ def custom_login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                # Логика перенаправления после успешного входа
-                if hasattr(user, 'teacher'):
-                    return redirect('teacher_dashboard')
-                # elif hasattr(user, 'student'):
-                #     return redirect('student_dashboard')
-                return redirect('/')
+                # После успешного входа определяем, куда его перенаправить.
+                return _get_redirect_for_user(user)
     else:
         form = AuthenticationForm()
         
     return render(request, 'registration/login.html', {'form': form})
+
+# def custom_login_view(request):
+#     if request.user.is_authenticated:
+#         # Если пользователь уже вошел, сразу перенаправляем
+#         if hasattr(request.user, 'teacher'):
+#             return redirect('teacher_dashboard')
+#         # Добавьте здесь elif для ученика, если нужно
+#         # elif hasattr(request.user, 'student'):
+#         #     return redirect('student_dashboard')
+#         return redirect('dashboard') # Запасной вариант
+
+#     if request.method == 'POST':
+#         form = AuthenticationForm(request, data=request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data.get('username')
+#             password = form.cleaned_data.get('password')
+#             user = authenticate(username=username, password=password)
+#             if user is not None:
+#                 login(request, user)
+#                 # Логика перенаправления после успешного входа
+#                 if hasattr(user, 'teacher'):
+#                     return redirect('teacher_dashboard')
+#                 # elif hasattr(user, 'student'):
+#                 #     return redirect('student_dashboard')
+#                 return redirect('/')
+#     else:
+#         form = AuthenticationForm()
+        
+#     return render(request, 'registration/login.html', {'form': form})
 
 
 def home(request):
@@ -1734,10 +1782,49 @@ def get_schedule_item_details_api(request, pk):
 @require_POST
 @login_required
 def delete_schedule_item_api(request, pk):
+
     """API для удаления урока."""
     try:
         item = get_object_or_404(Schedule, pk=pk)
         item.delete()
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def manage_subject_api(request):
+    """API для создания или обновления предмета."""
+    subject_id = request.POST.get('subject_id')
+    instance = get_object_or_404(Subject, pk=subject_id) if subject_id else None
+    
+    form = SubjectForm(request.POST, instance=instance)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+@login_required
+@user_passes_test(is_staff_check)
+def get_subject_details_api(request, pk):
+    """API для получения данных одного предмета для формы редактирования."""
+    subject = get_object_or_404(Subject, pk=pk)
+    data = {
+        'id': subject.id,
+        'name': subject.name,
+    }
+    return JsonResponse(data)
+
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def delete_subject_api(request, pk):
+    """API для удаления предмета."""
+    try:
+        subject = get_object_or_404(Subject, pk=pk)
+        subject.delete()
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

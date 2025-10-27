@@ -127,6 +127,69 @@
         margin: 16px 0;
     }
 
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/schedule_head_school.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        .page-header { margin-bottom: 24px; }
+        .page-title h2 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .page-title p { color: var(--text-secondary); margin-top: 4px; }
+        .content-card { background-color: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -2px rgba(0,0,0,.05); }
+        .filters-toolbar { background-color: var(--bg-main); padding: 20px; border-radius: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; margin-bottom: 24px; }
+        .filter-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+        .filter-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #FFFFFF; }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* === СТИЛИ ДЛЯ УТВЕРЖДЕНИЯ ПЛАНОВ (НОВЫЕ) === */
+        .status-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+        .status-tab { padding: 10px 16px; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--text-secondary); position: relative; display: flex; align-items: center; gap: 8px; }
+        .status-tab .count-badge { background-color: #e5e7eb; color: #4b5563; border-radius: 99px; padding: 2px 8px; font-size: 12px; }
+        .status-tab.active { color: var(--accent-primary); }
+        .status-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background-color: var(--accent-primary); }
+        .status-tab.active .count-badge { background-color: var(--accent-light); color: var(--accent-primary); }
+
+        .plans-table { width: 100%; border-collapse: collapse; }
+        .plans-table th, .plans-table td { padding: 14px 8px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .plans-table th { font-size: 12px; text-transform: uppercase; color: var(--text-secondary); }
+        .actions-cell .btn-group { display: flex; gap: 8px; justify-content: flex-start; }
+        .actions-cell .action-btn { background: none; border: 1px solid transparent; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; transition: background-color 0.2s; }
+        .actions-cell .action-btn.view { color: var(--text-secondary); }
+        .actions-cell .action-btn.approve { color: var(--accent-green); }
+        .actions-cell .action-btn.reject { color: var(--accent-red); }
+        .actions-cell .action-btn:hover { background-color: #f3f4f6; }
+
+        .page-header { margin-bottom: 24px; }
+        .page-title h2 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .page-title p { color: var(--text-secondary); margin-top: 4px; }
+        .content-card { background-color: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -2px rgba(0,0,0,.05); }
+        .filters-toolbar { background-color: var(--bg-main); padding: 20px; border-radius: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; align-items: center; margin-bottom: 24px; }
+        .filter-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+        .filter-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #FFFFFF; }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .status-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+        .status-tab-link { text-decoration: none; padding: 10px 16px; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--text-secondary); position: relative; display: flex; align-items: center; gap: 8px; }
+        .status-tab-link .count-badge { background-color: #e5e7eb; color: #4b5563; border-radius: 99px; padding: 2px 8px; font-size: 12px; }
+        .status-tab-link.active { color: var(--accent-primary); }
+        .status-tab-link.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background-color: var(--accent-primary); }
+        .status-tab-link.active .count-badge { background-color: var(--accent-light); color: var(--accent-primary); }
+
+        .plans-table { width: 100%; border-collapse: collapse; }
+        .plans-table th, .plans-table td { padding: 14px 8px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .plans-table th { font-size: 12px; text-transform: uppercase; color: var(--text-secondary); }
+        .actions-cell .btn-group { display: flex; gap: 8px; justify-content: flex-start; }
+        .actions-cell .action-btn { background: none; border: 1px solid transparent; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; transition: all 0.2s; }
+        .actions-cell .action-btn.view { color: var(--text-secondary); }
+        .actions-cell .action-btn.approve { color: var(--accent-green); }
+        .actions-cell .action-btn.reject { color: var(--accent-red); }
+        .actions-cell .action-btn:hover { background-color: #f3f4f6; }
+        .plans-table tr { transition: opacity 0.3s ease-out; }
+
     </style>
 {% endblock %}
 
@@ -306,6 +369,94 @@
         {% else %}
              <div class="placeholder"><i class="fa-solid fa-school"></i><p>Выберите школу для управления расписанием.</p></div>
         {% endif %}
+    </div>
+
+    <!-- === КОНТЕНТ ВКЛАДКИ "УТВЕРЖДЕНИЕ ПЛАНОВ" === -->
+    <div id="plan-approval-content" class="tab-content">
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fa-solid fa-check-to-slot"></i> Утверждение учебных планов</h2>
+                <p>Просмотр и утверждение поурочных планов, поданных учителями</p>
+            </div>
+        </div>
+
+        <form method="GET" id="plan-filters-form">
+            <input type="hidden" name="tab" value="plan-approval">
+            <input type="hidden" name="status" value="{{ current_status|default:'pending' }}">
+            <div class="filters-toolbar">
+                <div class="filter-group">
+                    <label for="subject-filter"><i class="fa-solid fa-filter" style="color: var(--text-secondary);"></i> Предмет</label>
+                    <select id="subject-filter" name="subject_id" class="filter-select" onchange="this.form.submit()">
+                        <option value="">Все предметы</option>
+                        {% for subject in subjects_for_filter %}
+                        <option value="{{ subject.pk }}" {% if subject.pk == selected_subject_id %}selected{% endif %}>{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                 <div class="filter-group">
+                    <label for="teacher-filter">Учитель</label>
+                    <select id="teacher-filter" name="teacher_id" class="filter-select" onchange="this.form.submit()">
+                        <option value="">Все учителя</option>
+                        {% for teacher in teachers_for_filter %}
+                        <option value="{{ teacher.pk }}" {% if teacher.pk == selected_teacher_id %}selected{% endif %}>{{ teacher.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        <div class="status-tabs">
+            <a href="?tab=plan-approval&status=pending" class="status-tab-link {% if current_status == 'pending' %}active{% endif %}">
+                На рассмотрении <span class="count-badge">{{ status_counts.pending }}</span>
+            </a>
+            <a href="?tab=plan-approval&status=approved" class="status-tab-link {% if current_status == 'approved' %}active{% endif %}">
+                Утвержденные <span class="count-badge">{{ status_counts.approved }}</span>
+            </a>
+            <a href="?tab=plan-approval&status=rejected" class="status-tab-link {% if current_status == 'rejected' %}active{% endif %}">
+                Отклоненные <span class="count-badge">{{ status_counts.rejected }}</span>
+            </a>
+        </div>
+
+        <table class="plans-table">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Учитель</th>
+                    <th>Класс</th>
+                    <th>Предмет</th>
+                    <th>Дата урока</th>
+                    <th>Подан</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="plans-table-body">
+                {% for plan in lesson_plans %}
+                <tr id="plan-row-{{ plan.pk }}">
+                    <td><b>{{ plan.name }}</b></td>
+                    <td>{{ plan.teacher.user.get_full_name }}</td>
+                    <td>{{ plan.school_class.name }}</td>
+                    <td>{{ plan.subject.name }}</td>
+                    <td>{{ plan.date|date:"Y-m-d" }}</td>
+                    <td>{{ plan.created_at|date:"Y-m-d H:i" }}</td>
+                    <td class="actions-cell">
+                        <div class="btn-group">
+                            <button class="action-btn view" data-plan-id="{{ plan.pk }}" title="Просмотреть"><i class="fa-solid fa-eye"></i></button>
+                            {% if current_status == 'pending' %}
+                            <button class="action-btn approve" data-plan-id="{{ plan.pk }}" title="Утвердить"><i class="fa-solid fa-circle-check"></i></button>
+                            <button class="action-btn reject" data-plan-id="{{ plan.pk }}" title="Отклонить"><i class="fa-solid fa-circle-xmark"></i></button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align:center; padding: 40px; color: var(--text-secondary);">
+                        Нет планов, соответствующих выбранным фильтрам.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

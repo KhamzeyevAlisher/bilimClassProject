@@ -55,19 +55,29 @@
 
                     <!-- Ссылки для Завуча и Админа -->
                     {% if  user.profile.role == 'headteacher' %}
+                        {# === НАЧАЛО ИЗМЕНЕНИЯ === #}
                         <li>
-                            <a href="{% url 'headteacher' %}?tab=performance" 
-                            {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab != 'schedule' %}class="active"{% endif %}>
-                            <i class="fa-solid fa-chart-line"></i> Успеваемость
+                            <a href="{% url 'headteacher' %}" 
+                               data-page="headteacher" data-tab="performance"
+                               {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab != 'plan-approval' and request.GET.tab != 'schedule' %}class="active"{% endif %}>
+                               <i class="fa-solid fa-house"></i> Главная
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'headteacher' %}?tab=plan-approval"
+                               data-page="headteacher" data-tab="plan-approval"
+                               {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'plan-approval' %}class="active"{% endif %}>
+                               <i class="fa-solid fa-check-to-slot"></i> Утверждение планов
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'headteacher' %}?tab=schedule"
-                            {% comment %} Активна, если открыта страница завуча И вкладка 'schedule' {% endcomment %}
-                            {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'schedule' %}class="active"{% endif %}>
-                            <i class="fa-solid fa-calendar-days"></i> Расписание школы
+                               data-page="headteacher" data-tab="schedule"
+                               {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'schedule' %}class="active"{% endif %}>
+                               <i class="fa-solid fa-calendar-days"></i> Расписание школы
                             </a>
                         </li>
+                        {# === КОНЕЦ ИЗМЕНЕНИЯ === #}
                     {% endif %}
 
                     <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}><i class="fa-solid fa-user-gear"></i> Профиль</a></li>

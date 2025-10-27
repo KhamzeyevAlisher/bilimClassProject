@@ -4,12 +4,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm, LessonPlanForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 from datetime import date, timedelta
 from .decorators import group_required
-from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,Profile, SchoolClass, School, Homework, HomeworkSubmission, TeacherAssignment
+from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,Profile, SchoolClass, School, Homework, HomeworkSubmission, TeacherAssignment, LessonPlan
 from django.db.models import Avg, Q, Count, Case, When, FloatField
 from django.views.decorators.http import require_POST
 import datetime
@@ -525,7 +525,16 @@ def teacher_dashboard_view(request):
                 student=student, subject_id=selected_subject_id, grade__isnull=False
             ).aggregate(avg=Avg('grade'))['avg']
             journal_data.append({'student': student, 'cells': cells, 'average': avg})
+
     # === КОНЕЦ: ДАННЫЕ ДЛЯ ВКЛАДКИ "ЖУРНАЛ" ===
+
+    # === НАЧАЛО ИЗМЕНЕНИЯ: ДОБАВЛЯЕМ ДАННЫЕ ДЛЯ ПЛАНОВ ===
+    lesson_plans = LessonPlan.objects.filter(teacher=teacher).select_related(
+        'school_class', 'subject'
+    ).order_by('-date')
+    
+    lesson_plan_form = LessonPlanForm(teacher=teacher)
+    # === КОНЕЦ ИЗМЕНЕНИЯ ===
 
 
     context = {
@@ -555,6 +564,9 @@ def teacher_dashboard_view(request):
         # === Добавляем новые данные в контекст ===
         'homeworks': homeworks,
         'homework_form': homework_form,
+
+        'lesson_plans': lesson_plans,
+        'lesson_plan_form': lesson_plan_form,
     }
     return render(request, 'bilimClassApp/teacher_dashboard.html', context)
 
@@ -2195,3 +2207,57 @@ def get_class_performance_details_api(request, class_id):
         'class_name': s_class.name,
         'students': student_data,
     })
+
+# 3. Добавьте новые API views в конец файла
+@login_required
+@require_POST
+def manage_lesson_plan_api(request):
+    """API для создания или обновления поурочного плана."""
+    try:
+        teacher = request.user.teacher
+        plan_id = request.POST.get('plan_id')
+        instance = None
+
+        if plan_id:
+            instance = get_object_or_404(LessonPlan, pk=plan_id, teacher=teacher)
+        
+        form = LessonPlanForm(request.POST, request.FILES, instance=instance, teacher=teacher)
+        if form.is_valid():
+            plan = form.save(commit=False)
+            plan.teacher = teacher
+            plan.save()
+            return JsonResponse({'status': 'success', 'message': 'План успешно сохранен!'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+def get_lesson_plan_details_api(request, pk):
+    """API для получения деталей одного плана для редактирования."""
+    plan = get_object_or_404(LessonPlan, pk=pk, teacher=request.user.teacher)
+    data = {
+        'id': plan.id,
+        'name': plan.name,
+        'date': plan.date.strftime('%Y-%m-%d'),
+        'school_class': plan.school_class_id,
+        'subject': plan.subject_id,
+        'topic': plan.topic,
+        'goals_and_objectives': plan.goals_and_objectives,
+        'learning_materials_url': plan.learning_materials.url if plan.learning_materials else None,
+        'learning_materials_name': str(plan.learning_materials).split('/')[-1] if plan.learning_materials else None,
+    }
+    return JsonResponse({'status': 'success', 'data': data})
+
+
+@login_required
+@require_POST
+def delete_lesson_plan_api(request, pk):
+    """API для удаления поурочного плана."""
+    try:
+        plan = get_object_or_404(LessonPlan, pk=pk, teacher=request.user.teacher)
+        plan.delete()
+        return JsonResponse({'status': 'success', 'message': 'План удален.'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

@@ -243,6 +243,45 @@ class TeacherAssignment(models.Model):
 
     def __str__(self):
         return f"{self.teacher.user.get_full_name()} -> {self.school_class.name} ({self.subject.name})"
+    
+class LessonPlan(models.Model):
+    """Модель для Поурочного плана."""
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'На рассмотрении'
+        APPROVED = 'approved', 'Утвержден'
+        REJECTED = 'rejected', 'Отклонен'
+
+    # Основная информация
+    name = models.CharField(max_length=255, verbose_name="Название урока")
+    date = models.DateField(verbose_name="Дата проведения")
+    topic = models.CharField(max_length=255, blank=True, verbose_name="Тема урока")
+    
+    # Связи
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='lesson_plans', verbose_name="Учитель")
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='lesson_plans', verbose_name="Класс")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lesson_plans', verbose_name="Предмет")
+
+    # Содержание плана
+    goals_and_objectives = models.TextField(blank=True, verbose_name="Цели и задачи урока")
+    learning_materials = models.FileField(
+        upload_to='lesson_plan_materials/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Учебные материалы (файл)"
+    )
+
+    # Мета-информация
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING, verbose_name="Статус")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Поурочный план"
+        verbose_name_plural = "Поурочные планы"
+        ordering = ['-date', 'school_class']
+
+    def __str__(self):
+        return f'План "{self.name}" для {self.school_class.name} на {self.date}'
 
 # --- 7. СИГНАЛЫ DJANGO ---
 

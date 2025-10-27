@@ -4,7 +4,7 @@ from django import forms
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule,  Holiday # Импортируем нужные модели
+from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule,  Holiday, LessonPlan # Импортируем нужные модели
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -323,4 +323,36 @@ class HolidayForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'placeholder': 'Например, День независимости'}),
+        }
+
+class LessonPlanForm(forms.ModelForm):
+    # Мы переопределяем __init__, чтобы фильтровать классы и предметы
+    # для конкретного учителя, который создает/редактирует план.
+    def __init__(self, *args, **kwargs):
+        # Извлекаем учителя из переданных аргументов
+        teacher = kwargs.pop('teacher', None)
+        super().__init__(*args, **kwargs)
+        
+        if teacher:
+            # Фильтруем queryset для поля 'school_class'. Показываем только те классы,
+            # где у учителя есть назначение (TeacherAssignment).
+            self.fields['school_class'].queryset = SchoolClass.objects.filter(
+                teacherassignment__teacher=teacher
+            ).distinct().order_by('name')
+
+            # Фильтруем предметы аналогичным образом.
+            self.fields['subject'].queryset = Subject.objects.filter(
+                teacherassignment__school_class__teacherassignment__teacher=teacher
+            ).distinct().order_by('name')
+
+    class Meta:
+        model = LessonPlan
+        fields = [
+            'name', 'date', 'school_class', 'subject', 'topic', 
+            'goals_and_objectives', 'learning_materials'
+        ]
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'goals_and_objectives': forms.Textarea(attrs={'rows': 3}),
+            # 'learning_materials': forms.Textarea(attrs={'rows': 3}),
         }

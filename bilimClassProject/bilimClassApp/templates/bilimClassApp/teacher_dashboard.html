@@ -263,7 +263,7 @@
                         <button class="btn-create" id="create-plan-btn"><i class="fas fa-plus"></i> Создать план</button>
                     </div>
 
-                    <table class="lp-table" id="lesson-plans-table">
+                    <table class="lp-table">
                         <thead>
                             <tr>
                                 <th>Название</th>
@@ -274,56 +274,31 @@
                                 <th>Действия</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Пример строки. В реальном приложении эти данные будут загружаться динамически. -->
-                            <tr>
-                                <td>Квадратные уравнения</td>
-                                <td>8А</td>
-                                <td>Алгебра</td>
-                                <td>22.10.2025</td>
-                                <td><span class="lp-status approved">Утвержден</span></td>
+                        <tbody id="lesson-plans-tbody">
+                            {% for plan in lesson_plans %}
+                            <tr id="plan-row-{{ plan.pk }}">
+                                <td>{{ plan.name }}</td>
+                                <td>{{ plan.school_class.name }}</td>
+                                <td>{{ plan.subject.name }}</td>
+                                <td>{{ plan.date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <span class="lp-status {% if plan.status == 'approved' %}approved{% elif plan.status == 'rejected' %}rejected{% else %}pending{% endif %}">
+                                        {{ plan.get_status_display }}
+                                    </span>
+                                </td>
                                 <td class="lp-actions">
-                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
-                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
-                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
+                                    <button class="view-plan-btn" data-plan-id="{{ plan.pk }}" title="Просмотр"><i class="far fa-eye"></i></button>
+                                    <button class="edit-plan-btn" data-plan-id="{{ plan.pk }}" title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="delete-plan-btn" data-plan-id="{{ plan.pk }}" title="Удалить"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
-                             <tr>
-                                <td>Теорема Пифагора</td>
-                                <td>9Б</td>
-                                <td>Геометрия</td>
-                                <td>23.10.2025</td>
-                                <td><span class="lp-status pending">На рассмотрении</span></td>
-                                <td class="lp-actions">
-                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
-                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
-                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
+                            {% empty %}
+                            <tr id="no-plans-row">
+                                <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">
+                                    Вы еще не создали ни одного поурочного плана.
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Логарифмы</td>
-                                <td>10Б</td>
-                                <td>Алгебра</td>
-                                <td>24.10.2025</td>
-                                <td><span class="lp-status pending">На рассмотрении</span></td>
-                                <td class="lp-actions">
-                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
-                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
-                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Производные функций</td>
-                                <td>11А</td>
-                                <td>Математический анализ</td>
-                                <td>25.10.2025</td>
-                                <td><span class="lp-status rejected">Отклонен</span></td>
-                                <td class="lp-actions">
-                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
-                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
-                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </main>
@@ -517,16 +492,27 @@
             <h2 id="plan-modal-title">Создать план урока</h2>
             <p>Заполните информацию о поурочном плане</p>
         </div>
-        <form id="lesson-plan-form">
+        <!-- === ИЗМЕНЕНИЕ 1: Добавлен enctype для загрузки файлов === -->
+        <form id="lesson-plan-form" novalidate enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="plan_id" id="plan_id">
             <div class="form-grid">
-                <div class="form-group"><label for="plan-title">Название урока</label><input type="text" id="plan-title" required></div>
-                <div class="form-group"><label for="plan-date">Дата проведения</label><input type="date" id="plan-date" required></div>
-                <div class="form-group"><label for="plan-class">Класс</label><select id="plan-class" required><option value="8A">8А</option><option value="9Б">9Б</option><option value="10Б">10Б</option><option value="11А">11А</option></select></div>
-                <div class="form-group"><label for="plan-subject">Предмет</label><select id="plan-subject" required><option value="Алгебра">Алгебра</option><option value="Геометрия">Геометрия</option><option value="Мат. анализ">Математический анализ</option></select></div>
+                <div class="form-group">{{ lesson_plan_form.name.label_tag }} {{ lesson_plan_form.name }}</div>
+                <div class="form-group">{{ lesson_plan_form.date.label_tag }} {{ lesson_plan_form.date }}</div>
+                <div class="form-group">{{ lesson_plan_form.school_class.label_tag }} {{ lesson_plan_form.school_class }}</div>
+                <div class="form-group">{{ lesson_plan_form.subject.label_tag }} {{ lesson_plan_form.subject }}</div>
             </div>
-            <div class="form-group full-width"><label for="plan-topic">Тема урока</label><input type="text" id="plan-topic"></div>
-            <div class="form-group full-width"><label for="plan-goals">Цели и задачи урока</label><textarea id="plan-goals"></textarea></div>
-            <div class="form-group full-width"><label for="plan-materials">Учебные материалы</label><textarea id="plan-materials"></textarea></div>
+            <div class="form-group full-width">{{ lesson_plan_form.topic.label_tag }} {{ lesson_plan_form.topic }}</div>
+            <div class="form-group full-width">{{ lesson_plan_form.goals_and_objectives.label_tag }} {{ lesson_plan_form.goals_and_objectives }}</div>
+            
+            <!-- === ИЗМЕНЕНИЕ 2: Обновленный блок для поля файла === -->
+            <div class="form-group full-width">
+                {{ lesson_plan_form.learning_materials.label_tag }}
+                <div id="current-materials-file" style="margin-bottom: 8px; font-size: 14px;"></div>
+                {{ lesson_plan_form.learning_materials }}
+            </div>
+            <!-- === КОНЕЦ ИЗМЕНЕНИЯ 2 === -->
+
             <div class="modal-footer full-width">
                 <button type="button" class="btn-secondary close-btn">Отмена</button>
                 <button type="submit" class="btn-submit">Сохранить</button>
@@ -539,20 +525,25 @@
     <div class="modal-container">
         <button class="close-btn">&times;</button>
         <div class="modal-header">
-            <h2 id="view-plan-title">Квадратные уравнения</h2>
-            <p><span id="view-plan-class">8А</span> • <span id="view-plan-subject">Алгебра</span> • <span id="view-plan-date">2025-10-22</span></p>
+            <h2 id="view-plan-title"></h2>
+            <p><span id="view-plan-class"></span> • <span id="view-plan-subject"></span> • <span id="view-plan-date"></span></p>
         </div>
         <dl class="lp-view-details">
-            <dt>Тема урока</dt>
-            <dd id="view-plan-topic">Решение квадратных уравнений методом дискриминанта</dd>
-            <dt>Цели и задачи</dt>
-            <dd id="view-plan-goals">Научить учащихся решать квадратные уравнения различными методами</dd>
+            <dt>Тема урока</dt><dd id="view-plan-topic"></dd>
+            <dt>Цели и задачи</dt><dd id="view-plan-goals"></dd>
+            
+            <!-- === ИЗМЕНЕНИЕ 3: Блок для отображения ссылки на файл === -->
             <dt>Учебные материалы</dt>
-            <dd id="view-plan-materials">Учебник, рабочие тетради, презентация</dd>
+            <dd id="view-plan-materials">
+                <a href="#" id="view-plan-materials-link" target="_blank" class="file-link" style="display: none;">
+                    <i class="fas fa-paperclip"></i> <span></span>
+                </a>
+                <span id="no-materials-file" style="color: var(--text-secondary);">Нет файла</span>
+            </dd>
+            <!-- === КОНЕЦ ИЗМЕНЕНИЯ 3 === -->
+
         </dl>
-        <div class="modal-footer">
-            <button type="button" class="btn-secondary close-btn">Закрыть</button>
-        </div>
+        <div class="modal-footer"><button type="button" class="btn-secondary close-btn">Закрыть</button></div>
     </div>
 </div>
 <!-- === КОНЕЦ: МОДАЛЬНЫЕ ОКНА === -->
@@ -918,80 +909,142 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // === НАЧАЛО: JAVASCRIPT ДЛЯ ЛОГИКИ ПОУРОЧНЫХ ПЛАНОВ ===
+    // === НАЧАЛО: ОБНОВЛЕННЫЙ JAVASCRIPT ДЛЯ ПОУРОЧНЫХ ПЛАНОВ ===
     const lessonPlansTab = document.getElementById('lesson-plans-content');
     if (lessonPlansTab) {
         const createPlanBtn = document.getElementById('create-plan-btn');
         const planFormModal = document.getElementById('plan-form-modal');
         const planViewModal = document.getElementById('plan-view-modal');
-        const plansTable = document.getElementById('lesson-plans-table');
         const lessonPlanForm = document.getElementById('lesson-plan-form');
-        
-        // --- Открытие/Закрытие модальных окон ---
+        const plansTbody = document.getElementById('lesson-plans-tbody');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // --- Функции для управления модальными окнами ---
         const openModal = (modal) => modal.style.display = 'flex';
         const closeModal = (modal) => modal.style.display = 'none';
 
+        // --- Открытие модального окна для СОЗДАНИЯ ---
         createPlanBtn.addEventListener('click', () => {
             lessonPlanForm.reset();
+            lessonPlanForm.querySelector('#plan_id').value = '';
+            // === ИЗМЕНЕНИЕ: Очищаем информацию о текущем файле ===
+            document.getElementById('current-materials-file').innerHTML = '';
             planFormModal.querySelector('#plan-modal-title').textContent = 'Создать план урока';
-            // В будущем здесь можно сбросить ID редактируемого элемента
             openModal(planFormModal);
         });
-
-        // Закрытие по кнопке "X" или "Отмена/Закрыть"
-        document.querySelectorAll('.modal-overlay .close-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const modal = e.target.closest('.modal-overlay');
-                if (modal) closeModal(modal);
-            });
+        
+        // --- Закрытие модальных окон ---
+        document.querySelectorAll('.modal-overlay .close-btn, .modal-overlay .btn-secondary').forEach(btn => {
+            btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal-overlay')));
         });
-
-        // Закрытие по клику на оверлей
         document.querySelectorAll('.modal-overlay').forEach(modal => {
-             modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal(modal);
-            });
+             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
         });
 
-        // --- Делегирование событий для кнопок в таблице ---
-        plansTable.addEventListener('click', (e) => {
-            const viewBtn = e.target.closest('button[title="Просмотр"]');
-            const editBtn = e.target.closest('button[title="Редактировать"]');
-            const deleteBtn = e.target.closest('button[title="Удалить"]');
+        // --- Обработка кликов по кнопкам в таблице (Просмотр, Редактирование, Удаление) ---
+        plansTbody.addEventListener('click', async (e) => {
+            const viewBtn = e.target.closest('.view-plan-btn');
+            const editBtn = e.target.closest('.edit-plan-btn');
+            const deleteBtn = e.target.closest('.delete-plan-btn');
             
+            // --- ЛОГИКА ПРОСМОТРА ---
             if (viewBtn) {
-                // Здесь в реальном приложении были бы AJAX-запросы для получения данных
-                // Мы же просто откроем модальное окно с примером
-                openModal(planViewModal);
+                const planId = viewBtn.dataset.planId;
+                const response = await fetch(`/api/lesson-plans/${planId}/details/`);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    const data = result.data;
+                    const planRow = document.getElementById(`plan-row-${planId}`);
+                    
+                    planViewModal.querySelector('#view-plan-title').textContent = data.name;
+                    // Получаем текст из ячеек таблицы, чтобы не делать лишние запросы
+                    planViewModal.querySelector('#view-plan-class').textContent = planRow.cells[1].textContent;
+                    planViewModal.querySelector('#view-plan-subject').textContent = planRow.cells[2].textContent;
+                    planViewModal.querySelector('#view-plan-date').textContent = planRow.cells[3].textContent;
+                    planViewModal.querySelector('#view-plan-topic').textContent = data.topic || '-';
+                    planViewModal.querySelector('#view-plan-goals').textContent = data.goals_and_objectives || '-';
+                    
+                    // === ИЗМЕНЕНИЕ: Логика отображения файла ===
+                    const link = planViewModal.querySelector('#view-plan-materials-link');
+                    const noFileSpan = planViewModal.querySelector('#no-materials-file');
+                    if (data.learning_materials_url) {
+                        link.href = data.learning_materials_url;
+                        link.querySelector('span').textContent = data.learning_materials_name;
+                        link.style.display = 'inline-flex';
+                        noFileSpan.style.display = 'none';
+                    } else {
+                        link.style.display = 'none';
+                        noFileSpan.style.display = 'block';
+                    }
+                    openModal(planViewModal);
+                }
             }
 
+            // --- ЛОГИКА РЕДАКТИРОВАНИЯ ---
             if (editBtn) {
-                // Симулируем загрузку данных для редактирования
-                lessonPlanForm.reset();
-                planFormModal.querySelector('#plan-modal-title').textContent = 'Редактировать план урока';
-                planFormModal.querySelector('#plan-title').value = "Квадратные уравнения";
-                planFormModal.querySelector('#plan-date').value = "2025-10-22";
-                planFormModal.querySelector('#plan-class').value = "8A";
-                planFormModal.querySelector('#plan-subject').value = "Алгебра";
-                planFormModal.querySelector('#plan-topic').value = "Решение квадратных уравнений методом дискриминанта";
-                planFormModal.querySelector('#plan-goals').value = "Научить учащихся решать квадратные уравнения различными методами";
-                planFormModal.querySelector('#plan-materials').value = "Учебник, рабочие тетради, презентация";
-                openModal(planFormModal);
+                const planId = editBtn.dataset.planId;
+                const response = await fetch(`/api/lesson-plans/${planId}/details/`);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    lessonPlanForm.reset();
+                    const data = result.data;
+                    planFormModal.querySelector('#plan_id').value = data.id;
+                    planFormModal.querySelector('#id_name').value = data.name;
+                    planFormModal.querySelector('#id_date').value = data.date;
+                    planFormModal.querySelector('#id_school_class').value = data.school_class;
+                    planFormModal.querySelector('#id_subject').value = data.subject;
+                    planFormModal.querySelector('#id_topic').value = data.topic;
+                    planFormModal.querySelector('#id_goals_and_objectives').value = data.goals_and_objectives;
+                    
+                    // === ИЗМЕНЕНИЕ: Отображаем информацию о текущем файле ===
+                    const currentFileDiv = document.getElementById('current-materials-file');
+                    if (data.learning_materials_url) {
+                        currentFileDiv.innerHTML = `Текущий файл: <a href="${data.learning_materials_url}" target="_blank">${data.learning_materials_name}</a>`;
+                    } else {
+                        currentFileDiv.innerHTML = '';
+                    }
+                    
+                    planFormModal.querySelector('#plan-modal-title').textContent = 'Редактировать план урока';
+                    openModal(planFormModal);
+                }
             }
 
+            // --- ЛОГИКА УДАЛЕНИЯ ---
             if (deleteBtn) {
                 if (confirm('Вы уверены, что хотите удалить этот план урока?')) {
-                    // Удаляем строку из таблицы
-                    deleteBtn.closest('tr').remove();
+                    const planId = deleteBtn.dataset.planId;
+                    const response = await fetch(`/api/lesson-plans/${planId}/delete/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrfToken },
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        document.getElementById(`plan-row-${planId}`).remove();
+                        alert('План удален.');
+                    } else {
+                        alert('Ошибка удаления: ' + result.message);
+                    }
                 }
             }
         });
 
-        // --- Обработка отправки формы ---
-        lessonPlanForm.addEventListener('submit', (e) => {
+        // --- Обработка отправки формы (Создание/Обновление) ---
+        lessonPlanForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Здесь будет логика отправки данных на сервер через AJAX
-            alert('План урока сохранен (симуляция).');
-            closeModal(planFormModal);
+            const formData = new FormData(lessonPlanForm);
+            const response = await fetch('{% url "api_manage_lesson_plan" %}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': csrfToken } 
+            });
+
+            if (response.ok) {
+                alert('План успешно сохранен!');
+                window.location.reload(); // Простейший способ обновить таблицу
+            } else {
+                const result = await response.json();
+                alert('Ошибка сохранения: ' + JSON.stringify(result.errors));
+            }
         });
     }
     // === КОНЕЦ: JAVASCRIPT ДЛЯ ПОУРОЧНЫХ ПЛАНОВ ===

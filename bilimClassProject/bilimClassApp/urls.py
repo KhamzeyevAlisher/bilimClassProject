@@ -72,4 +72,9 @@ urlpatterns = [
     path('api/holiday/<int:pk>/delete/', views.delete_holiday_api, name='api_delete_holiday'),
     # === КОНЕЦ НОВЫХ МАРШРУТОВ ДЛЯ ВЫХОДНЫХ ===
     path('api/class/<int:class_id>/performance/', views.get_class_performance_details_api, name='api_get_class_performance_details'),
+     # === НАЧАЛО: URL-АДРЕСА ДЛЯ API ПОУРОЧНЫХ ПЛАНОВ ===
+    path('api/lesson-plans/manage/', views.manage_lesson_plan_api, name='api_manage_lesson_plan'),
+    path('api/lesson-plans/<int:pk>/details/', views.get_lesson_plan_details_api, name='api_get_lesson_plan_details'),
+    path('api/lesson-plans/<int:pk>/delete/', views.delete_lesson_plan_api, name='api_delete_lesson_plan'),
+    # === КОНЕЦ: URL-АДРЕСА ===
 ]

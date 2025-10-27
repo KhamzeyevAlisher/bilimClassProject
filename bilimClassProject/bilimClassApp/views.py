@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 from datetime import date, timedelta
@@ -1483,6 +1483,10 @@ def admin_user_list_view(request):
         'subject'
     ).all()
     # =====================================================================
+    
+    # === НОВОЕ: Получаем все выходные дни ===
+    all_holidays = Holiday.objects.all().order_by('date')
+
 
     context = {
         'users': users_list,
@@ -1496,6 +1500,9 @@ def admin_user_list_view(request):
         # =====================================================================
         'all_assignments': all_assignments,
         # =====================================================================
+
+        # === НОВОЕ: Передаем выходные в шаблон ===
+        'all_holidays': all_holidays,
 
         # Данные для модального окна создания/редактирования пользователя
         'all_teachers': Teacher.objects.select_related('user').all(),
@@ -1775,6 +1782,49 @@ def delete_school_api(request, school_id):
 
 # === КОНЕЦ НОВЫХ ФУНКЦИЙ ===
 
+# === НАЧАЛО НОВЫХ VIEW ДЛЯ УПРАВЛЕНИЯ ВЫХОДНЫМИ ===
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def manage_holiday_api(request):
+    """API для создания или обновления выходного дня."""
+    holiday_id = request.POST.get('holiday_id')
+    instance = get_object_or_404(Holiday, pk=holiday_id) if holiday_id else None
+    
+    form = HolidayForm(request.POST, instance=instance)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+@login_required
+@user_passes_test(is_staff_check)
+def get_holiday_details_api(request, pk):
+    """API для получения данных одного выходного дня для формы редактирования."""
+    holiday = get_object_or_404(Holiday, pk=pk)
+    data = {
+        'id': holiday.id,
+        'name': holiday.name,
+        'date': holiday.date.strftime('%Y-%m-%d'),
+    }
+    return JsonResponse(data)
+
+@require_POST
+@login_required
+@user_passes_test(is_staff_check)
+def delete_holiday_api(request, pk):
+    """API для удаления выходного дня."""
+    try:
+        holiday = get_object_or_404(Holiday, pk=pk)
+        holiday.delete()
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+# === КОНЕЦ НОВЫХ VIEW ДЛЯ УПРАВЛЕНИЯ ВЫХОДНЫМИ ===
+
+
+@login_required
 @login_required
 def headteacher_view(request):
     """
@@ -1787,10 +1837,10 @@ def headteacher_view(request):
     context = {
         'all_schools': all_schools,
         'selected_school_id': int(selected_school_id) if selected_school_id else None,
-        'active_tab': request.GET.get('tab', 'schedule'), # Определяем активную вкладку
+        'active_tab': request.GET.get('tab', 'performance'),
     }
 
-    # === ЛОГИКА ДЛЯ ВКЛАДКИ "РАСПИСАНИЕ" ===
+    # === ЛОГИКА ДЛЯ ВКЛАДКИ "РАСПИСАНИЕ" (без изменений) ===
     selected_class_id = request.GET.get('class_id')
     classes_in_school = SchoolClass.objects.none()
     schedule_by_day = {day: [] for day in range(1, 7)}
@@ -1812,61 +1862,113 @@ def headteacher_view(request):
         'selected_class_id': int(selected_class_id) if selected_class_id else None,
         'schedule_by_day': schedule_by_day,
         'days_of_week': {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница", 6: "Суббота"},
-        'schedule_form': schedule_form, # Передаем форму в шаблон
-        'all_subjects': all_subjects, # Передаем все предметы для модального окна
+        'schedule_form': schedule_form,
+        'all_subjects': all_subjects,
     })
 
-
-    # === ЛОГИКА ДЛЯ ВКЛАДКИ "УСПЕВАЕМОСТЬ" ===
+    # ================================================================= #
+    # === НАЧАЛО ОБНОВЛЕННОЙ ЛОГИКИ ДЛЯ ВКЛАДКИ "УСПЕВАЕМОСТЬ" ===
+    # ================================================================= #
     if selected_school_id:
-        school_classes = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students')
+        school_classes = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students', 'schedule_set')
         
-        # 1. Общая статистика по школе
+        # --- Общая статистика по успеваемости (без изменений) ---
         overall_stats = school_classes.aggregate(
             total_students=Count('students', distinct=True),
             overall_avg_grade=Avg('students__assessments__grade')
         )
+        
+        # --- Новая, корректная логика расчета посещаемости ---
+        today = date.today()
+        # Определяем начало учебного года (1 сентября)
+        if today.month >= 9:
+            start_of_school_year = date(today.year, 9, 1)
+        else:
+            start_of_school_year = date(today.year - 1, 9, 1)
 
-        total_attendance_records = Attendance.objects.filter(school_class__school_id=selected_school_id).count()
-        present_attendance_records = Attendance.objects.filter(school_class__school_id=selected_school_id, status='P').count()
-        overall_attendance_percentage = (present_attendance_records / total_attendance_records * 100) if total_attendance_records > 0 else 0
+        # Загружаем все праздники один раз для эффективности
+        holidays = set(Holiday.objects.filter(date__gte=start_of_school_year).values_list('date', flat=True))
 
-        # 2. Детальная статистика по каждому классу
         class_performance_stats = []
+        school_total_potential_lessons = 0
+        school_total_absences = 0
+
         for s_class in school_classes:
             student_count = s_class.students.count()
             if student_count == 0:
-                continue
+                # Пропускаем классы без учеников, чтобы избежать деления на ноль
+                # и лишних расчетов
+                avg_grade_stats = {'avg_grade': 0, 'excellent': 0, 'good': 0, 'satisfactory': 0, 'poor': 0}
+                class_attendance_percentage = 100.0
+            else:
+                 # --- Расчет успеваемости (без изменений) ---
+                students_with_avg_grade = s_class.students.annotate(
+                    avg_grade=Coalesce(Avg('assessments__grade'), 0.0, output_field=FloatField())
+                )
+                grade_distribution = students_with_avg_grade.aggregate(
+                    excellent=Count(Case(When(avg_grade__gte=4.5, then=1))),
+                    good=Count(Case(When(avg_grade__gte=3.5, avg_grade__lt=4.5, then=1))),
+                    satisfactory=Count(Case(When(avg_grade__gte=2.5, avg_grade__lt=3.5, then=1))),
+                    poor=Count(Case(When(avg_grade__lt=2.5, avg_grade__gt=0, then=1))),
+                    class_avg_grade=Avg('avg_grade')
+                )
 
-            # Получаем queryset студентов с их средним баллом
-            students_with_avg_grade = s_class.students.annotate(
-                avg_grade=Coalesce(Avg('assessments__grade'), 0.0, output_field=FloatField())
-            )
+            # --- Новый расчет посещаемости для класса ---
+            total_potential_lessons = 0
             
-            # Агрегируем количество отличников, хорошистов и т.д.
-            grade_distribution = students_with_avg_grade.aggregate(
-                excellent=Count(Case(When(avg_grade__gte=4.5, then=1))),
-                good=Count(Case(When(avg_grade__gte=3.5, avg_grade__lt=4.5, then=1))),
-                satisfactory=Count(Case(When(avg_grade__gte=2.5, avg_grade__lt=3.5, then=1))),
-                poor=Count(Case(When(avg_grade__lt=2.5, avg_grade__gt=0, then=1))), # gt=0 чтобы не считать тех, у кого нет оценок
-                class_avg_grade=Avg('avg_grade')
-            )
+            # 1. Создаем словарь: {день_недели: количество_уроков}
+            class_schedule_dict = {i: 0 for i in range(1, 7)} 
+            for lesson in s_class.schedule_set.all():
+                if lesson.day_of_week in class_schedule_dict:
+                    class_schedule_dict[lesson.day_of_week] += 1
+            
+            # 2. Считаем все учебные дни и уроки в них с начала года
+            current_day = start_of_school_year
+            while current_day <= today:
+                # isoweekday(): Пн=1...Сб=6, Вс=7
+                day_of_week = current_day.isoweekday()
+                # Считаем день учебным, если это не воскресенье и не праздник
+                if day_of_week != 7 and current_day not in holidays:
+                    total_potential_lessons += class_schedule_dict.get(day_of_week, 0)
+                current_day += timedelta(days=1)
+            
+            # 3. Считаем фактические пропуски
+            class_absences = Attendance.objects.filter(
+                school_class=s_class,
+                date__gte=start_of_school_year,
+                date__lte=today
+            ).exclude(status='P').count()
 
-            # Посещаемость по классу
-            class_total_attendance = Attendance.objects.filter(school_class=s_class).count()
-            class_present_attendance = Attendance.objects.filter(school_class=s_class, status='P').count()
-            class_attendance_percentage = (class_present_attendance / class_total_attendance * 100) if class_total_attendance > 0 else 0
+            # 4. Рассчитываем процент
+            if total_potential_lessons > 0:
+                # Умножаем на количество учеников, чтобы получить общее число человеко-уроков
+                total_potential_person_lessons = total_potential_lessons * student_count
+                attended_lessons = total_potential_person_lessons - class_absences
+                class_attendance_percentage = (attended_lessons / total_potential_person_lessons) * 100
+            else:
+                class_attendance_percentage = 100.0 # Если уроков не было, посещаемость 100%
 
             class_performance_stats.append({
                 'class_name': s_class.name,
                 'student_count': student_count,
-                'avg_grade': grade_distribution['class_avg_grade'],
+                'avg_grade': grade_distribution['class_avg_grade'] if student_count > 0 else 0,
                 'attendance_percentage': class_attendance_percentage,
-                'excellent_students': grade_distribution['excellent'],
-                'good_students': grade_distribution['good'],
-                'satisfactory_students': grade_distribution['satisfactory'],
-                'poor_students': grade_distribution['poor'],
+                'excellent_students': grade_distribution['excellent'] if student_count > 0 else 0,
+                'good_students': grade_distribution['good'] if student_count > 0 else 0,
+                'satisfactory_students': grade_distribution['satisfactory'] if student_count > 0 else 0,
+                'poor_students': grade_distribution['poor'] if student_count > 0 else 0,
             })
+            
+            # Добавляем данные класса к общим по школе
+            school_total_potential_lessons += total_potential_lessons * student_count
+            school_total_absences += class_absences
+
+        # Считаем общую посещаемость по школе
+        if school_total_potential_lessons > 0:
+            school_attended_lessons = school_total_potential_lessons - school_total_absences
+            overall_attendance_percentage = (school_attended_lessons / school_total_potential_lessons) * 100
+        else:
+            overall_attendance_percentage = 100.0
         
         context['performance_data'] = {
             'overall_avg_grade': overall_stats['overall_avg_grade'],
@@ -1874,6 +1976,9 @@ def headteacher_view(request):
             'total_students': overall_stats['total_students'],
             'class_stats': class_performance_stats,
         }
+    # =============================================================== #
+    # === КОНЕЦ ОБНОВЛЕННОЙ ЛОГИКИ ===
+    # =============================================================== #
 
     return render(request, 'bilimClassApp/headteacher.html', context)
 

@@ -314,13 +314,51 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- ========================================================== -->
+            <!-- === НОВАЯ СТРАНИЦА "НАСТРОЙКИ" === -->
+            <!-- ========================================================== -->
+            <div id="page-settings" class="page-content">
+                <div class="page-header">
+                    <div>
+                        <h2><i class="fa-solid fa-calendar-days"></i> Управление выходными</h2>
+                        <p>Добавьте праздничные или нерабочие дни в календарь</p>
+                    </div>
+                    <button class="btn-primary" id="create-holiday-btn">
+                        <i class="fa-solid fa-plus"></i>
+                        Добавить день
+                    </button>
+                </div>
+                <div class="content-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Название / Причина</th>
+                                <th style="text-align: end;">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for holiday in all_holidays %}
+                            <tr data-holiday-row-id="{{ holiday.id }}">
+                                <td><strong>{{ holiday.date|date:"d.m.Y" }}</strong></td>
+                                <td>{{ holiday.name }}</td>
+                                <td class="action-icons" style="justify-content: end; gap:40px;">
+                                    <a href="#" class="edit-holiday-btn" data-holiday-id="{{ holiday.id }}" title="Редактировать"><i class="fa-solid fa-pencil"></i></a>
+                                    <a href="#" class="delete-holiday-btn" data-holiday-id="{{ holiday.id }}" title="Удалить"><i class="fa-solid fa-trash-can"></i></a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" style="text-align: center; padding: 24px;">Выходные дни еще не добавлены.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <!-- Другие страницы (заглушки) -->
             <div id="page-home" class="page-content">
                  <div class="content-card"><h2>Главная страница</h2><p>Этот контент находится в разработке.</p></div>
-            </div>
-            <div id="page-settings" class="page-content">
-                 <div class="content-card"><h2>Настройки</h2><p>Этот контент находится в разработке.</p></div>
             </div>
 
         </main>
@@ -526,6 +564,35 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancel-assignment-btn">Отмена</button>
                     <button type="submit" class="btn-submit" id="submit-assignment-btn">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ВЫХОДНЫХ === -->
+    <!-- ========================================================== -->
+    <div class="modal-overlay" id="holiday-modal-overlay">
+        <div class="modal-container">
+            <button class="close-btn" id="close-holiday-modal-btn">&times;</button>
+            <div class="modal-header">
+                <h2 id="holiday-modal-title">Добавить выходной день</h2>
+                <p>Укажите дату и причину</p>
+            </div>
+            <form id="holiday-form" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="holiday_id" id="id_holiday_id">
+                <div class="form-group">
+                    <label for="id_holiday_date">Дата</label>
+                    <input type="date" name="date" id="id_holiday_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="id_holiday_name">Название / Причина</label>
+                    <input type="text" name="name" id="id_holiday_name" placeholder="Например, День Учителя" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-holiday-btn">Отмена</button>
+                    <button type="submit" class="btn-submit" id="submit-holiday-btn">Создать</button>
                 </div>
             </form>
         </div>
@@ -877,6 +944,77 @@
             });
         };
 
+        // === НОВАЯ ФУНКЦИЯ ДЛЯ УПРАВЛЕНИЯ ВЫХОДНЫМИ ===
+        const initHolidayManagementScripts = () => {
+            const page = document.getElementById('page-settings');
+            if (!page) return;
+
+            const modalOverlay = document.getElementById('holiday-modal-overlay');
+            const form = document.getElementById('holiday-form');
+            const modalTitle = document.getElementById('holiday-modal-title');
+            const submitBtn = document.getElementById('submit-holiday-btn');
+
+            const openModal = () => modalOverlay.style.display = 'flex';
+            const closeModal = () => modalOverlay.style.display = 'none';
+
+            document.getElementById('create-holiday-btn').addEventListener('click', () => {
+                form.reset();
+                form.querySelector('#id_holiday_id').value = '';
+                modalTitle.textContent = 'Добавить выходной день';
+                submitBtn.textContent = 'Создать';
+                openModal();
+            });
+
+            document.getElementById('close-holiday-modal-btn').addEventListener('click', closeModal);
+            document.getElementById('cancel-holiday-btn').addEventListener('click', closeModal);
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const response = await fetch("{% url 'api_manage_holiday' %}", {
+                    method: 'POST', body: new FormData(form), headers: {'X-CSRFToken': csrfToken}
+                });
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Ошибка валидации. Проверьте, что все поля заполнены.');
+                }
+            });
+
+            page.querySelectorAll('.edit-holiday-btn').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const holidayId = button.dataset.holidayId;
+                    const response = await fetch(`/api/holiday/${holidayId}/details/`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        form.querySelector('#id_holiday_id').value = data.id;
+                        form.querySelector('#id_holiday_date').value = data.date;
+                        form.querySelector('#id_holiday_name').value = data.name;
+                        modalTitle.textContent = 'Редактировать выходной день';
+                        submitBtn.textContent = 'Сохранить';
+                        openModal();
+                    }
+                });
+            });
+
+            page.querySelectorAll('.delete-holiday-btn').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (confirm('Вы уверены, что хотите удалить этот день?')) {
+                        const holidayId = button.dataset.holidayId;
+                        const response = await fetch(`/api/holiday/${holidayId}/delete/`, {
+                            method: 'POST', headers: {'X-CSRFToken': csrfToken}
+                        });
+                        if (response.ok) {
+                            button.closest('tr').remove();
+                        } else {
+                            alert('Не удалось удалить запись.');
+                        }
+                    }
+                });
+            });
+        };
+
         // --- ОБЩАЯ НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ---
         const navigateTo = (pageId) => {
             contentPages.forEach(page => page.classList.remove('active'));
@@ -904,6 +1042,7 @@
         initUserManagementScripts();
         initSchoolStructureScripts();
         initAssignmentsScripts();
+        initHolidayManagementScripts(); // <-- ВЫЗОВ НОВОЙ ФУНКЦИИ
     });
     </script>
 </body>

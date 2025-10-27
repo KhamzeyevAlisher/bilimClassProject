@@ -4,7 +4,7 @@ from django import forms
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule # Импортируем нужные модели
+from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule,  Holiday # Импортируем нужные модели
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -314,3 +314,13 @@ class SubjectForm(forms.ModelForm):
         self.fields['name'].widget.attrs.update({
             'placeholder': 'Например, Алгебра'
         })
+
+class HolidayForm(forms.ModelForm):
+    """Форма для создания и редактирования выходных дней."""
+    class Meta:
+        model = Holiday
+        fields = ['date', 'name']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Например, День независимости'}),
+        }

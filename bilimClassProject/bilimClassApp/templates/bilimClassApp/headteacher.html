@@ -53,6 +53,80 @@
         .day-column { background-color: var(--bg-main); border-radius: 12px; padding: 16px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .lesson-card { background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .performance-table .progress-bar-container {
+            width: 100%;
+            min-width: 100px;
+            background-color: #e9ecef; /* Цвет фона (трека) */
+            border-radius: 8px;
+            position: relative;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            overflow: hidden; /* Скрываем все, что выходит за рамки */
+        }
+
+        .performance-table .progress-bar {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.6s ease-in-out; /* Плавная анимация */
+        }
+
+        /* Цвета для прогресс-бара */
+        .bg-success { background-color: #10B981; } /* Зеленый */
+        
+        .bg-warning { background-color: #ffc107; } /* Желтый */
+        .bg-danger  { background-color: #dc3545; } /* Красный */
+
+        .performance-table .progress-bar-container span {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 13px;
+            /* Тень для лучшей читаемости текста на любом фоне */
+            text-shadow: 0 0 2px white, 0 0 4px white; 
+        }
+
+        /* === НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ДЕТАЛИЗАЦИИ === */
+    #student-details-modal-overlay .data-table {
+        width: 100%;
+        border-collapse: collapse; /* Убираем двойные рамки */
+        table-layout: fixed; /* Ключевое свойство для выравнивания колонок! */
+    }
+
+    #student-details-modal-overlay .data-table th,
+    #student-details-modal-overlay .data-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0; /* Легкая линия-разделитель */
+    }
+
+    #student-details-modal-overlay .data-table thead th {
+        color: #6c757d; /* Серый цвет для заголовков */
+        font-weight: 500;
+        font-size: 14px;
+        border-bottom: 1px solid #dee2e6; /* Более жирная линия под заголовком */
+    }
+    
+    /* Убираем линию у последней строки для чистоты */
+    #student-details-modal-overlay .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Задаем ширину колонок и выравнивание для чисел */
+    #student-details-modal-overlay .student-name-col { width: 50%; }
+    #student-details-modal-overlay .grade-col,
+    #student-details-modal-overlay .attendance-col {
+        width: 25%;
+        text-align: right; /* Выравниваем числовые значения по правому краю */
+    }
+    #student-details-modal-overlay .modal-divider {
+        border: none;
+        border-top: 1px solid #e9ecef;
+        margin: 16px 0;
+    }
+
     </style>
 {% endblock %}
 
@@ -106,26 +180,52 @@
                 <table class="performance-table">
                     <thead>
                         <tr>
-                            <th>Класс</th><th>Учеников</th><th>Средний балл</th><th>Посещаемость</th>
-                            <th>Отличники</th><th>Хорошисты</th><th>Удовл.</th><th>Неудовл.</th>
+                            <th>Класс</th>
+                            <th>Учеников</th>
+                            <th>Средний балл</th>
+                            <th>Посещаемость</th>
+                            <th>Отличники</th>
+                            <th>Хорошисты</th>
+                            <th>Троечники</th>
+                            <th>Неуспевающие</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for class_stat in performance_data.class_stats %}
+                        {% for stat in performance_data.class_stats %}
                         <tr>
-                            <td><b>{{ class_stat.class_name }}</b></td>
-                            <td>{{ class_stat.student_count }}</td>
-                            <td><span class="avg-grade">{{ class_stat.avg_grade|floatformat:2|default:"-" }}</span></td>
                             <td>
-                                <div class="grade-dist-cell">
-                                    <div class="progress-bar"><div class="progress" style="width: {{ class_stat.attendance_percentage|floatformat:0 }}%;"></div></div>
-                                    <span>{{ class_stat.attendance_percentage|floatformat:0 }}%</span>
+                                <b><a href="#" class="class-details-link" data-class-id="{{ stat.class_id }}">{{ stat.class_name }}</a></b>
+                            </td>
+                            <td>{{ stat.student_count }}</td>
+                            <td>{{ stat.avg_grade|floatformat:2 }}</td>
+                            <td>
+                                <div class="progress-bar-container">
+                                    <!-- ============================================= -->
+                                    <!-- === ИЗМЕНЕНИЕ ЗДЕСЬ: Добавлены классы и цвет === -->
+                                    <!-- ============================================= -->
+                                    <div class="progress-bar 
+                                        {% if stat.attendance_percentage > 90 %}
+                                            bg-success
+                                        {% elif stat.attendance_percentage > 70 %}
+                                            bg-warning
+                                        {% else %}
+                                            bg-danger
+                                        {% endif %}"
+                                        style="width: {{ stat.attendance_percentage|floatformat:1 }}%;">
+                                    </div>
+                                    <span>{{ stat.attendance_percentage|floatformat:1 }}%</span>
                                 </div>
                             </td>
-                            <td><span class="badge badge-excellent">{{ class_stat.excellent_students }}</span></td>
-                            <td><span class="badge badge-good">{{ class_stat.good_students }}</span></td>
-                            <td><span class="badge badge-satisfactory">{{ class_stat.satisfactory_students }}</span></td>
-                            <td><span class="badge badge-poor">{{ class_stat.poor_students }}</span></td>
+                            <td>{{ stat.excellent_students }}</td>
+                            <td>{{ stat.good_students }}</td>
+                            <td>{{ stat.satisfactory_students }}</td>
+                            <td>{{ stat.poor_students }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 24px;">
+                                Нет данных для отображения. Выберите школу.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -262,7 +362,48 @@
         </form>
     </div>
 </div>
+
+<!-- ========================================================== -->
+<!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ДЕТАЛЕЙ ПО КЛАССУ (вставить в конце файла, перед ) === -->
+<!-- ========================================================== -->
+<div class="modal-overlay" id="student-details-modal-overlay" style="display: none;">
+    <div class="modal-container modal-lg"> <!-- Добавлен класс modal-lg для ширины -->
+        <button class="close-btn" id="close-student-details-modal-btn">&times;</button>
+        <div class="modal-header">
+            <h2 id="modal-class-name">Успеваемость класса</h2>
+            <p>Детальная информация по каждому ученику</p>
+        </div>
+        
+        <div class="table-wrapper" style="max-height: 60vh; overflow-y: auto;">
+            <!-- Спиннер для индикации загрузки -->
+            <div id="modal-loader" style="text-align: center; padding: 40px; display: none;">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p>Загрузка данных...</p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ФИО Ученика</th>
+                        <th>Средний балл</th>
+                        <th>Посещаемость</th>
+                    </tr>
+                </thead>
+                <tbody id="student-details-tbody">
+                    <!-- Данные будут вставлены сюда с помощью JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancel-student-details-btn">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
+
 
 {% block scripts_extra %}
 <script>
@@ -443,6 +584,90 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    const modalOverlayNew = document.getElementById('student-details-modal-overlay');
+    const modalTbody = document.getElementById('student-details-tbody');
+    const modalTitle = document.getElementById('modal-class-name');
+    const modalLoader = document.getElementById('modal-loader');
+    
+    const openModal = () => {
+        modalOverlayNew.style.display = 'flex';
+    };
+    const closeModal = () => {
+        modalOverlayNew.style.display = 'none';
+        modalTbody.innerHTML = ''; // Очищаем таблицу при закрытии
+    };
+
+    // Закрытие по кнопке и по клику на фон
+    document.getElementById('close-student-details-modal-btn').addEventListener('click', closeModal);
+    document.getElementById('cancel-student-details-btn').addEventListener('click', closeModal);
+    modalOverlayNew.addEventListener('click', (e) => {
+        if (e.target === modalOverlayNew) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.class-details-link').forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const classId = e.currentTarget.dataset.classId;
+            
+            // 1. Открыть модальное окно и показать спиннер
+            openModal();
+            modalLoader.style.display = 'block';
+            modalTbody.innerHTML = ''; // Очищаем старые данные
+            modalTitle.textContent = 'Загрузка...';
+
+            try {
+                // 2. Сделать запрос к API
+                const response = await fetch(`/api/class/${classId}/performance/`);
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка сети или сервера');
+                }
+                
+                const data = await response.json();
+                
+                // 3. Заполнить заголовок
+                modalTitle.textContent = `Успеваемость класса: ${data.class_name}`;
+
+                // 4. Заполнить таблицу данными
+                if (data.students && data.students.length > 0) {
+                    data.students.forEach(student => {
+                        const row = document.createElement('tr');
+                        
+                        // Ячейка с ФИО
+                        const nameCell = document.createElement('td');
+                        nameCell.innerHTML = `<strong>${student.full_name}</strong>`;
+                        
+                        // Ячейка со средним баллом
+                        const gradeCell = document.createElement('td');
+                        gradeCell.textContent = student.avg_grade;
+                        
+                        // Ячейка с посещаемостью
+                        const attendanceCell = document.createElement('td');
+                        attendanceCell.textContent = `${student.attendance_percentage}%`;
+
+                        row.appendChild(nameCell);
+                        row.appendChild(gradeCell);
+                        row.appendChild(attendanceCell);
+                        
+                        modalTbody.appendChild(row);
+                    });
+                } else {
+                    modalTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 24px;">В этом классе нет учеников.</td></tr>';
+                }
+
+            } catch (error) {
+                console.error("Ошибка при загрузке данных о классе:", error);
+                modalTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 24px; color: red;">Не удалось загрузить данные.</td></tr>';
+            } finally {
+                // 5. Скрыть спиннер
+                modalLoader.style.display = 'none';
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

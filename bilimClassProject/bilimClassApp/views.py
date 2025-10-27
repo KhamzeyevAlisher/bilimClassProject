@@ -1847,6 +1847,7 @@ def headteacher_view(request):
     
     if selected_school_id:
         classes_in_school = SchoolClass.objects.filter(school_id=selected_school_id).order_by('name')
+        school_classes = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students', 'schedule_set')
 
     if selected_class_id:
         schedule_items = Schedule.objects.filter(school_class_id=selected_class_id).select_related('subject', 'teacher__user').order_by('start_time')
@@ -1949,6 +1950,7 @@ def headteacher_view(request):
                 class_attendance_percentage = 100.0 # Если уроков не было, посещаемость 100%
 
             class_performance_stats.append({
+                'class_id': s_class.id,
                 'class_name': s_class.name,
                 'student_count': student_count,
                 'avg_grade': grade_distribution['class_avg_grade'] if student_count > 0 else 0,
@@ -2132,3 +2134,64 @@ def delete_subject_api(request, pk):
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
+
+
+# === НОВАЯ VIEW ДЛЯ API ===
+@login_required
+def get_class_performance_details_api(request, class_id):
+    """
+    API, возвращающее детальную успеваемость по каждому ученику в классе.
+    """
+    s_class = get_object_or_404(SchoolClass, pk=class_id)
+    students = s_class.students.all().order_by('last_name', 'first_name')
+    
+    student_data = []
+
+    # --- Логика расчета посещаемости (аналогична основной view) ---
+    today = date.today()
+    start_of_school_year = date(today.year, 9, 1) if today.month >= 9 else date(today.year - 1, 9, 1)
+    holidays = set(Holiday.objects.filter(date__gte=start_of_school_year).values_list('date', flat=True))
+    
+    total_potential_lessons = 0
+    class_schedule_dict = {i: 0 for i in range(1, 7)}
+    for lesson in s_class.schedule_set.all():
+        if lesson.day_of_week in class_schedule_dict:
+            class_schedule_dict[lesson.day_of_week] += 1
+            
+    current_day = start_of_school_year
+    while current_day <= today:
+        day_of_week = current_day.isoweekday()
+        if day_of_week != 7 and current_day not in holidays:
+            total_potential_lessons += class_schedule_dict.get(day_of_week, 0)
+        current_day += timedelta(days=1)
+    # --- Конец логики расчета посещаемости ---
+
+    for student in students:
+        # 1. Считаем средний балл для ученика
+        avg_grade_data = student.assessments.aggregate(avg=Avg('grade'))
+        avg_grade = avg_grade_data['avg'] if avg_grade_data['avg'] is not None else 0.0
+
+        # 2. Считаем посещаемость для ученика
+        absences = Attendance.objects.filter(
+            student=student, 
+            date__gte=start_of_school_year, 
+            date__lte=today
+        ).exclude(status='P').count()
+
+        if total_potential_lessons > 0:
+            attended_lessons = total_potential_lessons - absences
+            attendance_percentage = (attended_lessons / total_potential_lessons) * 100
+        else:
+            attendance_percentage = 100.0
+
+        student_data.append({
+            'full_name': student.get_full_name() or student.username,
+            'avg_grade': f"{avg_grade:.2f}",
+            'attendance_percentage': f"{attendance_percentage:.1f}",
+        })
+        
+    return JsonResponse({
+        'class_name': s_class.name,
+        'students': student_data,
+    })

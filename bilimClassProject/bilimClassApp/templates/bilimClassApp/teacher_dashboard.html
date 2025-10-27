@@ -7,6 +7,7 @@
     <title>Дашборд Учителя | Школьная Платформа</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/teacher_homework.css' %}">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/teacher_dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">    
 
     <style>
@@ -170,6 +171,7 @@
         <nav class="td-main-nav">
             <ul>
                 <li><a class="active" data-tab="dashboard"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a data-tab="lesson-plans"><i class="fas fa-file-alt"></i> Поурочные планы</a></li>
                 <li><a data-tab="schedule"><i class="far fa-calendar-alt"></i> Расписание</a></li>
                 <li><a data-tab="journal"><i class="fas fa-book"></i> Журнал</a></li>
                 <li><a data-tab="homework"><i class="fas fa-pencil-alt"></i> Домашние задания</a></li>
@@ -249,6 +251,84 @@
                     </div>
                 </section>
             </div>
+
+            <!-- === НАЧАЛО: НОВЫЙ КОНТЕНТ ДЛЯ ВКЛАДКИ "ПОУРОЧНЫЕ ПЛАНЫ" === -->
+            <div id="lesson-plans-content" class="tab-content">
+                <main class="lp-widget">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <h2>Поурочные планы</h2>
+                            <p>Управление планами уроков</p>
+                        </div>
+                        <button class="btn-create" id="create-plan-btn"><i class="fas fa-plus"></i> Создать план</button>
+                    </div>
+
+                    <table class="lp-table" id="lesson-plans-table">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Класс</th>
+                                <th>Предмет</th>
+                                <th>Дата</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Пример строки. В реальном приложении эти данные будут загружаться динамически. -->
+                            <tr>
+                                <td>Квадратные уравнения</td>
+                                <td>8А</td>
+                                <td>Алгебра</td>
+                                <td>22.10.2025</td>
+                                <td><span class="lp-status approved">Утвержден</span></td>
+                                <td class="lp-actions">
+                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
+                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
+                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                             <tr>
+                                <td>Теорема Пифагора</td>
+                                <td>9Б</td>
+                                <td>Геометрия</td>
+                                <td>23.10.2025</td>
+                                <td><span class="lp-status pending">На рассмотрении</span></td>
+                                <td class="lp-actions">
+                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
+                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
+                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Логарифмы</td>
+                                <td>10Б</td>
+                                <td>Алгебра</td>
+                                <td>24.10.2025</td>
+                                <td><span class="lp-status pending">На рассмотрении</span></td>
+                                <td class="lp-actions">
+                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
+                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
+                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Производные функций</td>
+                                <td>11А</td>
+                                <td>Математический анализ</td>
+                                <td>25.10.2025</td>
+                                <td><span class="lp-status rejected">Отклонен</span></td>
+                                <td class="lp-actions">
+                                    <button title="Просмотр"><i class="far fa-eye"></i></button>
+                                    <button title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
+                                    <button title="Удалить"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </main>
+            </div>
+            <!-- === КОНЕЦ: НОВЫЙ КОНТЕНТ === -->
             
             <!-- Контент для вкладки "Журнал" -->
             <div id="journal-content" class="tab-content">
@@ -425,6 +505,54 @@
                 <button type="submit" class="btn-gradient">Сохранить рецензию</button>
             </div>
         </form>
+    </div>
+</div>
+<!-- === КОНЕЦ: МОДАЛЬНЫЕ ОКНА === -->
+
+<!-- === НАЧАЛО: МОДАЛЬНЫЕ ОКНА ДЛЯ ПОУРОЧНЫХ ПЛАНОВ === -->
+<div class="modal-overlay" id="plan-form-modal">
+    <div class="modal-container">
+        <button class="close-btn">&times;</button>
+        <div class="modal-header">
+            <h2 id="plan-modal-title">Создать план урока</h2>
+            <p>Заполните информацию о поурочном плане</p>
+        </div>
+        <form id="lesson-plan-form">
+            <div class="form-grid">
+                <div class="form-group"><label for="plan-title">Название урока</label><input type="text" id="plan-title" required></div>
+                <div class="form-group"><label for="plan-date">Дата проведения</label><input type="date" id="plan-date" required></div>
+                <div class="form-group"><label for="plan-class">Класс</label><select id="plan-class" required><option value="8A">8А</option><option value="9Б">9Б</option><option value="10Б">10Б</option><option value="11А">11А</option></select></div>
+                <div class="form-group"><label for="plan-subject">Предмет</label><select id="plan-subject" required><option value="Алгебра">Алгебра</option><option value="Геометрия">Геометрия</option><option value="Мат. анализ">Математический анализ</option></select></div>
+            </div>
+            <div class="form-group full-width"><label for="plan-topic">Тема урока</label><input type="text" id="plan-topic"></div>
+            <div class="form-group full-width"><label for="plan-goals">Цели и задачи урока</label><textarea id="plan-goals"></textarea></div>
+            <div class="form-group full-width"><label for="plan-materials">Учебные материалы</label><textarea id="plan-materials"></textarea></div>
+            <div class="modal-footer full-width">
+                <button type="button" class="btn-secondary close-btn">Отмена</button>
+                <button type="submit" class="btn-submit">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="plan-view-modal">
+    <div class="modal-container">
+        <button class="close-btn">&times;</button>
+        <div class="modal-header">
+            <h2 id="view-plan-title">Квадратные уравнения</h2>
+            <p><span id="view-plan-class">8А</span> • <span id="view-plan-subject">Алгебра</span> • <span id="view-plan-date">2025-10-22</span></p>
+        </div>
+        <dl class="lp-view-details">
+            <dt>Тема урока</dt>
+            <dd id="view-plan-topic">Решение квадратных уравнений методом дискриминанта</dd>
+            <dt>Цели и задачи</dt>
+            <dd id="view-plan-goals">Научить учащихся решать квадратные уравнения различными методами</dd>
+            <dt>Учебные материалы</dt>
+            <dd id="view-plan-materials">Учебник, рабочие тетради, презентация</dd>
+        </dl>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary close-btn">Закрыть</button>
+        </div>
     </div>
 </div>
 <!-- === КОНЕЦ: МОДАЛЬНЫЕ ОКНА === -->
@@ -788,6 +916,85 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    // === НАЧАЛО: JAVASCRIPT ДЛЯ ЛОГИКИ ПОУРОЧНЫХ ПЛАНОВ ===
+    const lessonPlansTab = document.getElementById('lesson-plans-content');
+    if (lessonPlansTab) {
+        const createPlanBtn = document.getElementById('create-plan-btn');
+        const planFormModal = document.getElementById('plan-form-modal');
+        const planViewModal = document.getElementById('plan-view-modal');
+        const plansTable = document.getElementById('lesson-plans-table');
+        const lessonPlanForm = document.getElementById('lesson-plan-form');
+        
+        // --- Открытие/Закрытие модальных окон ---
+        const openModal = (modal) => modal.style.display = 'flex';
+        const closeModal = (modal) => modal.style.display = 'none';
+
+        createPlanBtn.addEventListener('click', () => {
+            lessonPlanForm.reset();
+            planFormModal.querySelector('#plan-modal-title').textContent = 'Создать план урока';
+            // В будущем здесь можно сбросить ID редактируемого элемента
+            openModal(planFormModal);
+        });
+
+        // Закрытие по кнопке "X" или "Отмена/Закрыть"
+        document.querySelectorAll('.modal-overlay .close-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal-overlay');
+                if (modal) closeModal(modal);
+            });
+        });
+
+        // Закрытие по клику на оверлей
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+             modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal);
+            });
+        });
+
+        // --- Делегирование событий для кнопок в таблице ---
+        plansTable.addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('button[title="Просмотр"]');
+            const editBtn = e.target.closest('button[title="Редактировать"]');
+            const deleteBtn = e.target.closest('button[title="Удалить"]');
+            
+            if (viewBtn) {
+                // Здесь в реальном приложении были бы AJAX-запросы для получения данных
+                // Мы же просто откроем модальное окно с примером
+                openModal(planViewModal);
+            }
+
+            if (editBtn) {
+                // Симулируем загрузку данных для редактирования
+                lessonPlanForm.reset();
+                planFormModal.querySelector('#plan-modal-title').textContent = 'Редактировать план урока';
+                planFormModal.querySelector('#plan-title').value = "Квадратные уравнения";
+                planFormModal.querySelector('#plan-date').value = "2025-10-22";
+                planFormModal.querySelector('#plan-class').value = "8A";
+                planFormModal.querySelector('#plan-subject').value = "Алгебра";
+                planFormModal.querySelector('#plan-topic').value = "Решение квадратных уравнений методом дискриминанта";
+                planFormModal.querySelector('#plan-goals').value = "Научить учащихся решать квадратные уравнения различными методами";
+                planFormModal.querySelector('#plan-materials').value = "Учебник, рабочие тетради, презентация";
+                openModal(planFormModal);
+            }
+
+            if (deleteBtn) {
+                if (confirm('Вы уверены, что хотите удалить этот план урока?')) {
+                    // Удаляем строку из таблицы
+                    deleteBtn.closest('tr').remove();
+                }
+            }
+        });
+
+        // --- Обработка отправки формы ---
+        lessonPlanForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Здесь будет логика отправки данных на сервер через AJAX
+            alert('План урока сохранен (симуляция).');
+            closeModal(planFormModal);
+        });
+    }
+    // === КОНЕЦ: JAVASCRIPT ДЛЯ ПОУРОЧНЫХ ПЛАНОВ ===
     
     // Глобальный listener для Escape, который закрывает все модальные окна
     document.addEventListener('keydown', (e) => {

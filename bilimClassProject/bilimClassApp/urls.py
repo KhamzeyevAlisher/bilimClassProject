@@ -71,4 +71,5 @@ urlpatterns = [
     path('api/holiday/<int:pk>/details/', views.get_holiday_details_api, name='api_get_holiday_details'),
     path('api/holiday/<int:pk>/delete/', views.delete_holiday_api, name='api_delete_holiday'),
     # === КОНЕЦ НОВЫХ МАРШРУТОВ ДЛЯ ВЫХОДНЫХ ===
+    path('api/class/<int:class_id>/performance/', views.get_class_performance_details_api, name='api_get_class_performance_details'),
 ]

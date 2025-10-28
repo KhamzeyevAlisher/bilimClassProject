@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/student_dashboard.css' %}">
+    <style>
+        .td-user-section { display: flex; align-items: center; gap: 16px; }
+        .td-user-info { text-align: right; } .td-user-info h3 { font-weight: 600; }
+        .td-user-info p { font-size: 14px; color: var(--text-secondary); }
+        .td-user-link { text-decoration: none; color: inherit; }
+        .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
+    </style>
 </head>
 <body>
 
@@ -23,15 +30,16 @@
                     <span>{{ user_role }}</span>
                 </div>
             </div>
-            <div class="user-section">
-                <i class="fas fa-bell" style="cursor: pointer; font-size: 18px; color: var(--text-secondary);"></i>
-                <div class="user-info" style="text-align: left;">
-                    <p>{{ request.user.get_full_name }}</p>
-                    <a href="{% url 'logout' %}">Выйти</a>
+           <div class="td-user-section">
+                <div class="td-user-info">
+                    <a href="{% url 'profile' %}" class="td-user-link">
+                        <h3>{{ user.get_full_name }}</h3>
+                    </a>
+                    <p>Ученик</p>
                 </div>
-                <div class="user-avatar">
-                    <span>{{ request.user.first_name|first }}{{ request.user.last_name|first }}</span>
-                </div>
+                <a href="{% url 'profile' %}" class="td-user-link">
+                    <div class="td-user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
+                </a>
             </div>
         </header>
 

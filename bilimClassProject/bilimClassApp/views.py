@@ -1842,22 +1842,16 @@ def headteacher_view(request):
     Отображает страницу завуча, включая управление расписанием,
     аналитику успеваемости и УТВЕРЖДЕНИЕ ПЛАНОВ.
     """
-    # <<< ИСПРАВЛЕНИЕ 1: Проверка роли в самом начале >>>
     if not (request.user.profile and request.user.profile.role == 'headteacher'):
         return HttpResponseForbidden("Доступ к этой странице есть только у Завучей.")
 
-    # <<< ИСПРАВЛЕНИЕ 2: Создаем базовый контекст >>>
     context = {
         'all_schools': School.objects.all().order_by('name'),
         'active_tab': request.GET.get('tab', 'performance'),
         'selected_school_id': request.GET.get('school_id'),
     }
 
-    # <<< ИСПРАВЛЕНИЕ 3: Логика для каждой вкладки теперь полностью разделена >>>
-
     # --- ЛОГИКА ДЛЯ ВКЛАДКИ "УТВЕРЖДЕНИЕ ПЛАНОВ" ---
-    # Эта логика выполняется всегда, когда открыта страница завуча, 
-    # чтобы данные были готовы для вкладки.
     status_filter = request.GET.get('status', 'pending')
     subject_filter = request.GET.get('subject_id')
     teacher_filter = request.GET.get('teacher_id')
@@ -1866,13 +1860,11 @@ def headteacher_view(request):
         'teacher__user', 'school_class', 'subject'
     ).order_by('-created_at')
 
-    # Применяем фильтры, если они есть
     if subject_filter:
         plans_queryset = plans_queryset.filter(subject_id=subject_filter)
     if teacher_filter:
         plans_queryset = plans_queryset.filter(teacher_id=teacher_filter)
     
-    # Фильтруем по статусу ПОСЛЕ получения данных для счетчиков
     filtered_plans = plans_queryset.filter(status=status_filter)
 
     status_counts = plans_queryset.aggregate(
@@ -1885,7 +1877,7 @@ def headteacher_view(request):
     teachers_with_plans = Teacher.objects.filter(lesson_plans__in=plans_queryset).select_related('user').distinct()
 
     context.update({
-        'lesson_plans': filtered_plans, # Передаем отфильтрованные планы для отображения
+        'lesson_plans': filtered_plans,
         'status_counts': status_counts,
         'subjects_for_filter': subjects_with_plans,
         'teachers_for_filter': teachers_with_plans,
@@ -1894,29 +1886,90 @@ def headteacher_view(request):
         'selected_teacher_id': int(teacher_filter) if teacher_filter else None,
     })
 
-
     # --- ЛОГИКА ДЛЯ ВКЛАДОК "УСПЕВАЕМОСТЬ" И "РАСПИСАНИЕ" ---
-    # Эта логика зависит от выбранной школы, поэтому выполняется в блоке if.
     selected_school_id = context['selected_school_id']
     if selected_school_id:
         context['selected_school_id'] = int(selected_school_id)
         
-        # Логика для вкладки "Успеваемость"
-        # (Ваш рабочий код для этой вкладки, который был ранее)
-        school_classes_perf = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students', 'schedule_set')
-        overall_stats = school_classes_perf.aggregate(
+        # <<< НАЧАЛО ИСПРАВЛЕНИЯ: ВОССТАНОВЛЕНА ПОЛНАЯ ЛОГИКА ДЛЯ УСПЕВАЕМОСТИ >>>
+        school_classes = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students', 'schedule_set')
+        
+        overall_stats = school_classes.aggregate(
             total_students=Count('students', distinct=True),
             overall_avg_grade=Avg('students__assessments__grade')
         )
-        # ... (здесь должна быть остальная часть вашей сложной логики расчета успеваемости и посещаемости) ...
-        # Для краткости я добавлю заглушку, но вы должны использовать ваш полный код
-        context['performance_data'] = {
-             'overall_avg_grade': overall_stats.get('overall_avg_grade', 0),
-             'overall_attendance': 95.0, # Заглушка
-             'total_students': overall_stats.get('total_students', 0),
-             'class_stats': [], # Заглушка
-        }
+        
+        today = date.today()
+        start_of_school_year = date(today.year, 9, 1) if today.month >= 9 else date(today.year - 1, 9, 1)
+        holidays = set(Holiday.objects.filter(date__gte=start_of_school_year).values_list('date', flat=True))
 
+        class_performance_stats = []
+        school_total_potential_lessons = 0
+        school_total_absences = 0
+
+        for s_class in school_classes:
+            student_count = s_class.students.count()
+            if student_count == 0:
+                class_performance_stats.append({
+                    'class_id': s_class.id, 'class_name': s_class.name, 'student_count': 0,
+                    'avg_grade': 0, 'attendance_percentage': 100.0,
+                    'excellent_students': 0, 'good_students': 0, 'satisfactory_students': 0, 'poor_students': 0,
+                })
+                continue
+
+            students_with_avg_grade = s_class.students.annotate(
+                avg_grade=Coalesce(Avg('assessments__grade'), 0.0, output_field=FloatField())
+            )
+            grade_distribution = students_with_avg_grade.aggregate(
+                excellent=Count(Case(When(avg_grade__gte=85, then=1))), # Примерные баллы: 5 = 85+
+                good=Count(Case(When(avg_grade__gte=65, avg_grade__lt=85, then=1))), # 4 = 65-84
+                satisfactory=Count(Case(When(avg_grade__gte=50, avg_grade__lt=65, then=1))), # 3 = 50-64
+                poor=Count(Case(When(avg_grade__lt=50, avg_grade__gt=0, then=1))), # 2 = <50
+                class_avg_grade=Avg('avg_grade')
+            )
+
+            total_potential_lessons, class_schedule_dict = 0, {i: 0 for i in range(1, 7)}
+            for lesson in s_class.schedule_set.all():
+                if lesson.day_of_week in class_schedule_dict: class_schedule_dict[lesson.day_of_week] += 1
+            
+            current_day = start_of_school_year
+            while current_day <= today:
+                day_of_week = current_day.isoweekday()
+                if day_of_week != 7 and current_day not in holidays:
+                    total_potential_lessons += class_schedule_dict.get(day_of_week, 0)
+                current_day += timedelta(days=1)
+            
+            class_absences = Attendance.objects.filter(school_class=s_class, date__range=[start_of_school_year, today]).exclude(status='P').count()
+            
+            total_potential_person_lessons = total_potential_lessons * student_count
+            class_attendance_percentage = 100.0
+            if total_potential_person_lessons > 0:
+                attended_lessons = total_potential_person_lessons - class_absences
+                class_attendance_percentage = (attended_lessons / total_potential_person_lessons) * 100
+
+            class_performance_stats.append({
+                'class_id': s_class.id, 'class_name': s_class.name, 'student_count': student_count,
+                'avg_grade': grade_distribution['class_avg_grade'], 'attendance_percentage': class_attendance_percentage,
+                'excellent_students': grade_distribution['excellent'], 'good_students': grade_distribution['good'],
+                'satisfactory_students': grade_distribution['satisfactory'], 'poor_students': grade_distribution['poor'],
+            })
+            
+            school_total_potential_lessons += total_potential_person_lessons
+            school_total_absences += class_absences
+
+        overall_attendance_percentage = 100.0
+        if school_total_potential_lessons > 0:
+            school_attended_lessons = school_total_potential_lessons - school_total_absences
+            overall_attendance_percentage = (school_attended_lessons / school_total_potential_lessons) * 100
+        
+        context['performance_data'] = {
+            'overall_avg_grade': overall_stats['overall_avg_grade'],
+            'overall_attendance': overall_attendance_percentage,
+            'total_students': overall_stats['total_students'],
+            'class_stats': class_performance_stats,
+        }
+        # <<< КОНЕЦ ИСПРАВЛЕНИЯ >>>
+        
         # Логика для вкладки "Расписание"
         selected_class_id = request.GET.get('class_id')
         context['classes_in_school'] = SchoolClass.objects.filter(school_id=selected_school_id).order_by('name')
@@ -2199,4 +2252,47 @@ def delete_lesson_plan_api(request, pk):
         plan.delete()
         return JsonResponse({'status': 'success', 'message': 'План удален.'})
     except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+@login_required
+@require_POST # Этот декоратор разрешает только POST-запросы
+def update_lesson_plan_status_api(request, pk):
+    """
+    API для Завуча для утверждения или отклонения поурочного плана.
+    """
+    # 1. Проверка безопасности: убеждаемся, что пользователь - завуч
+    if not (request.user.profile and request.user.profile.role == 'headteacher'):
+        return JsonResponse({'status': 'error', 'message': 'Доступ запрещен'}, status=403)
+
+    try:
+        # 2. Находим нужный план в базе данных по его ID (pk)
+        plan = get_object_or_404(LessonPlan, pk=pk)
+        
+        # 3. Читаем данные, отправленные из JavaScript (approve или reject)
+        data = json.loads(request.body)
+        action = data.get('action')
+
+        # 4. Изменяем статус плана в зависимости от полученного действия
+        if action == 'approve':
+            plan.status = LessonPlan.Status.APPROVED
+            message = f'План "{plan.name}" утвержден.'
+        elif action == 'reject':
+            plan.status = LessonPlan.Status.REJECTED
+            message = f'План "{plan.name}" отклонен.'
+        else:
+            # Если действие некорректно, возвращаем ошибку
+            return JsonResponse({'status': 'error', 'message': 'Недопустимое действие'}, status=400)
+        
+        # 5. Сохраняем изменения в базе данных
+        plan.save()
+
+        # 6. Отправляем успешный ответ обратно в JavaScript
+        return JsonResponse({
+            'status': 'success',
+            'message': message,
+        })
+    except LessonPlan.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'План не найден'}, status=404)
+    except Exception as e:
+        # Ловим любые другие возможные ошибки
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

@@ -23,9 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tq@9&n(rnw8(-e#f-%fu!@l7)p+g_6f7zb-pm@(xn1dwiq*v6d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["","http://sabaqsaqshy.kz", "sabaqsaqshy.kz", "www.sabaqsaqshy.kz", "http://www.sabaqsaqshy.kz"]
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -116,18 +117,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Folder for collectstatic command
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # Additional static files location
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# STATIC_URL = '/static/'
-
-# # Добавьте эту строку
-# STATICFILES_DIRS = [BASE_DIR / 'static']
-# LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login' # Имя URL'а, которое мы задали в urls.py
 LOGIN_REDIRECT_URL = 'dashboard' # Запасной URL, если логика в view не сработает
 LOGOUT_REDIRECT_URL = '/' # Куда перенаправлять после выхода

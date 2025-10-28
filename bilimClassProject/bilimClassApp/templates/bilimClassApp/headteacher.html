@@ -126,10 +126,7 @@
         border-top: 1px solid #e9ecef;
         margin: 16px 0;
     }
-
-    <link rel="stylesheet" href="{% static 'bilimClassApp/css/schedule_head_school.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <style>
+    
         .page-header { margin-bottom: 24px; }
         .page-title h2 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
         .page-title p { color: var(--text-secondary); margin-top: 4px; }
@@ -566,21 +563,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabContents = document.querySelectorAll('.tab-content');
 
     function switchTab(tabName) {
-        navLinks.forEach(link => {
-            link.classList.toggle('active', link.dataset.tab === tabName);
-        });
-        tabContents.forEach(content => {
-            content.classList.toggle('active', content.id === tabName + '-content');
-        });
+        navLinks.forEach(link => link.classList.toggle('active', link.dataset.tab === tabName));
+        tabContents.forEach(content => content.classList.toggle('active', content.id === tabName + '-content'));
+        window.history.pushState({tab: tabName}, '', `?tab=${tabName}`);
     }
 
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            const tabName = this.dataset.tab;
-            switchTab(tabName);
-            // Обновляем URL, чтобы можно было копировать ссылку на конкретную вкладку
-            window.history.pushState({tab: tabName}, '', this.href);
+            switchTab(this.dataset.tab);
         });
     });
 
@@ -713,38 +704,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- БЛОК 4: ЛОГИКА ВКЛАДКИ "РАСПИСАНИЕ" ---
     const scheduleContent = document.getElementById('schedule-content');
     if (scheduleContent) {
-        // 4.1. Фильтры
+        // --- 4.1. Фильтры ---
         const schoolSelect = document.getElementById('school-select');
         const classSelect = document.getElementById('class-select');
-        const filterForm = document.getElementById('schedule-filter-form');
+        const scheduleFilterForm = document.getElementById('schedule-filter-form');
 
         schoolSelect.addEventListener('change', async function() {
             const schoolId = this.value;
-            classSelect.innerHTML = '<option value="">Загрузка...</option>';
-            classSelect.disabled = true;
+            // При смене школы просто отправляем форму. 
+            // Django сам отрендерит пустой список классов.
+            scheduleFilterForm.submit(); 
+        });
 
-            if (schoolId) {
-                try {
-                    const response = await fetch(`/api/school/${schoolId}/classes/`);
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    const classes = await response.json();
-                    
-                    classSelect.innerHTML = '<option value="">-- Выберите класс --</option>';
-                    classes.forEach(s_class => classSelect.add(new Option(s_class.name, s_class.id)));
-                    classSelect.disabled = false;
-                } catch (error) {
-                    classSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
-                }
-            } else {
-                classSelect.innerHTML = '<option value="">-- Сначала выберите школу --</option>';
+        // ИСПРАВЛЕНО: Правильно обрабатываем событие смены класса
+        classSelect.addEventListener('change', function() {
+            if (this.value) { // Если выбран какой-то класс (не пустой)
+                scheduleFilterForm.submit();
             }
         });
 
-        classSelect.addEventListener('change', () => { if (this.value) filterForm.submit(); });
-
-        // 4.2. Модальное окно и CRUD
+        // --- 4.2. Модальное окно и CRUD (Создание, Редактирование, Удаление) ---
         const lessonModal = document.getElementById('lesson-modal-overlay');
         if (lessonModal) {
+            // Находим все элементы модального окна один раз
             const modalTitle = document.getElementById('lesson-modal-title');
             const modalSubtitle = document.getElementById('lesson-modal-subtitle');
             const lessonForm = document.getElementById('lesson-form');
@@ -752,46 +734,89 @@ document.addEventListener('DOMContentLoaded', function() {
             const scheduleIdInput = document.getElementById('id_schedule_id');
             const dayOfWeekInput = document.getElementById('id_day_of_week');
 
+            // Функции для открытия и закрытия модального окна
             const openLessonModal = () => lessonModal.style.display = 'flex';
             const closeLessonModal = () => lessonModal.style.display = 'none';
 
+            // Назначаем события на кнопки закрытия
             document.getElementById('close-lesson-modal-btn').addEventListener('click', closeLessonModal);
             document.getElementById('cancel-lesson-btn').addEventListener('click', closeLessonModal);
 
-            document.querySelectorAll('.add-lesson-to-day-btn').forEach(button => {
-                button.addEventListener('click', () => {
+            // ИСПОЛЬЗУЕМ ДЕЛЕГИРОВАНИЕ СОБЫТИЙ
+            // Один обработчик на весь контейнер расписания
+            scheduleContent.addEventListener('click', async function(e) {
+                const addBtn = e.target.closest('.add-lesson-to-day-btn');
+                const editBtn = e.target.closest('.edit-lesson-btn');
+                const deleteBtn = e.target.closest('.delete-lesson-btn');
+
+                // --- Действие: ДОБАВИТЬ урок ---
+                if (addBtn) {
                     lessonForm.reset();
                     scheduleIdInput.value = '';
-                    dayOfWeekInput.value = button.dataset.dayId;
+                    dayOfWeekInput.value = addBtn.dataset.dayId;
                     modalTitle.textContent = 'Добавить урок';
-                    modalSubtitle.textContent = `${button.dataset.dayName}, ${document.querySelector("#class-select option:checked").textContent.trim()}`;
+                    const selectedClassText = classSelect.options[classSelect.selectedIndex].text;
+                    modalSubtitle.textContent = `${addBtn.dataset.dayName}, ${selectedClassText}`;
                     submitBtn.textContent = 'Добавить';
                     openLessonModal();
-                });
-            });
+                    return; // Завершаем выполнение
+                }
 
-            document.querySelectorAll('.edit-lesson-btn').forEach(button => {
-                button.addEventListener('click', async () => {
-                    const lessonId = button.closest('.lesson-card').dataset.lessonId;
-                    const response = await fetch(`/api/schedule/${lessonId}/details/`);
-                    if (response.ok) {
+                // --- Действие: РЕДАКТИРОВАТЬ урок ---
+                if (editBtn) {
+                    const lessonCard = editBtn.closest('.lesson-card');
+                    const lessonId = lessonCard.dataset.lessonId;
+                    
+                    try {
+                        const response = await fetch(`/api/schedule/${lessonId}/details/`);
+                        if (!response.ok) throw new Error('Failed to fetch details');
                         const data = await response.json();
+                        
                         lessonForm.reset();
                         scheduleIdInput.value = data.id;
-                        dayOfWeekInput.value = data.day_of_week; 
+                        dayOfWeekInput.value = data.day_of_week;
                         document.getElementById('id_start_time').value = data.start_time;
                         document.getElementById('id_end_time').value = data.end_time;
                         document.getElementById('id_subject').value = data.subject;
                         document.getElementById('id_teacher').value = data.teacher;
                         document.getElementById('id_classroom').value = data.classroom;
+                        
                         modalTitle.textContent = 'Редактировать урок';
                         modalSubtitle.textContent = 'Измените данные урока';
                         submitBtn.textContent = 'Сохранить';
                         openLessonModal();
-                    } else { alert('Не удалось загрузить данные урока.'); }
-                });
+                    } catch (error) {
+                        console.error(error);
+                        alert('Не удалось загрузить данные урока.');
+                    }
+                    return;
+                }
+
+                // --- Действие: УДАЛИТЬ урок ---
+                if (deleteBtn) {
+                    if (confirm('Вы уверены, что хотите удалить этот урок?')) {
+                        const lessonCard = deleteBtn.closest('.lesson-card');
+                        const lessonId = lessonCard.dataset.lessonId;
+                        
+                        try {
+                            const response = await fetch(`/api/schedule/${lessonId}/delete/`, {
+                                method: 'POST',
+                                headers: {'X-CSRFToken': csrfToken}
+                            });
+                            if (response.ok) {
+                                lessonCard.remove(); // Удаляем элемент со страницы
+                            } else {
+                                alert('Не удалось удалить урок.');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert('Произошла ошибка при удалении.');
+                        }
+                    }
+                }
             });
             
+            // Обработчик отправки формы (остается без изменений)
             lessonForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const response = await fetch("{% url 'api_manage_schedule_item' %}", {
@@ -800,25 +825,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     headers: { 'X-CSRFToken': csrfToken }
                 });
                 
-                if (response.ok) location.reload();
-                else {
+                if (response.ok) {
+                    location.reload();
+                } else {
                     const result = await response.json();
-                    alert('Ошибка валидации:\n' + Object.values(result.errors).map(err => err[0]).join('\n'));
+                    const errorMessages = Object.values(result.errors).map(err => `- ${err[0]}`).join('\n');
+                    alert('Ошибка валидации:\n' + errorMessages);
                 }
-            });
-
-            document.querySelectorAll('.delete-lesson-btn').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    if (confirm('Вы уверены, что хотите удалить этот урок?')) {
-                        const lessonId = button.closest('.lesson-card').dataset.lessonId;
-                        const response = await fetch(`/api/schedule/${lessonId}/delete/`, {
-                            method: 'POST',
-                            headers: {'X-CSRFToken': csrfToken}
-                        });
-                        if (response.ok) button.closest('.lesson-card').remove();
-                        else alert('Не удалось удалить урок.');
-                    }
-                });
             });
         }
     }

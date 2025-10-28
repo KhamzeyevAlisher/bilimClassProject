@@ -23,6 +23,19 @@
                     <span>Система управления учебным процессом</span>
                 </div>
             </div>
+            {% if  user.profile.role == 'headteacher' %}
+            <div class="td-user-section">
+                <div class="td-user-info">
+                    <a href="{% url 'profile' %}" class="td-user-link">
+                        <h3>{{ user.get_full_name }}</h3>
+                    </a>
+                    <p>Ученик</p>
+                </div>
+                <a href="{% url 'profile' %}" class="td-user-link">
+                    <div class="td-user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
+                </a>
+            </div>
+            {% else %}
             <div class="user-section">
                 {% if user.is_authenticated %}
                 <div class="user-profile">
@@ -35,6 +48,7 @@
                 </div>
                 {% endif %}
             </div>
+            {% endif %}
         </header>
 
         <nav class="main-nav">
@@ -60,7 +74,7 @@
                             <a href="{% url 'headteacher' %}" 
                                data-page="headteacher" data-tab="performance"
                                {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab != 'plan-approval' and request.GET.tab != 'schedule' %}class="active"{% endif %}>
-                               <i class="fa-solid fa-house"></i> Главная
+                               <i class="fa-solid fa-house"></i> Успеваемость
                             </a>
                         </li>
                         <li>

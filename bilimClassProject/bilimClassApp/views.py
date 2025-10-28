@@ -1517,7 +1517,7 @@ def admin_user_list_view(request):
         'all_holidays': all_holidays,
 
         # Данные для модального окна создания/редактирования пользователя
-        'all_teachers': Teacher.objects.select_related('user').all(),
+        'all_teachers': Teacher.objects.all(),
         'all_schools': School.objects.all().order_by('name'),
         'school_classes': SchoolClass.objects.all(),
         'subjects': Subject.objects.all(),
@@ -2227,8 +2227,23 @@ def manage_lesson_plan_api(request):
 
 @login_required
 def get_lesson_plan_details_api(request, pk):
-    """API для получения деталей одного плана для редактирования."""
-    plan = get_object_or_404(LessonPlan, pk=pk, teacher=request.user.teacher)
+    """
+    API для получения деталей одного плана.
+    Доступно Завучу и автору плана.
+    """
+    # 1. Сначала просто получаем план по его ID, без проверки автора.
+    plan = get_object_or_404(LessonPlan, pk=pk)
+
+    # 2. Проверяем права доступа:
+    # Пользователь является Завучем ИЛИ является автором этого плана.
+    is_headteacher = request.user.profile.role == 'headteacher'
+    is_author = plan.teacher.user == request.user
+
+    if not (is_headteacher or is_author):
+        # Если пользователь не Завуч и не автор, запрещаем доступ.
+        return JsonResponse({'status': 'error', 'message': 'Доступ запрещен'}, status=403)
+
+    # 3. Если проверка пройдена, возвращаем данные (этот код остается без изменений).
     data = {
         'id': plan.id,
         'name': plan.name,

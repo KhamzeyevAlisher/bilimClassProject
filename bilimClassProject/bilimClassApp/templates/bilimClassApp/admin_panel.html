@@ -21,6 +21,12 @@
         .page-content.active, .content-tab-pane.active {
             display: block;
         }
+
+        .td-user-section { display: flex; align-items: center; gap: 16px; }
+        .td-user-info { text-align: right; } .td-user-info h3 { font-weight: 600; }
+        .td-user-info p { font-size: 14px; color: var(--text-secondary); }
+        .td-user-link { text-decoration: none; color: inherit; }
+        .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -37,19 +43,16 @@
                     <span>Система управления учебным процессом</span>
                 </div>
             </div>
-            <div class="user-section">
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p>Кузнецов Дмитрий Александрович</p>
-                        <span>Администратор</span>
-                    </div>
-                    <div class="user-avatar">ДА</div>
+            <div class="td-user-section">
+                <div class="td-user-info">
+                    <a href="{% url 'profile' %}" class="td-user-link">
+                        <h3>{{ user.get_full_name }}</h3>
+                    </a>
+                    <p>Ученик</p>
                 </div>
-                <div class="role-switcher">
-                    <i class="fa-solid fa-chalkboard-user"></i>
-                    <span>Ученик</span>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </div>
+                <a href="{% url 'profile' %}" class="td-user-link">
+                    <div class="td-user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
+                </a>
             </div>
         </header>
 
@@ -205,7 +208,7 @@
                         </nav>
                         <!-- ИЗМЕНЕНИЕ: Кнопки для создания вынесены в отдельный контейнер для удобства переключения -->
                         <div id="structure-action-buttons">
-                            <button class="btn-success" id="create-class-btn"><i class="fa-solid fa-plus"></i> Создать класс</button>
+                            <button class="btn-success" id="create-class-btn" style="display: flex;"><i class="fa-solid fa-plus"></i> Создать класс</button>
                             <button class="btn-info btn-primary" id="create-subject-btn" style="display: none;"><i class="fa-solid fa-plus"></i> Создать предмет</button>
                         </div>
                     </div>
@@ -535,6 +538,7 @@
                     <select name="teacher" id="id_assignment_teacher" required>
                         <option value="">Выберите учителя</option>
                         {% for teacher in all_teachers %}
+                        <script>console.log("{{teacher.id}}")</script>
                         <option value="{{ teacher.id }}">{{ teacher.user.get_full_name }}</option>
                         {% endfor %}
                     </select>
@@ -759,9 +763,18 @@
         
                     tabPanes.forEach(pane => pane.classList.toggle('active', pane.id === `tab-${targetTab}`));
         
-                    actionButtons.querySelectorAll('button').forEach(btn => btn.style.display = 'none');
-                    const targetBtn = document.getElementById(`create-${targetTab.slice(0, -1)}-btn`);
-                    if (targetBtn) targetBtn.style.display = 'inline-flex';
+                    // --- ИЗМЕНЕНИЕ ---
+                    // Кнопка "Создать класс" теперь всегда видна и не затрагивается.
+                    // Управляем видимостью только кнопки "Создать предмет".
+                    const createClassBtn = document.getElementById('create-class-btn');
+                    const createSubjectBtn = document.getElementById('create-subject-btn');
+                    createSubjectBtn.style.display = (targetTab === 'subjects') ? 'inline-flex' : 'none';
+
+                    if (createSubjectBtn.style.display === 'inline-flex') {
+                        createClassBtn.style.display = 'none';
+                    } else {
+                        createClassBtn.style.display = 'inline-flex';
+                    }
                 });
             });
         

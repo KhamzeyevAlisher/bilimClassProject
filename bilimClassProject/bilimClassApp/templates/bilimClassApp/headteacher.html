@@ -187,6 +187,150 @@
         .actions-cell .action-btn:hover { background-color: #f3f4f6; }
         .plans-table tr { transition: opacity 0.3s ease-out; }
 
+        /* bilimClassApp/css/schedule_head_school.css или в <style> */
+
+.lp-view-details {
+    margin-top: 24px;
+}
+.lp-view-details dt {
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 16px;
+    font-size: 14px;
+}
+.lp-view-details dd {
+    margin-top: 4px;
+    white-space: pre-wrap; /* Сохраняет переносы строк из поля textarea */
+    word-wrap: break-word; /* Переносит длинные слова */
+    font-size: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.lp-view-details dd:last-of-type {
+    border-bottom: none;
+}
+.file-link {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+}
+.file-link:hover {
+    color: #4338CA; /* Более темный оттенок */
+}
+
+/* Контейнер модального окна */
+#plan-view-modal .modal-container {
+    position: relative;
+    padding: 32px;
+    width: 100%;
+    max-width: 500px; /* Ограничиваем ширину для лучшего вида */
+}
+
+/* --- Иконка закрытия в правом верхнем углу --- */
+/* Эта кнопка заменяет текстовую кнопку "Закрыть" согласно вашему запросу */
+#plan-view-modal .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%; /* Круглая форма */
+    background-color: var(--bg-main); /* Светло-серый фон */
+    color: var(--text-secondary);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s ease-in-out;
+}
+
+#plan-view-modal .close-btn:hover {
+    background-color: #E5E7EB; /* Темнее при наведении */
+    transform: rotate(90deg);
+}
+
+/* Полностью скрываем футер, так как иконка его заменяет */
+#plan-view-modal .modal-footer {
+    display: none;
+}
+
+/* --- Заголовок модального окна --- */
+#plan-view-modal .modal-header {
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+/* Главный заголовок (например, "1" на скриншоте) */
+#plan-view-modal  {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+#view-plan-title {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+/* Подзаголовок (Класс, Предмет, Дата) */
+#plan-view-modal .modal-header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* --- Содержимое (детали плана) --- */
+#plan-view-modal .lp-view-details dt {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 20px;
+    border: none;
+    padding: 0;
+}
+
+#plan-view-modal .lp-view-details dd {
+    font-size: 16px;
+    margin-top: 6px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 20px;
+    white-space: pre-wrap; /* Сохраняет переносы строк */
+    word-wrap: break-word; /* Переносит длинные слова */
+}
+
+/* Убираем линию у последнего элемента */
+#plan-view-modal .lp-view-details dd:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Ссылка на файл */
+#plan-view-modal .file-link {
+    color: var(--accent-primary); /* Используем переменную для цвета */
+    font-weight: 500;
+}
+#plan-view-modal .file-link:hover {
+    color: #4338CA;
+}
+
+.td-user-section { display: flex; align-items: center; gap: 16px; }
+.td-user-info { text-align: right; } .td-user-info h3 { font-weight: 600; }
+.td-user-info p { font-size: 14px; color: var(--text-secondary); }
+.td-user-link { text-decoration: none; color: inherit; }
+.td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
+
     </style>
 {% endblock %}
 
@@ -549,6 +693,40 @@
     </div>
 </div>
 
+<!-- === МОДАЛЬНОЕ ОКНО ДЛЯ ПРОСМОТРА ПЛАНА === -->
+<div class="modal-overlay" id="plan-view-modal" style="display: none;">
+    <div class="modal-container">
+        <button class="close-btn">&times;</button>
+        <div class="modal-header">
+            <h6 id="view-plan-title">Просмотр поурочного плана<h6>
+            <p>
+                <span id="view-plan-class"></span> • 
+                <span id="view-plan-subject"></span> • 
+                <span id="view-plan-date"></span>
+            </p>
+        </div>
+        <dl class="lp-view-details">
+            <dt>Тема урока</dt>
+            <dd id="view-plan-topic"></dd>
+            
+            <dt>Цели и задачи</dt>
+            <dd id="view-plan-goals"></dd>
+            
+            <dt>Учебные материалы</dt>
+            <dd id="view-plan-materials">
+                <a href="#" id="view-plan-materials-link" target="_blank" class="file-link" style="display: none;">
+                    <i class="fa-solid fa-paperclip"></i> 
+                    <span></span>
+                </a>
+                <span id="no-materials-file" style="color: var(--text-secondary);">Файл не прикреплен</span>
+            </dd>
+        </dl>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary close-btn">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 
@@ -580,13 +758,71 @@ document.addEventListener('DOMContentLoaded', function() {
     switchTab(initialTab);
     
 
-    // --- БЛОК 2: ЛОГИКА ВКЛАДКИ "УТВЕРЖДЕНИЕ ПЛАНОВ" ---
     const plansTableBody = document.getElementById('plans-table-body');
     if (plansTableBody) {
+        // Находим модальное окно для просмотра и его элементы
+        const planViewModal = document.getElementById('plan-view-modal');
+        const planViewTitle = document.getElementById('view-plan-title');
+        const planViewClass = document.getElementById('view-plan-class');
+        const planViewSubject = document.getElementById('view-plan-subject');
+        const planViewDate = document.getElementById('view-plan-date');
+        const planViewTopic = document.getElementById('view-plan-topic');
+        const planViewGoals = document.getElementById('view-plan-goals');
+        const planViewMaterialsLink = document.getElementById('view-plan-materials-link');
+        const planViewNoFile = document.getElementById('no-materials-file');
+
+        // Логика закрытия модального окна просмотра
+        planViewModal.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', () => planViewModal.style.display = 'none');
+        });
+        planViewModal.addEventListener('click', (e) => {
+            if (e.target === planViewModal) planViewModal.style.display = 'none';
+        });
+
         plansTableBody.addEventListener('click', async function(e) {
+            const viewBtn = e.target.closest('.action-btn.view');
             const approveBtn = e.target.closest('.action-btn.approve');
             const rejectBtn = e.target.closest('.action-btn.reject');
             
+            // --- НОВАЯ ЛОГИКА: Обработка клика по кнопке "Просмотреть" ---
+            if (viewBtn) {
+                const planId = viewBtn.dataset.planId;
+                try {
+                    const response = await fetch(`/api/lesson-plans/${planId}/details/`);
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+
+                    const data = result.data;
+                    const planRow = document.getElementById(`plan-row-${planId}`);
+
+                    // Заполняем модальное окно данными
+                    planViewTitle.textContent = data.name;
+                    planViewClass.textContent = planRow.cells[2].textContent; // Берем из таблицы для простоты
+                    planViewSubject.textContent = planRow.cells[3].textContent; // Берем из таблицы
+                    planViewDate.textContent = data.date;
+                    planViewTopic.textContent = data.topic || 'Не указана';
+                    planViewGoals.textContent = data.goals_and_objectives || 'Не указаны';
+                    
+                    // Обрабатываем ссылку на прикрепленный файл
+                    if (data.learning_materials_url) {
+                        planViewMaterialsLink.href = data.learning_materials_url;
+                        planViewMaterialsLink.querySelector('span').textContent = data.learning_materials_name;
+                        planViewMaterialsLink.style.display = 'inline-flex';
+                        planViewNoFile.style.display = 'none';
+                    } else {
+                        planViewMaterialsLink.style.display = 'none';
+                        planViewNoFile.style.display = 'inline';
+                    }
+
+                    planViewModal.style.display = 'flex'; // Показываем модальное окно
+                } catch (error) {
+                    console.error('Ошибка загрузки плана:', error);
+                    alert('Не удалось загрузить детали плана.');
+                }
+                return; // Завершаем выполнение, чтобы не сработал другой код
+            }
+
+            // --- Существующая логика для утверждения/отклонения ---
             let action = null;
             let planId = null;
 
@@ -598,42 +834,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 planId = rejectBtn.dataset.planId;
             }
 
-            // Если клик был не по кнопкам действия, ничего не делаем
-            if (!action || !planId) {
-                return; 
-            }
+            if (!action || !planId) return; 
 
             try {
                 const response = await fetch(`/api/lesson-plans/${planId}/update-status/`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
                     body: JSON.stringify({ action: action })
                 });
-
                 const result = await response.json();
 
                 if (response.ok && result.status === 'success') {
                      const row = document.getElementById(`plan-row-${planId}`);
                     if (row) {
-                        // Плавное исчезновение и удаление строки из таблицы
-                        row.style.transition = 'opacity 0.4s ease-out';
                         row.style.opacity = '0';
-                        setTimeout(() => {
-                            row.remove();
-                            // Вместо перезагрузки страницы, можно обновить счетчики
-                            // Для простоты пока оставим так, но в будущем можно улучшить
-                            location.reload(); 
-                        }, 400); 
+                        setTimeout(() => location.reload(), 400); 
                     }
                 } else {
                     alert('Ошибка: ' + (result.message || 'Не удалось выполнить действие'));
                 }
             } catch (error) {
                 console.error('Ошибка при отправке запроса:', error);
-                alert('Произошла сетевая ошибка. Проверьте подключение к интернету.');
+                alert('Произошла сетевая ошибка.');
             }
         });
     }

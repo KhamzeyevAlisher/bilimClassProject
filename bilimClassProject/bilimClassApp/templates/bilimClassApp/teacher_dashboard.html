@@ -122,7 +122,8 @@
         .journal-table td { padding: 6px; text-align: center; border-bottom: 1px solid var(--border-color); }
         .journal-table tr:last-child td { border-bottom: none; }
         .journal-table td:first-child { text-align: left; font-weight: 500; }
-        .grade-cell, .attendance-cell{background-color: #EFF6FF; margin-left: 50%; transform: translateX(-50%); width:73px; border: 1px solid #90a5ea; cursor:pointer;border-radius:8px;min-height:48px;display:flex;align-items:center;justify-content:center;transition:background-color .2s}
+        .grade-cell {background-color: #EFF6FF; margin-left: 50%; transform: translateX(-50%); width:73px; border: 1px solid #90a5ea; cursor:pointer;border-radius:8px;min-height:48px;display:flex;align-items:center;justify-content:center;transition:background-color .2s}
+        .attendance-cell {background-color: #EFF6FF; width:73px; border: 1px solid #90a5ea; cursor:pointer;border-radius:8px;min-height:48px;display:flex;align-items:center;justify-content:center;transition:background-color .2s}
         .grade-cell:hover, .attendance-cell:hover{background-color:#EFF6FF}
         .grade-badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-weight:700;font-size:16px}
         .grade-5{background-color:var(--grade-5);color:var(--grade-5-text)}.grade-4{background-color:var(--grade-4);color:var(--grade-4-text)}.grade-3{background-color:var(--grade-3);color:var(--grade-3-text)}
@@ -271,6 +272,8 @@ input[name="attached_file"]::file-selector-button:hover {
     /* Возвращаем стандартную тень */
     box-shadow: 0 2px 5px rgba(79, 70, 229, 0.2), 0 1px 2px rgba(0,0,0,0.05);
 }
+
+
     </style>
 </head>
 <body class="td-body">
@@ -843,34 +846,27 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('click', (e) => { if (e.target == modal) modal.style.display = 'none'; });
     }
     
-    // === НАЧАЛО: ИСПРАВЛЕННАЯ ЛОГИКА ЗАГРУЗКИ ЖУРНАЛА ===
+    // === ЛОГИКА ЗАГРУЗКИ ЖУРНАЛА ПРИ ПЕРЕХОДЕ ПО URL С ПАРАМЕТРАМИ ===
     const urlParams = new URLSearchParams(window.location.search);
-    // Проверяем, что все три фильтра присутствуют в URL
     if (urlParams.has('school_id') && urlParams.has('class_id') && urlParams.has('subject_id')) {
         const journalTabLink = document.querySelector('a[data-tab="journal"]');
         const gradesSubTab = document.querySelector('#journal-content .tab-btn[data-content-type="grades"]');
 
         if (journalTabLink && gradesSubTab) {
-            // 1. Активируем основную вкладку "Журнал", если она еще не активна
             if (!journalTabLink.classList.contains('active')) {
                 journalTabLink.click();
             }
-            // 2. Программно "нажимаем" на вкладку "Оценки", чтобы запустить AJAX
-            // и загрузить правильное содержимое с именами учеников.
             gradesSubTab.click();
         }
     } 
-    // Если фильтры неполные, просто открываем вкладку Журнала без загрузки данных
     else if (urlParams.has('school_id') || urlParams.has('class_id')) {
         const journalTabLink = document.querySelector('a[data-tab="journal"]');
         if (journalTabLink && !journalTabLink.classList.contains('active')) {
             journalTabLink.click();
         }
     }
-    // === КОНЕЦ: ИСПРАВЛЕННАЯ ЛОГИКА ЗАГРУЗКИ ЖУРНАЛА ===
 
-
-    // === НАЧАЛО: JAVASCRIPT ДЛЯ ЛОГИКИ ДОМАШНИХ ЗАДАНИЙ ===
+    // === JAVASCRIPT ДЛЯ ЛОГИКИ ДОМАШНИХ ЗАДАНИЙ ===
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -1089,7 +1085,144 @@ document.addEventListener('DOMContentLoaded', function() {
     // === JAVASCRIPT ДЛЯ ЛОГИКИ ПОУРОЧНЫХ ПЛАНОВ ===
     const lessonPlansTab = document.getElementById('lesson-plans-content');
     if (lessonPlansTab) {
-        // ... (весь JavaScript для поурочных планов остается без изменений)
+        const createPlanBtn = document.getElementById('create-plan-btn');
+        const plansTbody = document.getElementById('lesson-plans-tbody');
+        
+        // Модальные окна
+        const formModal = document.getElementById('plan-form-modal');
+        const viewModal = document.getElementById('plan-view-modal');
+        
+        // Форма и ее элементы
+        const planForm = document.getElementById('lesson-plan-form');
+        const planModalTitle = document.getElementById('plan-modal-title');
+        const planIdInput = document.getElementById('plan_id');
+        const currentFileDiv = document.getElementById('current-materials-file');
+
+        // Открытие/закрытие модальных окон
+        const openModal = (modal) => modal.style.display = 'flex';
+        const closeModal = (modal) => modal.style.display = 'none';
+
+        formModal.querySelectorAll('.close-btn').forEach(btn => btn.addEventListener('click', () => closeModal(formModal)));
+        viewModal.querySelectorAll('.close-btn').forEach(btn => btn.addEventListener('click', () => closeModal(viewModal)));
+
+        // 1. Открытие модального окна для СОЗДАНИЯ плана
+        createPlanBtn.addEventListener('click', () => {
+            planForm.reset();
+            planIdInput.value = '';
+            currentFileDiv.innerHTML = ''; // Очищаем информацию о текущем файле
+            planModalTitle.textContent = 'Создать план урока';
+            planForm.querySelector('button[type="submit"]').textContent = 'Создать';
+            openModal(formModal);
+        });
+
+        // 2. Обработка кликов по кнопкам в таблице (просмотр, редактирование, удаление)
+        plansTbody.addEventListener('click', async (e) => {
+            const viewBtn = e.target.closest('.view-plan-btn');
+            const editBtn = e.target.closest('.edit-plan-btn');
+            const deleteBtn = e.target.closest('.delete-plan-btn');
+            
+            if (viewBtn) {
+                const planId = viewBtn.dataset.planId;
+                // Запрос на сервер для получения данных...
+                const response = await fetch(`/api/lesson-plans/${planId}/details/`);
+                if (response.ok) {
+                    const { data } = await response.json();
+                    document.getElementById('view-plan-title').textContent = data.name;
+                    // API должен возвращать имена, а не ID, для лучшего отображения.
+                    // Для примера оставим так, но лучше доработать API.
+                    document.getElementById('view-plan-class').textContent = `Класс ID: ${data.school_class}`;
+                    document.getElementById('view-plan-subject').textContent = `Предмет ID: ${data.subject}`;
+                    document.getElementById('view-plan-date').textContent = data.date;
+                    document.getElementById('view-plan-topic').textContent = data.topic || '-';
+                    document.getElementById('view-plan-goals').textContent = data.goals_and_objectives || '-';
+                    
+                    const link = document.getElementById('view-plan-materials-link');
+                    const noFile = document.getElementById('no-materials-file');
+                    if(data.learning_materials_url) {
+                        link.href = data.learning_materials_url;
+                        link.querySelector('span').textContent = data.learning_materials_name;
+                        link.style.display = 'inline-flex';
+                        noFile.style.display = 'none';
+                    } else {
+                        link.style.display = 'none';
+                        noFile.style.display = 'inline';
+                    }
+                    openModal(viewModal);
+                } else {
+                    alert('Не удалось загрузить данные плана.');
+                }
+            }
+
+            if (editBtn) {
+                const planId = editBtn.dataset.planId;
+                const response = await fetch(`/api/lesson-plans/${planId}/details/`);
+                if (response.ok) {
+                    const { data } = await response.json();
+                    planForm.reset();
+                    planIdInput.value = data.id;
+                    planModalTitle.textContent = 'Редактировать план урока';
+                    planForm.querySelector('button[type="submit"]').textContent = 'Сохранить';
+
+                    // Заполняем поля формы
+                    planForm.querySelector('[name="name"]').value = data.name;
+                    planForm.querySelector('[name="date"]').value = data.date;
+                    planForm.querySelector('[name="school_class"]').value = data.school_class;
+                    planForm.querySelector('[name="subject"]').value = data.subject;
+                    planForm.querySelector('[name="topic"]').value = data.topic;
+                    planForm.querySelector('[name="goals_and_objectives"]').value = data.goals_and_objectives;
+                    
+                    if (data.learning_materials_url) {
+                        currentFileDiv.innerHTML = `Текущий файл: <a href="${data.learning_materials_url}" target="_blank">${data.learning_materials_name}</a>`;
+                    } else {
+                        currentFileDiv.innerHTML = '';
+                    }
+
+                    openModal(formModal);
+                } else {
+                    alert('Не удалось загрузить данные плана для редактирования.');
+                }
+            }
+
+            if (deleteBtn) {
+                if (confirm('Вы уверены, что хотите удалить этот план?')) {
+                    const planId = deleteBtn.dataset.planId;
+                    // === ИСПРАВЛЕНИЕ 2: Получаем CSRF-токен перед отправкой ===
+                    const csrfToken = planForm.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+                    const response = await fetch(`/api/lesson-plans/${planId}/delete/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrfToken }
+                    });
+                    if (response.ok) {
+                        document.getElementById(`plan-row-${planId}`).remove();
+                    } else {
+                        alert('Не удалось удалить план.');
+                    }
+                }
+            }
+        });
+
+        // 3. Отправка формы (создание/редактирование)
+        planForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // === ИСПРАВЛЕНИЕ 1: Используем правильное имя переменной "planForm" ===
+            const csrfToken = planForm.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            
+            const formData = new FormData(this);
+            const response = await fetch("{% url 'api_manage_lesson_plan' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': csrfToken }
+            });
+            
+            if (response.ok) {
+                window.location.reload(); // Перезагружаем страницу для обновления таблицы
+            } else {
+                const result = await response.json();
+                alert('Ошибка сохранения: ' + JSON.stringify(result.errors || result.message));
+            }
+        });
     }
     
     // Глобальный listener для Escape, который закрывает все модальные окна

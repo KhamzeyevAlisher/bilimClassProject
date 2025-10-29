@@ -68,3 +68,59 @@
 .lp-view-details dt { font-weight: 600; margin-top: 12px; color: var(--text-primary); }
 .lp-view-details dd { margin-top: 4px; color: var(--text-secondary); white-space: pre-wrap; }
 /* === КОНЕЦ: СТИЛИ ДЛЯ ПОУРОЧНЫХ ПЛАНОВ === */
+
+/* === НАЧАЛО: СТИЛИ ДЛЯ ПОЛЯ ЗАГРУЗКИ ФАЙЛА === */
+.form-group input[type="file"] {
+    width: 100%;
+    position: relative;
+    padding: 12px;
+    background-color: var(--bg-widget);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-group input[type="file"]::file-selector-button {
+    padding: 8px 16px;
+    margin-right: 16px;
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.form-group input[type="file"]::file-selector-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.form-group input[type="file"]:hover {
+    border-color: var(--accent-primary);
+    background-color: var(--accent-light);
+}
+
+#current-materials-file {
+    display: block;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background-color: var(--accent-light);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+#current-materials-file a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#current-materials-file a:hover {
+    text-decoration: underline;
+}
+/* === КОНЕЦ: СТИЛИ ДЛЯ ПОЛЯ ЗАГРУЗКИ ФАЙЛА === */

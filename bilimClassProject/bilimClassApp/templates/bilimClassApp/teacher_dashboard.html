@@ -255,11 +255,33 @@
         .modal-container { background-color: var(--bg-widget); border-radius: 12px; padding: 24px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; }
         .modal-header { text-align: center; margin-bottom: 16px; }
         .modal-header h2 { font-size: 20px; }
-        .modal-container .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
+        .modal-container .close-btn { position: absolute; top: 16px; right: 16px; background: #e5e7eb ; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
         .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         .form-group.full-width { grid-column: 1 / -1; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; grid-column: 1 / -1; }
-        .btn-secondary { background-color: var(--bg-widget); border: 1px solid var(--border-color); }
+                /* Стили для кнопок в модальных окнах */
+        .btn-secondary { 
+            width: 40px;
+            height: 40px;
+            background-color: #f3f4f6;
+            color: #6b7280;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        .btn-secondary.close-btn::after {
+            content: '\f00d';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+        }
 
         /* Стили для таблицы сданных работ */
         .submissions-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -868,7 +890,7 @@ input[name="attached_file"]::file-selector-button:hover {
                 <tbody id="submissions-tbody"></tbody>
             </table>
         </div>
-        <div class="modal-footer"><button type="button" class="btn-secondary" id="cancel-submissions-btn">Закрыть</button></div>
+        <div class="modal-footer"><button type="button" class="btn-secondary close-btn" id="cancel-submissions-btn"></button></div>
     </div>
 </div>
 <div class="modal-overlay" id="grading-modal">
@@ -889,7 +911,7 @@ input[name="attached_file"]::file-selector-button:hover {
                 <textarea id="comment-textarea" name="comment" placeholder="Отличная работа!"></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" id="cancel-grading-btn">Отмена</button>
+                <button type="button" class="btn-secondary close-btn" id="cancel-grading-btn"></button>
                 <button type="submit" class="btn-gradient">Сохранить рецензию</button>
             </div>
         </form>
@@ -900,7 +922,7 @@ input[name="attached_file"]::file-selector-button:hover {
 <!-- === НАЧАЛО: МОДАЛЬНЫЕ ОКНА ДЛЯ ПОУРОЧНЫХ ПЛАНОВ === -->
 <div class="modal-overlay" id="plan-form-modal">
     <div class="modal-container">
-        <button class="close-btn">&times;</button>
+        <!-- <button class="close-btn"></button> -->
         <div class="modal-header">
             <h2 id="plan-modal-title">Создать план урока</h2>
             <p>Заполните информацию о поурочном плане</p>
@@ -927,7 +949,7 @@ input[name="attached_file"]::file-selector-button:hover {
             <!-- === КОНЕЦ ИЗМЕНЕНИЯ 2 === -->
 
             <div class="modal-footer full-width">
-                <button type="button" class="btn-secondary close-btn">Отмена</button>
+                <button type="button" class="btn-secondary close-btn"></button>
                 <button type="submit" class="btn-submit">Сохранить</button>
             </div>
         </form>
@@ -956,7 +978,7 @@ input[name="attached_file"]::file-selector-button:hover {
             <!-- === КОНЕЦ ИЗМЕНЕНИЯ 3 === -->
 
         </dl>
-        <div class="modal-footer"><button type="button" class="btn-secondary close-btn">Закрыть</button></div>
+        <div class="modal-footer"><button type="button" class="btn-secondary close-btn"></button></div>
     </div>
 </div>
 <!-- === КОНЕЦ: МОДАЛЬНЫЕ ОКНА === -->

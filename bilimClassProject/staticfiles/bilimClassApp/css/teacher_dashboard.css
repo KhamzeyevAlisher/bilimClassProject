@@ -3,68 +3,759 @@
    Стили для teacher_dashboard.html
 ================================================================= */
 
-.td-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
-.td-card { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; }
-.td-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-.td-card-header i { color: var(--text-secondary); }
-.td-card-header h3 { font-size: 18px; font-weight: 600; }
-.td-card-subtitle { color: var(--text-secondary); margin-bottom: 20px; }
+.td-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+.td-card {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+}
+.td-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.td-card-header i {
+    color: var(--text-secondary);
+}
+.td-card-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+.td-card-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
 
 /* --- Левая колонка --- */
-.td-stats-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-.td-stat-card { padding: 20px; border-radius: 12px; color: white; }
-.td-stat-card i { font-size: 20px; margin-bottom: 12px; }
-.td-stat-card h2 { font-size: 28px; font-weight: 700; }
-.td-stat-card p { font-size: 14px; opacity: 0.9; }
-.blue { background-color: #3B82F6; }
-.orange { background-color: #F97316; }
-.purple { background-color: #8B5CF6; }
-.red { background-color: var(--accent-red); }
+.td-stats-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.td-stat-card {
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+}
+.td-stat-card i {
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+.td-stat-card h2 {
+    font-size: 28px;
+    font-weight: 700;
+}
+.td-stat-card p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+.blue {
+    background-color: #3B82F6;
+}
+.orange {
+    background-color: #F97316;
+}
+.purple {
+    background-color: #8B5CF6;
+}
+.red {
+    background-color: var(--accent-red);
+}
 
-.td-schedule-list { display: flex; flex-direction: column; gap: 12px; }
-.td-lesson-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 10px; background-color: #F9FAFB; }
-.td-lesson-item.current { background-color: var(--accent-light); border: 1px solid var(--accent-primary); }
-.td-lesson-time p { font-weight: 600; }
-.td-lesson-time span { font-size: 14px; color: var(--text-secondary); }
-.td-lesson-info { flex-grow: 1; }
-.td-lesson-info h4 { font-weight: 600; }
-.td-lesson-info p { font-size: 14px; color: var(--text-secondary); }
-.td-lesson-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
-.completed { color: #374151; background-color: #F3F4F6; }
-.current-badge { color: var(--accent-primary); background-color: var(--accent-light); }
-.upcoming { color: var(--text-secondary); background-color: transparent; }
+.td-schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.td-lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 10px;
+    background-color: #F9FAFB;
+}
+.td-lesson-item.current {
+    background-color: var(--accent-light);
+    border: 1px solid var(--accent-primary);
+}
+.td-lesson-time p {
+    font-weight: 600;
+}
+.td-lesson-time span {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.td-lesson-info {
+    flex-grow: 1;
+}
+.td-lesson-info h4 {
+    font-weight: 600;
+}
+.td-lesson-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.td-lesson-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 99px;
+}
+.completed {
+    color: #374151;
+    background-color: #F3F4F6;
+}
+.current-badge {
+    color: var(--accent-primary);
+    background-color: var(--accent-light);
+}
+.upcoming {
+    color: var(--text-secondary);
+    background-color: transparent;
+}
 
 /* --- Правая колонка --- */
-.td-right-column { display: flex; flex-direction: column; gap: 24px; }
-.td-task-list, .td-plan-list { display: flex; flex-direction: column; gap: 16px; }
-.td-task-item, .td-plan-item { padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
-.td-task-item:last-child, .td-plan-item:last-child { border: none; padding: 0; }
-.td-task-item p, .td-plan-item p { font-weight: 500; margin-bottom: 8px; }
-.td-task-meta { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
-.td-task-badge { padding: 2px 8px; border-radius: 99px; font-weight: 600; }
-.urgent { background-color: #FEF2F2; color: #B91C1C; }
-.medium { background-color: #FFFBEB; color: #B45309; }
-.td-plan-item { display: flex; align-items: center; }
-.td-plan-item small { color: var(--text-secondary); margin-left: auto; }
-.td-plan-status { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: white; margin-left: 12px; font-size: 12px; }
-.approved { background-color: #10B981; }
-.pending { background-color: #F59E0B; }
-.rejected { background-color: #EF4444; }
+.td-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.td-task-list,
+.td-plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.td-task-item,
+.td-plan-item {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+.td-task-item:last-child,
+.td-plan-item:last-child {
+    border: none;
+    padding: 0;
+}
+.td-task-item p,
+.td-plan-item p {
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+.td-task-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.td-task-badge {
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 600;
+}
+.urgent {
+    background-color: #FEF2F2;
+    color: #B91C1C;
+}
+.medium {
+    background-color: #FFFBEB;
+    color: #B45309;
+}
+.td-plan-item {
+    display: flex;
+    align-items: center;
+}
+.td-plan-item small {
+    color: var(--text-secondary);
+    margin-left: auto;
+}
+.td-plan-status {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: white;
+    margin-left: 12px;
+    font-size: 12px;
+}
+.approved {
+    background-color: #10B981;
+}
+.pending {
+    background-color: #F59E0B;
+}
+.rejected {
+    background-color: #EF4444;
+}
 
 /* === НАЧАЛО: СТИЛИ ДЛЯ ПОУРОЧНЫХ ПЛАНОВ === */
-.lp-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; }
-.lp-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-.lp-table th, .lp-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); text-align: left; font-size: 14px; vertical-align: middle; }
-.lp-table th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 12px; }
-.lp-table tr:last-child td { border-bottom: none; }
-.lp-status { display: inline-block; padding: 4px 12px; border-radius: 99px; font-weight: 600; font-size: 12px; }
-.lp-status.approved { background-color: #D1FAE5; color: #065F46; }
-.lp-status.pending { background-color: #FEF3C7; color: #92400E; }
-.lp-status.rejected { background-color: #FEE2E2; color: #991B1B; }
-.lp-actions { display: flex; gap: 8px; }
-.lp-actions button { background: none; border: 1px solid transparent; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; font-size: 14px; }
-.lp-actions button:hover { background-color: #F3F4F6; color: var(--text-primary); }
-.lp-view-details { padding-left: 1rem; }
-.lp-view-details dt { font-weight: 600; margin-top: 12px; color: var(--text-primary); }
-.lp-view-details dd { margin-top: 4px; color: var(--text-secondary); white-space: pre-wrap; }
+.lp-widget {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+}
+.lp-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.lp-table th,
+.lp-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    font-size: 14px;
+    vertical-align: middle;
+}
+.lp-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+.lp-table tr:last-child td {
+    border-bottom: none;
+}
+.lp-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 12px;
+}
+.lp-status.approved {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+.lp-status.pending {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+.lp-status.rejected {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+.lp-actions {
+    display: flex;
+    gap: 8px;
+}
+.lp-actions button {
+    background: none;
+    border: 1px solid transparent;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    font-size: 14px;
+}
+.lp-actions button:hover {
+    background-color: #F3F4F6;
+    color: var(--text-primary);
+}
+.lp-view-details {
+    padding-left: 1rem;
+}
+.lp-view-details dt {
+    font-weight: 600;
+    margin-top: 12px;
+    color: var(--text-primary);
+}
+.lp-view-details dd {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+}
 /* === КОНЕЦ: СТИЛИ ДЛЯ ПОУРОЧНЫХ ПЛАНОВ === */
+
+/* === НАЧАЛО: СТИЛИ ДЛЯ ПОЛЯ ЗАГРУЗКИ ФАЙЛА === */
+.form-group input[type="file"] {
+    width: 100%;
+    position: relative;
+    padding: 12px;
+    background-color: var(--bg-widget);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-group input[type="file"]::file-selector-button {
+    padding: 8px 16px;
+    margin-right: 16px;
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.form-group input[type="file"]::file-selector-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.form-group input[type="file"]:hover {
+    border-color: var(--accent-primary);
+    background-color: var(--accent-light);
+}
+
+#current-materials-file {
+    display: block;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background-color: var(--accent-light);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+#current-materials-file a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#current-materials-file a:hover {
+    text-decoration: underline;
+}
+/* === КОНЕЦ: СТИЛИ ДЛЯ ПОЛЯ ЗАГРУЗКИ ФАЙЛА === */
+
+/* === НАЧАЛО: СТИЛИ ДЛЯ ТАБЛИЦЫ ОЦЕНОК === */
+#grades-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: var(--bg-widget);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+#grades-table thead {
+    background-color: var(--bg-widget);
+    border-bottom: 2px solid var(--border-color);
+}
+
+#grades-table th {
+    padding: 16px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+#grades-table th:first-child {
+    text-align: left;
+}
+
+#grades-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+#grades-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+#grades-table tr:last-child td {
+    border-bottom: none;
+}
+
+#grades-table tr:hover {
+    background-color: var(--accent-light);
+}
+
+.grade-cell-wrapper {
+    position: relative;
+}
+
+.grade-cell {
+    min-width: 45px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.grade-badge-container {
+    display: flex;
+    justify-content: center;
+}
+
+.grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 35px;
+    height: 28px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+.grade-badge:hover {
+    transform: scale(1.05);
+}
+
+.grade-5 {
+    background-color: #DCFCE7;
+    color: #166534;
+}
+
+.grade-4 {
+    background-color: #FEF9C3;
+    color: #854D0E;
+}
+
+.grade-3 {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+#grades-table span[style*="color: var(--text-secondary)"] {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #F3F4F6;
+    color: #6B7280 !important;
+    font-size: 13px;
+}
+
+/* Стили для среднего балла */
+#grades-table td:last-child {
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+/* === КОНЕЦ: СТИЛИ ДЛЯ ТАБЛИЦЫ ОЦЕНОК === */
+
+/* === НАЧАЛО: СТИЛИ ДЛЯ ТАБЛИЦЫ ПОСЕЩАЕМОСТИ === */
+#attendance-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: var(--bg-widget);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    margin-bottom: 24px;
+}
+
+#attendance-table thead {
+    background-color: var(--bg-widget);
+    border-bottom: 2px solid var(--border-color);
+}
+
+#attendance-table th {
+    padding: 16px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+#attendance-table th:first-child {
+    text-align: left;
+}
+
+#attendance-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+#attendance-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+#attendance-table tr:last-child td {
+    border-bottom: none;
+}
+
+#attendance-table tr:hover {
+    background-color: var(--accent-light);
+}
+
+.attendance-cell {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.attendance-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.attendance-icon:hover {
+    transform: scale(1.05);
+}
+
+.status-P {
+    background-color: #DCFCE7;
+    color: #166534;
+}
+
+.status-A {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+.status-L {
+    background-color: #FEF9C3;
+    color: #854D0E;
+}
+
+.attendance-icon i {
+    font-size: 14px;
+}
+
+/* Стили для колонки с итогами пропусков */
+#attendance-table td:last-child {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Анимация при изменении статуса */
+.attendance-icon {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Добавляем тултипы для статусов */
+.attendance-cell::after {
+    content: attr(data-status);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background-color: #374151;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.attendance-cell:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: calc(100% + 5px);
+}
+/* === КОНЕЦ: СТИЛЕЙ ДЛЯ ТАБЛИЦЫ ПОСЕЩАЕМОСТИ === */
+
+/* === НАЧАЛО: АДАПТИВНЫЕ СТИЛИ (MOBILE-FIRST) === */
+@media (max-width: 1100px) {
+    .td-main-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+    .td-stats-cards {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .td-card {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 900px) {
+    .td-container {
+        padding: 16px;
+    }
+    .td-header {
+        padding: 14px;
+        border-radius: 10px;
+    }
+    .td-logo-section h1 {
+        font-size: 16px;
+    }
+    .td-user-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+        border-radius: 10px;
+    }
+    .td-main-nav {
+        padding: 8px 6px;
+        overflow-x: auto;
+    }
+    .td-main-nav ul {
+        gap: 8px;
+        display: flex;
+        flex-wrap: nowrap;
+    }
+    .td-main-nav a {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .td-stat-card {
+        padding: 14px;
+    }
+    .td-stat-card .stat-info h2 {
+        font-size: 22px;
+    }
+    .td-lesson-item {
+        padding: 12px;
+        gap: 12px;
+    }
+    .td-lesson-time p {
+        font-size: 14px;
+    }
+    .lesson-card {
+        padding: 10px;
+    }
+    .journal-widget {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 700px) {
+    body {
+        font-size: 14px;
+    }
+    .td-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .td-stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .td-main-grid {
+        grid-template-columns: 1fr;
+    }
+    #grades-table,
+    #attendance-table,
+    .lp-table,
+    .submissions-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    #grades-table thead,
+    #attendance-table thead {
+        display: table-header-group;
+    }
+    #grades-table tr,
+    #attendance-table tr {
+        display: table-row;
+    }
+    #grades-table th,
+    #grades-table td,
+    #attendance-table th,
+    #attendance-table td {
+        white-space: nowrap;
+    }
+    .journal-table tbody tr {
+        display: block;
+        background: transparent;
+        border: none;
+        margin-bottom: 10px;
+    }
+    .journal-table td {
+        display: block;
+        text-align: left;
+        padding: 10px 12px;
+        border: 1px solid rgba(229, 231, 235, 0.6);
+        border-radius: 8px;
+        background: #fff;
+    }
+    .modal-container {
+        width: 96%;
+        max-width: 96%;
+        padding: 16px;
+        border-radius: 10px;
+    }
+    .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .lp-table td {
+        padding: 12px;
+    }
+    .lp-table td:first-child,
+    .lp-table td:last-child {
+        border-radius: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .td-stats-cards {
+        grid-template-columns: 1fr;
+    }
+    .td-main-nav a {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    .grade-badge,
+    .attendance-icon {
+        min-width: 40px;
+        height: 40px;
+        font-size: 15px;
+    }
+    .lp-table thead th:nth-child(3),
+    .lp-table tbody td:nth-child(3) {
+        display: none;
+    }
+    input[type="file"] {
+        padding: 8px;
+    }
+    input[type="file"]::file-selector-button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+/* === КОНЕЦ: АДАПТИВНЫЕ СТИЛИ === */

@@ -91,26 +91,115 @@
         .td-right-column { display: flex; flex-direction: column; gap: 24px; }
         .tab-content { display: none; } .tab-content.active { display: block; }
         
-        /* СТИЛИ ДЛЯ РАСПИСАНИЯ */
-        .schedule-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-        .schedule-stat-item { background-color: var(--bg-main); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
-        .schedule-stat-item .icon-bg { font-size: 18px; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; }
-        .schedule-stat-item .icon-bg.blue { background-color: #DBEAFE; color: #1D4ED8; }
-        .schedule-stat-item .icon-bg.purple { background-color: #E0E7FF; color: #4338CA; }
-        .schedule-stat-item .icon-bg.green { background-color: #D1FAE5; color: #047857; }
-        .schedule-week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
-        .schedule-day-column { background-color: var(--bg-main); border-radius: 12px; padding: 16px; }
-        .schedule-day-column.today { background-color: var(--accent-light); border: 1px solid var(--accent-primary); }
-        .day-header { margin-bottom: 16px; text-align: center; }
-        .lessons-list { display: flex; flex-direction: column; gap: 12px; }
-        .lesson-card {display:flex; flex-direction: column; gap: 10px; background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; }
+        /* СТИЛИ ДЛЯ РАСПИСАНИЯ — обновлённый, более современный вид */
+        .schedule-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .schedule-stat-item {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+            border: 1px solid rgba(15,23,42,0.04);
+        }
+        .schedule-stat-item .icon-bg {
+            font-size: 18px;
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+        }
+        .schedule-stat-item .icon-bg.blue { background-image: linear-gradient(135deg,#60A5FA,#3B82F6); }
+        .schedule-stat-item .icon-bg.purple { background-image: linear-gradient(135deg,#A78BFA,#7C3AED); }
+        .schedule-stat-item .icon-bg.green { background-image: linear-gradient(135deg,#86EFAC,#10B981); }
+
+        .schedule-week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+        .schedule-day-column {
+            background: transparent;
+            border-radius: 12px;
+            padding: 0;
+        }
+        .schedule-day-column .day-header {
+            margin-bottom: 12px;
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .schedule-day-column.today .day-header {
+            background-color: var(--accent-light);
+            border: 1px solid var(--accent-primary);
+        }
+        .lessons-list { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+        .lesson-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background-color: var(--bg-widget);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: var(--widget-shadow);
+        }
+        .lesson-card .time { color: var(--text-secondary); font-size: 13px; }
+        .lesson-card .subject { font-weight: 700; font-size: 15px; color: var(--text-primary); }
+        .lesson-card .details { color: var(--text-secondary); font-size: 13px; display:flex; gap:8px; align-items:center; }
 
         /* СТИЛИ ДЛЯ ЖУРНАЛА */
         .journal-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
         .journal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .journal-title h2 { font-size: 20px; font-weight: 600; }
         .journal-title p { color: var(--text-secondary); }
-        .class-selector { padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 500; background-color: #F9FAFB; font-family: 'Inter', sans-serif; font-size: 14px; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right .75rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+        .class-selector {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-weight: 500;
+            background-color: #F9FAFB;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right .75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.1em 1.1em;
+            padding-right: 2.5rem;
+            color: var(--text-primary);
+            transition: box-shadow .15s ease, border-color .15s ease, transform .06s ease;
+        }
+        .class-selector:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 6px 18px rgba(79,70,229,0.08);
+            transform: translateY(-1px);
+        }
+        /* Modern option styling (best-effort across browsers) */
+        .class-selector option {
+            background: #ffffff;
+            color: var(--text-primary);
+            padding: 8px 12px;
+        }
+        /* Remove native dropdown arrow on IE/Edge and style the control */
+        .class-selector::-ms-expand { display: none; }
+        /* Chrome/Safari: subtle scrollbar for long option lists */
+        .class-selector::-webkit-scrollbar { width: 8px; }
+        .class-selector::-webkit-scrollbar-thumb { background: rgba(16,24,40,0.08); border-radius: 8px; }
+        /* Accent color for native selects in modern browsers */
+        .class-selector { accent-color: var(--accent-primary); }
         .journal-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
         .tab-btn { padding: 8px 16px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; transition: all .2s; }
         .tab-btn.active { background-color: var(--accent-primary); border-color: var(--accent-primary); color: #fff; }
@@ -142,7 +231,7 @@
         
         /* СТИЛИ ДЛЯ ДОМАШНИХ ЗАДАНИЙ */
         .homework-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
-        .widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .widget-header { display: flex; justify-content: space-between; align-items: center;  }
         .widget-title h2 { font-size: 20px; font-weight: 600; }
         .widget-title p { color: var(--text-secondary); }
         .btn-create { background-color: var(--accent-primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; }
@@ -274,6 +363,161 @@ input[name="attached_file"]::file-selector-button:hover {
 }
 
 
+    </style>
+    
+    <!-- Lesson-plans: modern minimal table styling -->
+    <style>
+    .lp-widget { 
+        background: transparent; 
+        padding: 0; 
+        /* margin-bottom: 32px;  */
+    }
+    .lp-widget .widget-header { 
+        background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+        padding: 24px;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+        border: 1px solid rgba(15,23,42,0.04);
+        
+    }
+    .lp-widget .widget-title h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .lp-widget .widget-title p { color: var(--text-secondary); font-size: 14px; }
+    .lp-widget .btn-create {
+        background-image: linear-gradient(135deg, #4338CA, #4F46E5);
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 6px 18px rgba(79,70,229,0.14);
+        transition: all 0.2s ease;
+    }
+    .lp-widget .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79,70,229,0.2);
+    }
+    .lp-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; padding:0px 10px;}
+    .lp-table thead th { text-align: left; padding: 12px 16px; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: 700; }
+    .lp-table tbody tr { background: #fff; border-radius: 16px; box-shadow: 0 6px 18px rgba(16,24,40,0.04); display: table-row; }
+    .lp-table td { padding: 24px; vertical-align: middle; font-size: 14px; color: var(--text-primary); }
+    .lp-table td:first-child { font-weight: 600; border-radius: 16px 0 0 16px; }
+    .lp-table td:last-child { border-radius: 0 16px 16px 0; }
+    .lp-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .lp-actions button { background: transparent; border: 1px solid rgba(15,23,42,0.06); width: 36px; height: 36px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); display: grid; place-items: center; }
+    .lp-actions button:hover { background: #F3F4F6; color: var(--text-primary); transform: translateY(-1px); }
+    .lp-actions .view-plan-btn { border-color: rgba(79,70,229,0.12); }
+    .lp-actions .edit-plan-btn { border-color: rgba(16,185,129,0.12); }
+    .lp-actions .delete-plan-btn { border-color: rgba(239,68,68,0.08); }
+
+    /* Status pills */
+    .lp-status { padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+    .lp-status.approved { background-color: #D1FAE5; color: #065F46; }
+    .lp-status.pending { background-color: #FEF3C7; color: #92400E; }
+    .lp-status.rejected { background-color: #FEE2E2; color: #991B1B; }
+
+    /* Empty state card */
+    #no-plans-row td { background: transparent; box-shadow: none; padding: 24px; }
+
+    /* Responsive: stack rows on small screens */
+    @media (max-width: 780px) {
+        .lp-table thead { display: none; }
+        .lp-table tbody tr { display: block; padding: 12px; }
+        .lp-table td { display: flex; justify-content: space-between; padding: 8px 0; border: none; }
+        .lp-table td::before { content: attr(data-label); color: var(--text-secondary); font-weight: 600; margin-right: 12px; }
+        .lp-table td:last-child { margin-top: 8px; }
+    }
+    </style>
+    
+    <!-- Modern overrides for teacher dashboard -->
+    <style>
+    /* Overall page polish */
+    body.td-body { background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%); }
+
+    /* Header: cleaner, slightly elevated */
+    .td-header {
+        background: #fff;
+        padding: 18px 22px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(16,24,40,0.06);
+        align-items: center;
+    }
+    .td-logo-icon { width:48px; height:48px; border-radius:12px; font-size:20px; }
+    .td-logo-section h1 { font-size:18px; margin-bottom:4px; }
+    .td-logo-section p { font-size:13px; color:var(--text-secondary); }
+
+    /* User avatar and info */
+    .td-user-section { gap:20px; }
+    .td-user-avatar { width:48px; height:48px; border-radius:12px; font-size:16px; }
+
+    /* Main navigation — pill style */
+    .td-main-nav { padding:10px; display:flex; justify-content:start; }
+    .td-main-nav ul { gap:12px; }
+    .td-main-nav a { background:transparent; padding:10px 16px; border-radius:999px; box-shadow: none; }
+    .td-main-nav a:hover { transform: translateY(-2px); }
+    .td-main-nav a.active { background-image: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%); color:#fff; box-shadow: 0 6px 18px rgba(79,70,229,0.18); }
+
+    /* Responsive stats grid */
+    .td-stats-cards { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .td-stat-card { padding:18px; border-radius:12px; }
+    .td-stat-card .stat-info p { color:var(--text-secondary); }
+
+    /* Card surfaces and spacing */
+    .td-card { padding:20px; border-radius:12px; }
+    .td-card-header { gap:14px; }
+
+    /* Schedule: compact day cards with subtle separators */
+    .schedule-week-grid { gap:12px; }
+    .schedule-day-column { background: transparent; }
+    .schedule-day-column .day-header { font-size:15px; padding:10px; }
+    .lessons-list { padding:8px; }
+    .lesson-card { padding:10px; border-radius:10px; }
+    .lesson-card .subject { font-size:14px; }
+
+    /* Journal table — modernized */
+    .journal-table th, .journal-table td { padding:12px 10px; }
+    .journal-table th { background: transparent; font-size:12px; color:var(--text-secondary); }
+    .journal-table td { background: #fff; border-radius:8px; border:1px solid rgba(229,231,235,0.6); }
+    .journal-table tbody tr { display: grid; grid-template-columns: 1fr 240px 140px; gap:8px; align-items:center; margin-bottom:10px; }
+    @media(min-width:900px) { .journal-table tbody tr { display: table-row; } .journal-table td { border-radius: 6px; } }
+
+    /* Homework and lesson-plan buttons uniform look */
+    .btn-create, .btn-submit { border-radius: 10px; padding:10px 14px; font-weight:700; }
+    .btn-create { background-image: linear-gradient(90deg,#4338CA,#4F46E5); color:#fff; box-shadow:0 6px 18px rgba(79,70,229,0.14); }
+
+    /* Modal polish */
+    .modal-overlay .modal-container { border-radius:12px; padding:20px; }
+    .modal-container h2 { font-size:18px; }
+
+    /* Small screens — tighten spacing */
+    @media(max-width:700px) {
+        .td-header { flex-direction:column; gap:12px; align-items:flex-start; }
+        .td-main-nav ul { flex-wrap:wrap; justify-content:center; }
+        .journal-table tbody tr { grid-template-columns: 1fr; }
+    }
+    </style>
+
+    <!-- Spacing fixes for lesson plans -->
+    <style>
+    .lp-widget .widget-header { padding: 20px !important; }
+    .lp-widget .widget-title h2 { margin-bottom: 2px !important; }
+    .lp-widget .widget-title p { font-size: 13px !important; }
+    </style>
+
+    <!-- Custom dropdown for journal selects (replaces native select for consistent styling) -->
+    <style>
+    .custom-select { position: relative; display: inline-block; min-width: 180px; }
+    .custom-select-trigger {
+        display: flex; align-items: center; justify-content: space-between;
+        width: 100%; padding: 10px 16px; background: #F9FAFB; border: 1px solid var(--border-color);
+        border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--text-primary);
+    }
+    .custom-select-trigger:after { content: '\f107'; font-family: 'Font Awesome 5 Free'; font-weight: 900; margin-left: 8px; color: var(--text-secondary); }
+    .custom-options { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #fff; border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,0.08); list-style: none; padding: 8px 6px; margin: 0; max-height: 260px; overflow: auto; display: none; z-index: 1200; }
+    .custom-options.open { display: block; }
+    .custom-option { padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-primary); font-size: 14px; }
+    .custom-option:hover { background: #F3F4F6; }
+    .custom-option.selected { background: linear-gradient(90deg, rgba(79,70,229,0.08), rgba(79,70,229,0.04)); color: var(--accent-primary); font-weight: 600; }
+    .custom-select input[type="hidden"] { display: none; }
+    @media(max-width:700px) { .custom-select { width: 100%; min-width: 0; } }
     </style>
 </head>
 <body class="td-body">
@@ -1251,6 +1495,48 @@ document.addEventListener('DOMContentLoaded', function() {
         cell.innerHTML = iconHtml;
         cell.dataset.status = statusCode;
     }
+});
+</script>
+
+<script>
+// Replace native journal selects with a simple custom dropdown for consistent styling
+document.addEventListener('DOMContentLoaded', function() {
+    const journalSelects = document.querySelectorAll('.journal-header select.class-selector');
+    journalSelects.forEach(select => {
+        try {
+            const form = select.closest('form');
+            const wrapper = document.createElement('div'); wrapper.className = 'custom-select';
+            const trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 'custom-select-trigger';
+            trigger.textContent = (select.options[select.selectedIndex] && select.options[select.selectedIndex].text) || select.options[0].text || '';
+            const list = document.createElement('ul'); list.className = 'custom-options';
+            Array.from(select.options).forEach(opt => {
+                const li = document.createElement('li'); li.className = 'custom-option'; li.dataset.value = opt.value; li.textContent = opt.text;
+                if (opt.disabled) li.classList.add('disabled');
+                if (opt.selected) li.classList.add('selected');
+                list.appendChild(li);
+            });
+            const hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = select.name; hidden.value = select.value;
+            wrapper.appendChild(trigger); wrapper.appendChild(list); wrapper.appendChild(hidden);
+            select.parentNode.insertBefore(wrapper, select); select.remove();
+
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation(); document.querySelectorAll('.custom-options.open').forEach(o => { if (!wrapper.contains(o)) o.classList.remove('open'); });
+                list.classList.toggle('open');
+            });
+
+            list.addEventListener('click', function(e) {
+                const li = e.target.closest('.custom-option');
+                if (!li || li.classList.contains('disabled')) return;
+                hidden.value = li.dataset.value; trigger.textContent = li.textContent;
+                list.querySelectorAll('.custom-option').forEach(x => x.classList.remove('selected'));
+                li.classList.add('selected'); list.classList.remove('open');
+                if (form) form.submit();
+            });
+
+            // close when clicking outside
+            document.addEventListener('click', function(e) { if (!wrapper.contains(e.target)) list.classList.remove('open'); });
+        } catch (err) { console.error('custom-select init error', err); }
+    });
 });
 </script>
 

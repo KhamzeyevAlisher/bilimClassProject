@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tq@9&n(rnw8(-e#f-%fu!@l7)p+g_6f7zb-pm@(xn1dwiq*v6d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["","http://sabaqsaqshy.kz", "sabaqsaqshy.kz", "www.sabaqsaqshy.kz", "http://www.sabaqsaqshy.kz"]
-# ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ["http://127.0.0.1:8000/","http://sabaqsaqshy.kz", "sabaqsaqshy.kz", "www.sabaqsaqshy.kz", "http://www.sabaqsaqshy.kz"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -119,9 +119,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Folder for collectstatic command
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Additional static files location
-]
+# No need for STATICFILES_DIRS since we're using app-specific static folders
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

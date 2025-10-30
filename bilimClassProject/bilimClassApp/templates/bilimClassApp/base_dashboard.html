@@ -51,61 +51,77 @@
             {% endif %}
         </header>
 
-        <nav class="main-nav">
-             <ul>
-                {# === НАЧАЛО ИСПРАВЛЕНИЯ: Вся навигация для ролей обернута в проверку аутентификации === #}
-                {% if user.is_authenticated %}
-                    
-                    {% if user.is_staff %}
-                        <li><a href="{% url 'admin_panel' %}" {% if request.resolver_match.url_name == 'admin_panel' %}class="active"{% endif %}><i class="fa-solid fa-users"></i> Панель админа</a></li>
-                    {% endif %}
-                    
-                    <!-- Ссылки для Учителя -->
-                    {% if user.profile.role == 'teacher' %}
-                         <li><a href="{% url 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}class="active"{% endif %}><i class="fa-solid fa-house"></i> Главная</a></li>
-                         <li><a href="{% url 'teacher_journal' %}" {% if request.resolver_match.url_name == 'teacher_journal' %}class="active"{% endif %}><i class="fa-solid fa-book-open-reader"></i> Журнал</a></li>
-                         <li><a href="{% url 'teacher_homework' %}" {% if request.resolver_match.url_name == 'teacher_homework' %}class="active"{% endif %}><i class="fa-solid fa-person-chalkboard"></i> Домашние задания</a></li>
-                    {% endif %}
+        <!-- ЭТА ПАНЕЛЬ БУДЕТ ВИДНА ТОЛЬКО НА МОБИЛЬНЫХ УСТРОЙСТВАХ -->
+        <div class="td-mobile-nav">
+            <h2 id="mobile-nav-title">Главная</h2>
+            <button id="mobile-menu-btn" aria-label="Открыть меню">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
 
-                    <!-- Ссылки для Завуча и Админа -->
-                    {% if  user.profile.role == 'headteacher' %}
-                        {# === НАЧАЛО ИЗМЕНЕНИЯ === #}
-                        <li>
-                            <a href="{% url 'headteacher' %}" 
-                               data-page="headteacher" data-tab="performance"
-                               {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab != 'plan-approval' and request.GET.tab != 'schedule' %}class="active"{% endif %}>
-                               <i class="fa-solid fa-house"></i> Успеваемость
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'headteacher' %}?tab=plan-approval"
-                               data-page="headteacher" data-tab="plan-approval"
-                               {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'plan-approval' %}class="active"{% endif %}>
-                               <i class="fa-solid fa-check-to-slot"></i> Утверждение планов
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'headteacher' %}?tab=schedule"
-                               data-page="headteacher" data-tab="schedule"
-                               {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'schedule' %}class="active"{% endif %}>
-                               <i class="fa-solid fa-calendar-days"></i> Расписание школы
-                            </a>
-                        </li>
-                        {# === КОНЕЦ ИЗМЕНЕНИЯ === #}
-                    {% endif %}
-
-                    <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}><i class="fa-solid fa-user-gear"></i> Профиль</a></li>
-                    <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a></li>
-
-                {% else %}
-                    {# Если пользователь не вошел в систему, можно показать ссылку на вход #}
-                    <li><a href="{% url 'login' %}">Войти</a></li>
-                {% endif %}
-                {# === КОНЕЦ ИСПРАВЛЕНИЯ === #}
-            </ul>
-        </nav>
+        
 
         <main id="app-content">
+            <nav class="td-main-nav">
+                <!-- ЭТУ ШАПКУ НУЖНО ДОБАВИТЬ ВНУТРЬ МЕНЮ -->
+                <div class="mobile-menu-header">
+                    <h3>Меню</h3>
+                    <button id="mobile-menu-close-btn" aria-label="Закрыть меню">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <ul>
+                    {# === НАЧАЛО ИСПРАВЛЕНИЯ: Вся навигация для ролей обернута в проверку аутентификации === #}
+                    {% if user.is_authenticated %}
+                        
+                        {% if user.is_staff %}
+                            <li><a href="{% url 'admin_panel' %}" {% if request.resolver_match.url_name == 'admin_panel' %}class="active"{% endif %}><i class="fa-solid fa-users"></i> Панель админа</a></li>
+                        {% endif %}
+                        
+                        <!-- Ссылки для Учителя -->
+                        {% if user.profile.role == 'teacher' %}
+                            <li><a href="{% url 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}class="active"{% endif %}><i class="fa-solid fa-house"></i> Главная</a></li>
+                            <li><a href="{% url 'teacher_journal' %}" {% if request.resolver_match.url_name == 'teacher_journal' %}class="active"{% endif %}><i class="fa-solid fa-book-open-reader"></i> Журнал</a></li>
+                            <li><a href="{% url 'teacher_homework' %}" {% if request.resolver_match.url_name == 'teacher_homework' %}class="active"{% endif %}><i class="fa-solid fa-person-chalkboard"></i> Домашние задания</a></li>
+                        {% endif %}
+
+                        <!-- Ссылки для Завуча и Админа -->
+                        {% if  user.profile.role == 'headteacher' %}
+                            {# === НАЧАЛО ИЗМЕНЕНИЯ === #}
+                            <li>
+                                <a href="{% url 'headteacher' %}" 
+                                data-page="headteacher" data-tab="performance"
+                                {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab != 'plan-approval' and request.GET.tab != 'schedule' %}class="active"{% endif %}>
+                                <i class="fa-solid fa-house"></i> Успеваемость
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'headteacher' %}?tab=plan-approval"
+                                data-page="headteacher" data-tab="plan-approval"
+                                {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'plan-approval' %}class="active"{% endif %}>
+                                <i class="fa-solid fa-check-to-slot"></i> Утверждение планов
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'headteacher' %}?tab=schedule"
+                                data-page="headteacher" data-tab="schedule"
+                                {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'schedule' %}class="active"{% endif %}>
+                                <i class="fa-solid fa-calendar-days"></i> Расписание школы
+                                </a>
+                            </li>
+                            {# === КОНЕЦ ИЗМЕНЕНИЯ === #}
+                        {% endif %}
+
+                        <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}><i class="fa-solid fa-user-gear"></i> Профиль</a></li>
+                        <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a></li>
+
+                    {% else %}
+                        {# Если пользователь не вошел в систему, можно показать ссылку на вход #}
+                        <li><a href="{% url 'login' %}">Войти</a></li>
+                    {% endif %}
+                    {# === КОНЕЦ ИСПРАВЛЕНИЯ === #}
+                </ul>
+            </nav>
             {% block content %}
             <!-- Содержимое дочерних шаблонов -->
             {% endblock %}

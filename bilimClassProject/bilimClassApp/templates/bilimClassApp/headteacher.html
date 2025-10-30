@@ -331,6 +331,526 @@
 .td-user-link { text-decoration: none; color: inherit; }
 .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
 
+.td-mobile-nav { display: none;}
+.mobile-menu-header {display: none;}
+/* .td-main-nav {display: none;} */
+/* ============================================= */
+/* === СТИЛИ ДЛЯ МОБИЛЬНОЙ АДАПТАЦИИ МЕНЮ === */
+/* ============================================= */
+
+a.class-details-link {
+    /* 1. Убираем стандартное подчеркивание */
+    text-decoration: none;
+
+    /* 2. Задаем фирменный цвет из вашей палитры */
+    color: var(--accent-primary, #4F46E5);
+
+    /* 3. Добавляем плавный переход для интерактивности */
+    transition: color 0.2s ease-in-out;
+}
+
+a.class-details-link:hover {
+    /* Можно вернуть подчеркивание при наведении — это хороший UX-паттерн */
+    text-decoration: underline;
+
+    /* Или сделать цвет чуть темнее (можно использовать оба эффекта) */
+    color: #4338CA; /* Более темный оттенок фиолетового */
+}
+
+/* Медиа-запрос: эти стили сработают только на экранах шириной 1024px или меньше */
+@media (max-width: 1024px) {
+
+    .logo-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .td-user-info {
+        display: none;
+    }
+    
+    .logo-text h1 {
+        font-size: 18px;
+    }
+
+    .logo-text span {
+        font-size: 12px;
+    }
+
+    /* --- 1. Стили для верхней мобильной панели (остаются без изменений) --- */
+    .td-mobile-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background-color: var(--bg-widget);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--widget-shadow);
+        margin-bottom: 20px;
+    }
+    #mobile-nav-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+    #mobile-menu-btn {
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        color: var(--text-primary);
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+    
+    #mobile-menu-btn:hover {
+        background-color: var(--accent-light);
+    }
+    
+    /* --- 2. НОВЫЕ СТИЛИ для самого выезжающего меню --- */
+    .td-main-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px; /* Можно сделать чуть шире */
+        max-width: 90%;
+        height: 100%;
+        background-color: var(--bg-widget);
+        box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1);
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Более плавная анимация */
+        z-index: 2000;
+        padding: 0; /* Убираем внутренние отступы, чтобы шапка прилегала */
+        margin: 0;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column; /* Элементы внутри меню будут в столбик */
+    }
+
+    .td-main-nav.is-open {
+        transform: translateX(0);
+    }
+
+    /* --- 3. Стили для новой шапки меню --- */
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0; /* Шапка не должна сжиматься */
+    }
+
+    .mobile-menu-header h3 {
+        font-size: 18px;
+    }
+
+    #mobile-menu-close-btn {
+        background: transparent;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: var(--text-secondary);
+        transition: background-color 0.2s, color 0.2s;
+    }
+    #mobile-menu-close-btn:hover {
+        background-color: #F3F4F6;
+        color: var(--text-primary);
+    }
+    
+    /* --- 4. Стили для списка и ссылок в меню --- */
+    .td-main-nav ul {
+        /* ВАЖНО: переопределяем старые стили */
+        display: flex;
+        flex-direction: column; /* Вертикальный список */
+        gap: 8px; /* Небольшой отступ между ссылками */
+        padding: 16px;
+        overflow-y: auto; /* Позволяет прокручивать, если меню не влезает по высоте */
+    }
+
+    .td-main-nav a {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 20px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 10px;
+        width: 100%;
+        color: var(--text-secondary); /* Цвет неактивной ссылки */
+    }
+    .td-main-nav a:hover {
+        background-color: #F3F4F6;
+        color: var(--text-primary);
+    }
+    .td-main-nav a.active {
+        background-image: linear-gradient(90deg, #6d28d9, #4f46e5);
+        color: #fff;
+        font-weight: 600;
+    }
+    .td-main-nav a.active i {
+        color: #fff;
+    }
+
+    /* --- 5. Затемняющий фон --- */
+    body.menu-open::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(17, 24, 39, 0.6);
+        z-index: 1999;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Уменьшаем общие отступы на мобильных устройствах */
+    .content-card {
+        padding: 16px;
+    }
+
+    /* Заголовки делаем компактнее */
+    .page-title h2 {
+        font-size: 20px;
+    }
+    .page-title p {
+        font-size: 14px;
+    }
+
+    /* Карточки со сводной информацией теперь идут в столбик */
+    .summary-cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .summary-card .value {
+        font-size: 24px;
+    }
+
+    /* Трансформация таблицы успеваемости */
+    .performance-table thead {
+        /* Скрываем стандартные заголовки таблицы */
+        border: none;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    .performance-table tr {
+        /* Каждая строка теперь - это отдельный блок (карточка) */
+        display: block;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 8px;
+    }
+
+    .performance-table td {
+        /* Ячейки располагаются в столбик */
+        display: block;
+        text-align: right; /* Выравниваем значение по правому краю */
+        padding: 12px 16px;
+        position: relative;
+        border-bottom: 1px solid #f0f0f0; /* Разделитель между "полями" */
+    }
+
+    .performance-table td:last-child {
+        border-bottom: none; /* Убираем линию у последнего элемента */
+    }
+
+    /* Добавляем заголовки перед каждой ячейкой */
+    .performance-table td::before {
+        content: attr(data-label); /* Берем текст из атрибута data-label */
+        position: absolute;
+        left: 16px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-align: left;
+    }
+    
+    /* Для первой ячейки (Название класса) делаем особые стили */
+    .performance-table td:first-child {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: left; /* Название класса слева */
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .performance-table td:first-child::before {
+        content: ""; /* Убираем для нее псевдо-заголовок */
+    }
+    
+    /* Выравниваем прогресс-бар по правому краю */
+     .performance-table .progress-bar-container {
+        width: 30%;
+        margin-left: auto; /* Сдвигаем вправо */
+    }
+
+    .filters-toolbar {
+        padding: 10px 0;
+    }
+
+    .content-card {
+        padding: 16px;
+    }
+
+    /* Заголовки делаем компактнее */
+    .page-title h2 {
+        font-size: 20px;
+    }
+    .page-title p {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    /* --- Адаптация вкладки "Успеваемость" --- */
+
+    #performance-content .filters-toolbar {
+        /* Фильтр теперь занимает всю ширину */
+        display: block; 
+        padding: 0;
+        background-color: transparent;
+    }
+
+    /* Карточки со сводной информацией теперь идут в столбик */
+    .summary-cards {
+        grid-template-columns: 1fr; /* Одна карточка на строку */
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .summary-card .value {
+        font-size: 24px;
+    }
+
+    /* --- Трансформация таблицы в карточки --- */
+
+    .performance-table thead {
+        /* Полностью скрываем стандартные заголовки таблицы */
+        border: none;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    .performance-table tr {
+        /* Каждая строка теперь - это отдельный блок (карточка) */
+        display: block;
+        border: 1px solid var(--border-color, #E5E7EB);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        padding: 8px;
+        background-color: #fff;
+    }
+    
+    .performance-table tbody tr:hover {
+        background-color: #fcfcfd; /* Легкий эффект при наведении */
+    }
+
+    .performance-table td {
+        /* Ячейки располагаются в столбик */
+        display: flex; /* Используем flex для удобного выравнивания */
+        justify-content: space-between; /* Название слева, значение справа */
+        align-items: center;
+        text-align: right; /* Выравниваем значение по правому краю */
+        padding: 12px 16px;
+        position: relative;
+        border-bottom: 1px solid #f0f0f0; /* Разделитель между "полями" */
+    }
+
+    .performance-table td:last-child {
+        border-bottom: none; /* Убираем линию у последнего элемента */
+    }
+
+    /* Добавляем заголовки перед каждой ячейкой */
+    .performance-table td::before {
+        content: attr(data-label); /* Берем текст из атрибута data-label */
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-align: left;
+        margin-right: 16px; /* Отступ между заголовком и значением */
+    }
+
+    .performance-table td {
+        justify-content: flex-end; 
+    }
+    
+    /* Для первой ячейки (Название класса) делаем особые стили */
+    .performance-table td[data-label="Класс"] {
+        font-size: 16px;
+        font-weight: bold;
+        background-color: var(--bg-main);
+        margin: -8px -8px 8px -8px; /* Вытягиваем фон на всю ширину карточки */
+        padding: 12px 16px;
+        border-radius: 11px 11px 0 0;
+        border-bottom: 1px solid var(--border-color);
+        justify-content: flex-start; /* Убираем выравнивание для заголовка */
+    }
+
+    .performance-table td[data-label="Класс"]::before {
+        content: ""; /* Убираем для нее псевдо-заголовок */
+    }
+    
+    /* Улучшенный прогресс-бар */
+    .performance-table td[data-label="Посещаемость"] .progress-bar-container {
+        width: 10%; /* Делаем его шире и заметнее */
+        min-width: 90px;
+    }
+
+    .filter-group label {
+        display: none;
+    }
+
+    #plan-approval-content .status-tabs {
+        /* 1. Меняем раскладку на вертикальную */
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* Расстояние между кнопками */
+
+        /* 2. Убираем стили от десктопной версии */
+        border-bottom: none; /* Убираем нижнюю линию-разделитель */
+        margin-bottom: 24px; /* Оставляем отступ до таблицы */
+    }
+
+    /* Стилизуем сами ссылки-табы */
+    #plan-approval-content .status-tabs .status-tab-link {
+        /* 3. Базовый стиль для неактивной кнопки */
+        background-color: var(--bg-main, #F9FAFB); /* Светло-серый фон */
+        color: var(--text-secondary, #6B7280);   /* Серый цвет текста */
+        
+        /* 4. Задаем форму и размеры */
+        border-radius: 12px;        /* Сильно скругляем углы */
+        padding: 14px 20px;         /* Делаем кнопку высокой и удобной для нажатия */
+        text-align: center;         /* Центрируем текст */
+        font-weight: 500;
+        width: 100%;                /* Растягиваем на всю ширину */
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* 5. Убираем синюю линию-подчеркивание от десктопной версии */
+    #plan-approval-content .status-tabs .status-tab-link::after {
+        display: none;
+    }
+
+    /* 6. Стили для АКТИВНОЙ кнопки */
+    #plan-approval-content .status-tabs .status-tab-link.active {
+        background-color: var(--accent-primary, #4F46E5); /* Фирменный фиолетовый фон */
+        color: #FFFFFF;                                  /* Белый текст */
+        font-weight: 600;                                /* Делаем текст жирнее */
+        box-shadow: 0 4px 14px -4px rgba(79, 70, 229, 0.4); /* Мягкая тень для объема */
+    }
+
+    /* 7. Адаптируем бейдж со счетчиком */
+    #plan-approval-content .status-tabs .status-tab-link .count-badge {
+        /* Бейдж теперь просто часть текста, без фона */
+        background-color: transparent;
+        color: inherit; /* Наследует цвет у родителя (серый или белый) */
+        font-weight: 600;
+        /* Убираем лишние отступы, если они были */
+        padding: 0 2px;
+    }
+
+    #plan-approval-content .plans-table {
+        /* Убираем рамки, так как у карточек будут свои */
+        border-collapse: separate; 
+        border-spacing: 0;
+    }
+
+    /* 1. Скрываем стандартные заголовки таблицы */
+    #plan-approval-content .plans-table thead {
+        display: none;
+    }
+
+    /* 2. Каждая строка <tr> становится отдельной карточкой */
+    #plan-approval-content .plans-table tr {
+        display: block;
+        background-color: #FFFFFF;
+        border: 1px solid var(--border-color, #E5E7EB);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    /* 3. Каждая ячейка <td> становится строкой "Ключ: Значение" */
+    #plan-approval-content .plans-table td {
+        display: flex;
+        justify-content: space-between; /* Название слева, значение справа */
+        align-items: center;
+        padding: 10px 0; /* Вертикальные отступы */
+        border-bottom: 1px solid #f0f0f0; /* Легкий разделитель */
+        text-align: right; /* Выравниваем текст значения по правому краю */
+    }
+
+    #plan-approval-content .plans-table tr td:last-child {
+        border-bottom: none; /* Убираем линию у последнего элемента */
+    }
+
+    /* 4. Добавляем подпись (label) перед каждой ячейкой */
+    #plan-approval-content .plans-table td::before {
+        content: attr(data-label); /* Берем текст из атрибута data-label */
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-align: left;
+        margin-right: 16px; /* Отступ между подписью и значением */
+    }
+
+    /* 5. Особые стили для ячеек, чтобы сделать вид чище */
+
+    /* Главная ячейка с названием - делаем ее заголовком карточки */
+    #plan-approval-content .plans-table td[data-label="Название"] {
+        font-size: 16px;
+        font-weight: bold;
+        padding-top: 0;
+        justify-content: flex-start; /* Убираем выравнивание, чтобы текст был слева */
+    }
+
+    #plan-approval-content .plans-table td[data-label="Название"]::before {
+        display: none; /* Убираем для нее дублирующую подпись "Название" */
+    }
+
+    /* Ячейка с кнопками действий */
+    #plan-approval-content .plans-table td.actions-cell {
+        padding-bottom: 0;
+    }
+
+    #plan-approval-content .plans-table td.actions-cell .btn-group {
+        /* Растягиваем контейнер кнопок на всю доступную ширину */
+        flex-grow: 1;
+        justify-content: flex-end; /* Выравниваем кнопки вправо */
+        gap: 12px;
+    }
+
+    .day-column {
+        padding: 10px;
+    }
+
+    .lessons-list {
+        width: 100%;
+    }
+
+}
+
     </style>
 {% endblock %}
 
@@ -338,7 +858,7 @@
 <div class="content-card">
     
     <!-- === КОНТЕНТ ВКЛАДКИ "УСПЕВАЕМОСТЬ" === -->
-    <div id="performance-content" class="tab-content">
+    <div id="performance-content" class="tab-content active">
         <div class="page-header">
             <div class="page-title">
                 <h2><i class="fa-solid fa-chart-line"></i> Успеваемость по школе</h2>
@@ -397,16 +917,15 @@
                     <tbody>
                         {% for stat in performance_data.class_stats %}
                         <tr>
-                            <td>
+                            <!-- Для первой ячейки data-label не нужен, CSS обрабатывает ее особо -->
+                            <td data-label="Класс">
                                 <b><a href="#" class="class-details-link" data-class-id="{{ stat.class_id }}">{{ stat.class_name }}</a></b>
                             </td>
-                            <td>{{ stat.student_count }}</td>
-                            <td>{{ stat.avg_grade|floatformat:2 }}</td>
-                            <td>
+                            <!-- А вот здесь добавляем data-label для каждой ячейки -->
+                            <td data-label="Учеников">{{ stat.student_count }}</td>
+                            <td data-label="Средний балл">{{ stat.avg_grade|floatformat:2 }}</td>
+                            <td data-label="Посещаемость">
                                 <div class="progress-bar-container">
-                                    <!-- ============================================= -->
-                                    <!-- === ИЗМЕНЕНИЕ ЗДЕСЬ: Добавлены классы и цвет === -->
-                                    <!-- ============================================= -->
                                     <div class="progress-bar 
                                         {% if stat.attendance_percentage > 90 %}
                                             bg-success
@@ -420,10 +939,10 @@
                                     <span>{{ stat.attendance_percentage|floatformat:1 }}%</span>
                                 </div>
                             </td>
-                            <td>{{ stat.excellent_students }}</td>
-                            <td>{{ stat.good_students }}</td>
-                            <td>{{ stat.satisfactory_students }}</td>
-                            <td>{{ stat.poor_students }}</td>
+                            <td data-label="Отличники">{{ stat.excellent_students }}</td>
+                            <td data-label="Хорошисты">{{ stat.good_students }}</td>
+                            <td data-label="Троечники">{{ stat.satisfactory_students }}</td>
+                            <td data-label="Неуспевающие">{{ stat.poor_students }}</td>
                         </tr>
                         {% empty %}
                         <tr>
@@ -573,13 +1092,13 @@
             <tbody id="plans-table-body">
                 {% for plan in lesson_plans %}
                 <tr id="plan-row-{{ plan.pk }}">
-                    <td><b>{{ plan.name }}</b></td>
-                    <td>{{ plan.teacher.user.get_full_name }}</td>
-                    <td>{{ plan.school_class.name }}</td>
-                    <td>{{ plan.subject.name }}</td>
-                    <td>{{ plan.date|date:"Y-m-d" }}</td>
-                    <td>{{ plan.created_at|date:"Y-m-d H:i" }}</td>
-                    <td class="actions-cell">
+                    <td data-label="Название"><b>{{ plan.name }}</b></td>
+                    <td data-label="Учитель">{{ plan.teacher.user.get_full_name }}</td>
+                    <td data-label="Класс">{{ plan.school_class.name }}</td>
+                    <td data-label="Предмет">{{ plan.subject.name }}</td>
+                    <td data-label="Дата урока">{{ plan.date|date:"Y-m-d" }}</td>
+                    <td data-label="Подан">{{ plan.created_at|date:"Y-m-d H:i" }}</td>
+                    <td data-label="Действия" class="actions-cell">
                         <div class="btn-group">
                             <button class="action-btn view" data-plan-id="{{ plan.pk }}" title="Просмотреть"><i class="fa-solid fa-eye"></i></button>
                             {% if current_status == 'pending' %}
@@ -1056,6 +1575,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
+    }
+});
+</script>
+<script>
+/* Вставьте этот код в тег <script> в конце вашего HTML */
+/* ЗАМЕНИТЕ ВАШ СУЩЕСТВУЮЩИЙ СКРИПТ НА ЭТОТ */
+document.addEventListener('DOMContentLoaded', function() {
+    // --- 2. ЛОГИКА ДЛЯ МОБИЛЬНОГО МЕНЮ ---
+    const menuButton = document.getElementById('mobile-menu-btn');
+    const closeButton = document.getElementById('mobile-menu-close-btn');
+    const navMenu = document.querySelector('.td-main-nav');
+    const mobileNavTitle = document.getElementById('mobile-nav-title');
+    const navLinks = navMenu.querySelectorAll('a[data-tab]');
+
+    if (menuButton) {
+        // Функция для закрытия меню
+        const closeMenu = () => {
+            navMenu.classList.remove('is-open');
+            document.body.classList.remove('menu-open');
+        };
+
+        // Открытие меню по клику на бургер
+        menuButton.addEventListener('click', function() {
+            navMenu.classList.add('is-open');
+            document.body.classList.add('menu-open');
+        });
+
+        // Закрытие меню по клику на крестик
+        closeButton.addEventListener('click', closeMenu);
+
+        // При клике на ссылку в мобильном меню, мы обновляем заголовок и закрываем его
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileNavTitle.textContent = this.textContent.trim();
+                // Само переключение вкладок обработается в блоке №1
+                closeMenu();
+            });
+        });
+        
+        // Закрытие меню при клике вне его (на оверлей)
+        document.addEventListener('click', function(event) {
+            if (navMenu.classList.contains('is-open') && !navMenu.contains(event.target) && !menuButton.contains(event.target)) {
+                 closeMenu();
+            }
+        });
+
+        // Закрытие по клавише Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && navMenu.classList.contains('is-open')) {
+                closeMenu();
+            }
+        });
     }
 });
 </script>

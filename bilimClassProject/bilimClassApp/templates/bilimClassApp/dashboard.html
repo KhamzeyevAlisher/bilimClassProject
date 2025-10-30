@@ -17,6 +17,240 @@
         .td-user-link { text-decoration: none; color: inherit; }
         .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
     </style>
+
+    <style>
+        /* --- Стили для планшетов (до 992px) --- */
+@media (max-width: 992px) {
+    .container, .dashboard-container {
+        padding: 16px; /* Уменьшаем боковые отступы */
+    }
+
+    .stats-cards-grid-v2 {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Уменьшаем минимальную ширину карточек */
+    }
+}
+
+
+/* --- Основные мобильные стили (до 768px) --- */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+
+    /* --- Шапка --- */
+    .site-header {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .logo-section h1 {
+        font-size: 18px;
+    }
+    .logo-section span, .user-info p {
+        display: none;
+    }
+    .user-section {
+        margin-left: auto;
+    }
+
+    /* --- Заголовки и табы --- */
+    .welcome-section h1 {
+        font-size: 24px;
+    }
+    .main-tabs ul, .day-tabs ul {
+        overflow-x: auto;
+        padding-bottom: 8px;
+        white-space: nowrap;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .main-tabs ul::-webkit-scrollbar, .day-tabs ul::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* --- Статистика в Дневнике --- */
+    .stats-cards-grid-v2 {
+        grid-template-columns: 1fr 1fr;
+    }
+    .stat-info-v2 span {
+        font-size: 24px;
+    }
+
+    /* --- Таблица с оценками (превращаем в карточки) --- */
+    .grades-table-v2 thead {
+        display: none; /* Скрываем заголовки таблицы */
+    }
+    .grades-table-v2 tr {
+        /* Каждая строка - это отдельная карточка предмета */
+        display: block; 
+        background-color: var(--bg-widget);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    .grades-table-v2 td {
+        /* Каждая ячейка - это информационный блок внутри карточки */
+        display: block; 
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .grades-table-v2 tr td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .grades-table-v2 tr td:first-child {
+        padding-top: 0;
+    }
+    .grades-table-v2 td::before {
+        /* Создаем текстовые метки (Предмет, Оценки и т.д.) */
+        content: attr(data-label);
+        display: block;
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+    }
+    .grades-table-v2 td:nth-of-type(1)::before { content: "Предмет"; }
+    .grades-table-v2 td:nth-of-type(2)::before { content: "Оценки"; }
+    .grades-table-v2 td:nth-of-type(3)::before { content: "Средний балл"; }
+
+    .grades-table-v2 .average-grade {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    /* 
+      КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ:
+      Применяем flex-стили напрямую к .grades-list,
+      чтобы оценки внутри выстраивались горизонтально.
+    */
+    .grades-table-v2 .grades-list {
+        display: flex;
+        flex-direction: row;    /* ЯВНО указываем горизонтальное направление */
+        flex-wrap: nowrap;      /* Запрещаем перенос */
+        align-items: center;
+        gap: 8px;
+        overflow-x: auto;       /* Добавляем скролл, если не помещается */
+        padding-bottom: 5px;
+        
+        /* Скрываем сам скроллбар */
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .grades-table-v2 .grades-list::-webkit-scrollbar {
+        display: none;
+    }
+
+
+    /* --- Домашние задания --- */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .homework-tabs {
+        justify-content: center;
+    }
+    .hw-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .hw-footer .btn-submit {
+        width: 100%;
+    }
+
+    /* --- Расписание --- */
+    .lesson-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .lesson-start-time {
+        align-self: flex-end;
+        background-color: var(--accent-light);
+        color: var(--accent-primary);
+        padding: 4px 10px;
+        border-radius: 8px;
+    }
+
+    /* --- Модальные окна --- */
+    .modal-container, .grade-modal-container {
+        width: 95%;
+        padding: 24px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+    .modal-footer button {
+        width: 100%;
+    }
+
+    /* =================================================================
+    ОБНОВЛЕННЫЕ СТИЛИ ТОЛЬКО ДЛЯ ТАБОВ ДОМАШНИХ ЗАДАНИЙ
+    (Заменяют старый блок .homework-tabs в student_dashboard.css)
+    ================================================================= */
+
+    .homework-tabs {
+        display: flex;
+        flex-direction: column; /* Выстраиваем кнопки в колонку */
+        gap: 10px; /* Расстояние между кнопками */
+        margin-bottom: 24px;
+    }
+
+    .homework-tabs .tab-btn {
+        display: block;
+        padding: 12px 16px;
+        background-color: #F3F4F6; /* Фон для неактивных кнопок */
+        border: none;
+        border-radius: 12px; /* Скругленные углы */
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .homework-tabs .tab-btn:hover {
+        background-color: #E5E7EB; /* Затемнение при наведении */
+    }
+
+    .homework-tabs .tab-btn.active {
+        background-color: var(--accent-primary); /* Акцентный цвет */
+        color: #fff; /* Белый текст */
+        box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3); /* Та самая тень */
+    }
+}
+
+
+/* --- Дополнительные стили для очень маленьких экранов (до 480px) --- */
+@media (max-width: 480px) {
+    .stats-cards-grid-v2 {
+        grid-template-columns: 1fr; /* Только одна карточка в ряд */
+    }
+    .grades-table-v2 td {
+        flex-direction: column; /* Метка и значение друг под другом */
+        align-items: flex-start;
+        gap: 4px;
+    }
+    .grades-table-v2 td::before {
+        margin-bottom: 4px;
+    }
+    .grades-table-v2 .grades-list,
+    .grades-table-v2 .subject-name,
+    .grades-table-v2 .teacher-name {
+        max-width: 100%;
+        text-align: left;
+    }
+    .dnevnik-filters {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+    .dnevnik-filters a {
+        text-align: center;
+    }
+}
+    </style>
 </head>
 <body>
 

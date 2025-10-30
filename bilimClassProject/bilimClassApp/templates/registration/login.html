@@ -10,6 +10,117 @@
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
     <!-- Подключаем иконки Font Awesome (для иконок) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- АДАПТИВНЫЙ ДИЗАЙН ДЛЯ СТРАНИЦЫ ВХОДА --- */
+
+/* Стили для планшетов и небольших десктопов (до 1120px) */
+@media (max-width: 1120px) {
+    .login-container {
+        /* Уменьшаем максимальную ширину и отступы на средних экранах */
+        max-width: 95%;
+        margin: 20px;
+    }
+    .login-left-panel, .login-right-panel {
+        /* Уменьшаем внутренние отступы, чтобы контент не был слишком сжатым */
+        padding: 40px;
+    }
+}
+
+/* Стили для мобильных устройств (до 900px) */
+@media (max-width: 900px) {
+    /* Меняем направление flex-контейнера на вертикальное */
+    .login-container {
+        flex-direction: column;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0; /* Убираем скругление углов на всю ширину экрана */
+        box-shadow: none; /* Убираем тень */
+    }
+
+    /* Тело страницы на мобильных устройствах больше не нуждается в центрировании */
+    .login-page-body {
+        display: block;
+        min-height: auto;
+    }
+
+    .login-left-panel {
+        /* Устанавливаем минимальную высоту и центрируем контент */
+        min-height: 100px;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        box-sizing: border-box;
+        background-color: #f8faff; /* Сохраняем фон для визуального разделения */
+        padding-bottom: 10px;
+    }
+
+    .login-logo {
+        /* Центрируем логотип */
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .login-right-panel {
+        /* Выравниваем форму по центру и добавляем отступы */
+        display: block;
+        position: absolute;
+        top:55%;
+        width: 90%;
+        left: 5%;
+        transform: translateY(-50%);
+        padding: 40px 20px;
+        align-items: flex-start; /* Начинаем с верха */
+        background-color: #f8faff;
+        border-radius: 40px;
+    }
+    
+    .login-form-wrapper {
+        max-width: 100%;
+    }
+
+    .login-form-wrapper h2  {
+        text-align: center;
+    }
+
+    .login-form-wrapper p {
+        text-align: center;
+        width: 80%;
+        margin-left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .login-form-wrapper i {
+        z-index: 2;
+        margin-left: 5%;
+    }
+
+    .login-form-wrapper label {
+        margin-left: 5%;
+    }
+
+    #id_username, #id_password, .login-btn {
+        width: 90%;
+        margin-left: 5%;
+        /* transform: translateX(-50%); */
+    }
+
+    /* --- СКРЫВАЕМ БЛОК INFO-PANEL НА МОБИЛЬНЫХ УСТРОЙСТВАХ --- */
+    .info-panel {
+        display: none;
+    }
+
+    .logo-icon-wrapper {
+        /* Увеличиваем размер иконки логотипа на мобильных устройствах */
+        width:50px;
+        height:50px;
+    }
+
+    .logo-text-wrapper  {
+        width: 70%;
+
+    }
+}
+    </style>
 </head>
 <body class="login-page-body">
 
@@ -18,7 +129,7 @@
         <div class="login-left-panel">
             <header class="login-logo">
                 <div class="logo-icon-wrapper">🎓</div>
-                <div>
+                <div class="logo-text-wrapper">
                     <h1>Bilim Class</h1>
                     <p>Электронная платформа нового поколения</p>
                 </div>

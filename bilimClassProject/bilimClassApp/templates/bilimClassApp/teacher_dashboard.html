@@ -977,6 +977,43 @@ input[name="attached_file"]::file-selector-button:hover {
         margin-bottom: 24px; /* Отступ от списка планов */
     }
 
+    #homework-content .widget-header {
+        display: block;
+        background-color: var(--bg-widget);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--widget-shadow);
+
+        /* Вертикальное расположение элементов */
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px; /* Расстояние между текстом и кнопкой */
+        padding: 20px;
+
+        margin: 0 auto;
+        margin-bottom: 15px;
+        margin-top: 15px;
+        
+        width: 100%;
+       
+        box-sizing: border-box;
+    }
+
+    #homework-content .widget-header h2 {
+        text-align: center;
+    }
+
+    #homework-content .widget-header p {
+        display: none;
+    }
+
+    #homework-content .widget-header .btn-create {
+        margin-top: 20px;
+        justify-self: center;
+        width: 80%;
+        justify-content: center;
+    }
+
     /* --- Стилизуем кнопку "Создать план" --- */
     .lp-widget .btn-create {
         width: 100%; /* Кнопка на всю ширину карточки */
@@ -1173,7 +1210,216 @@ input[name="attached_file"]::file-selector-button:hover {
         flex-direction: row;
     }
     
+    #journal-content-container {
+        overflow-x: auto; /* Включаем горизонтальный скролл */
+        padding-bottom: 8px; /* Место для кастомного скроллбара */
+        margin: 0 -20px; /* Расширяем контейнер, чтобы таблицы начинались от края */
+        padding: 0 20px;
+    }
 
+    #journal-content-container thead tr{
+        width:100%;
+    }
+
+    #journal-content-container thead th{
+        width: 14.2857%;
+    }
+
+    /* --- 2. Общие стили для обеих таблиц --- */
+    #grades-table,
+    #attendance-table {
+        min-width: 700px; /* Задаем минимальную ширину, чтобы появился скролл */
+        border-collapse: separate; /* Позволяет использовать border-spacing */
+        border-spacing: 0 12px; /* Расстояние между "карточками" студентов */
+        border: none;
+    }
+    
+    #grades-table tbody,
+    #attendance-table tbody {
+        background-color: transparent;
+    }
+
+    /* --- 3. Стилизуем ячейки и заголовок --- */
+    #grades-table th,
+    #attendance-table th {
+        padding: 12px 16px;
+        font-size: 13px;
+        white-space: nowrap;
+        /* "Приклеиваем" заголовок к верху при прокрутке */
+        position: sticky;
+        top: 0;
+        background-color: var(--bg-main, #F9FAFB); /* Фон, чтобы контент не просвечивал */
+        z-index: 10;
+    }
+
+    #grades-table td,
+    #attendance-table td {
+        background-color: var(--bg-widget);
+        padding: 8px 16px;
+        border: none;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        white-space: nowrap;
+    }
+
+    /* --- 4. "Приклеиваем" колонку с именами студентов --- */
+    #grades-table th:first-child,
+    #attendance-table th:first-child,
+    #grades-table td:first-child,
+    #attendance-table td:first-child {
+        /* Магия "залипания" колонки слева */
+        position: sticky;
+        left: 0;
+        z-index: 5;
+        background-color: var(--bg-widget);
+        border-right: 1px solid var(--border-color); /* Линия-разделитель */
+    }
+    
+    /* Самый левый верхний угол должен быть поверх всего */
+    #grades-table th:first-child,
+    #attendance-table th:first-child {
+        z-index: 15;
+        background-color: var(--bg-main, #F9FAFB);
+    }
+    
+    /* Стилизуем имя студента */
+    #grades-table td:first-child,
+    #attendance-table td:first-child {
+        font-weight: 600;
+        font-size: 15px;
+    }
+
+    /* --- 5. Скругляем углы у "карточек" студентов --- */
+    #grades-table td:first-child,
+    #attendance-table td:first-child {
+        border-radius: 12px 0 0 12px;
+    }
+    #grades-table td:last-of-type,
+    #attendance-table td:last-of-type {
+        border-radius: 0 12px 12px 0;
+    }
+
+    /* --- 6. Кастомный скроллбар --- */
+    #journal-content-container::-webkit-scrollbar {
+        height: 6px;
+    }
+    #journal-content-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    #journal-content-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+    #journal-content-container::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+    }
+
+    .homework-widget {
+        /* Убираем лишние отступы и фон, чтобы карточки стали основным элементом */
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+
+    /* --- Стили для отдельной карточки --- */
+    .homework-card {
+        background-color: var(--bg-widget);
+        border: 1px solid var(--border-color);
+        border-radius: 16px; /* Более заметное скругление */
+        padding: 20px;
+        box-shadow: var(--widget-shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 16px; /* Равномерный отступ между элементами карточки */
+    }
+    
+    /* --- Шапка карточки (заголовок, теги, кнопки) --- */
+    .hw-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start; /* Выравнивание по верху */
+        gap: 12px;
+        margin-bottom: 0; /* Используем gap вместо margin */
+    }
+
+    .hw-title-group {
+        display: flex;
+        flex-wrap: wrap; /* Позволяет тегам переноситься на новую строку */
+        align-items: center;
+        gap: 8px; /* Расстояние между тегами */
+    }
+
+    .hw-title-group h3 {
+        width: 100%; /* Заголовок всегда на своей строке */
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .hw-tag {
+        background-color: #EEF2FF; /* Светло-фиолетовый фон */
+        color: #4338CA; /* Темно-фиолетовый текст */
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+    /* --- Кнопки действий (Редактировать, Удалить) --- */
+    .hw-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .hw-actions button {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background-color: transparent;
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+    .hw-actions button:hover {
+        background-color: #F3F4F6;
+    }
+    
+    /* --- Описание задания --- */
+    .hw-description {
+        margin: 0; /* Отступы контролируются родительским gap */
+        color: var(--text-secondary);
+    }
+
+    /* --- Подвал карточки (статистика и кнопка) --- */
+    .hw-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        margin-top: auto; /* Прижимает подвал к низу карточки */
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* --- Статистика сдачи --- */
+    .hw-stats {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.5; /* Улучшаем читаемость */
+    }
+    .hw-stats span {
+        display: block; /* Заставляем статистику располагаться вертикально */
+    }
+    
+    /* --- Кнопка "Просмотреть работы" --- */
+    .btn-view-submissions {
+        font-size: 14px;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background-color: #F9FAFB; /* Слегка серый фон */
+    }
 }
     </style>
 </head>

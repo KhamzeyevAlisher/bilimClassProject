@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm, LessonPlanForm
-from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed
 import json
 from datetime import date, timedelta
 from .decorators import group_required
@@ -13,8 +13,8 @@ from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,
 from django.db.models import Avg, Q, Count, Case, When, FloatField
 from django.views.decorators.http import require_POST
 import datetime
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models.functions import Coalesce
@@ -100,35 +100,23 @@ def custom_login_view(request):
 def home(request):
     return render(request, 'bilimClassApp/home.html')
 
-@login_required # Декоратор, который требует, чтобы пользователь был авторизован
+@login_required
 def profile_view(request):
     current_user = request.user
     
-    # Шаг 2: Пытаемся найти профиль Учителя, связанный с этим пользователем.
-    # Так как не каждый пользователь - учитель, используем try-except для безопасности.
+    # Логика для учителей остается без изменений
     teacher_profile = None
-    schedule = Schedule.objects.none() # Готовим пустой queryset
-    
     try:
-        # Django автоматически создает обратную связь `user.teacher` из OneToOneField
         teacher_profile = current_user.teacher
     except Teacher.DoesNotExist:
-        # Если профиль не найден, значит этот пользователь не учитель.
-        # teacher_profile останется None, и мы обработаем это в шаблоне.
         pass
         
-    # Шаг 3: Если профиль учителя найден, ищем его расписание.
     if teacher_profile:
-        # Это основной запрос: найти все записи в Schedule, где поле teacher
-        # равно найденному профилю.
-        # teacher.schedule_set.all() - это альтернативный способ сделать то же самое.
         schedule = Schedule.objects.filter(teacher=teacher_profile).order_by('day_of_week', 'start_time')
 
-
+    # Обработка AJAX-запроса на ОБНОВЛЕНИЕ ПРОФИЛЯ
     if request.method == 'POST':
-        # AJAX-запрос
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            # Извлекаем данные из тела запроса
+        if not request.content_type == 'application/json':
             data = json.loads(request.body)
             form = ProfileForm(data, instance=request.user.profile)
             if form.is_valid():
@@ -136,16 +124,51 @@ def profile_view(request):
                 return JsonResponse({'status': 'success', 'message': 'Профиль успешно обновлен!'})
             else:
                 return JsonResponse({'status': 'error', 'errors': form.errors})
-        else:
-            # Обычный POST-запрос (без AJAX)
+        else: # Обработка обычной POST-отправки (на всякий случай)
             form = ProfileForm(request.POST, instance=request.user.profile)
             if form.is_valid():
                 form.save()
                 return redirect('profile')
     else:
+        # Для GET-запроса создаем экземпляры обеих форм
         form = ProfileForm(instance=request.user.profile)
     
-    return render(request, 'bilimClassApp/profile.html', {'form': form})
+    # Создаем экземпляр формы смены пароля и передаем его в контекст
+    password_form = PasswordChangeForm(request.user)
+
+    context = {
+        'form': form,
+        'password_form': password_form,
+        
+    }
+    
+    return render(request, 'bilimClassApp/profile.html', context)
+
+# bilimClassApp/views.py
+
+@login_required
+def change_password(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+        
+    if 'application/json' not in request.content_type:
+        return JsonResponse({'status': 'error', 'message': 'Неверный тип запроса. Ожидался JSON.'}, status=400)
+
+    data = json.loads(request.body)
+    print(data)
+    form = PasswordChangeForm(user=request.user, data=data)
+    
+    if form.is_valid():
+        print("Форма валидна! Сохраняем пароль.")
+        user = form.save()
+        update_session_auth_hash(request, user)  
+        return JsonResponse({'status': 'success', 'message': 'Пароль успешно изменен!'})
+    else:
+        # --- ВОТ ВАЖНЫЙ МОМЕНТ ДЛЯ ОТЛАДКИ ---
+        # Выводим ошибки в консоль сервера, чтобы точно знать причину
+        print("Форма НЕ валидна. Ошибки:", form.errors.as_json()) 
+        # --- КОНЕЦ ВАЖНОГО МОМЕНТА ---
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
 @login_required
 @group_required('Учитель', 'Завуч')

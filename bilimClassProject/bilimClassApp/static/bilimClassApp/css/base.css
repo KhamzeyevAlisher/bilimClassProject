@@ -66,6 +66,13 @@ body {
 .main-nav a:hover { background-color: #F3F4F6; }
 .main-nav a.active { background-color: var(--accent-light); color: var(--accent-primary); }
 
+.td-main-nav { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px; margin-bottom: 24px; }
+.td-main-nav ul { display: flex; list-style: none; gap: 8px; }
+.td-main-nav a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--text-secondary); font-weight: 600; border-radius: 8px; transition: all 0.2s; }
+.td-main-nav a:hover { background-color: #F3F4F6; }
+.td-main-nav a.active { background-color: var(--accent-light); color: var(--accent-primary); }
+
+
 /* Модальные окна (Modal) */
 .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(17, 24, 39, 0.6); justify-content: center; align-items: center; backdrop-filter: blur(4px); }
 .modal-overlay.visible { display: flex; }
@@ -91,3 +98,136 @@ body {
 .grade-5 { background-color: var(--grade-5-bg); color: var(--grade-5-text); }
 .grade-4 { background-color: var(--grade-4-bg); color: var(--grade-4-text); }
 .grade-3 { background-color: var(--grade-3-bg); color: var(--grade-3-text); }
+
+/* --- 1. Стили для верхней мобильной панели (остаются без изменений) --- */
+    /* .td-mobile-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background-color: var(--bg-widget);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--widget-shadow);
+        margin-bottom: 20px;
+    }
+    #mobile-nav-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+    #mobile-menu-btn {
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        color: var(--text-primary);
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+    
+    #mobile-menu-btn:hover {
+        background-color: var(--accent-light);
+    }
+    
+    .td-main-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px; 
+        max-width: 90%;
+        height: 100%;
+        background-color: var(--bg-widget);
+        box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1);
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 2000;
+        padding: 0; 
+        margin: 0;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column; 
+    }
+
+    .td-main-nav.is-open {
+        transform: translateX(0);
+    }
+
+    
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0; 
+    }
+
+    .mobile-menu-header h3 {
+        font-size: 18px;
+    }
+
+    #mobile-menu-close-btn {
+        background: transparent;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: var(--text-secondary);
+        transition: background-color 0.2s, color 0.2s;
+    }
+    #mobile-menu-close-btn:hover {
+        background-color: #F3F4F6;
+        color: var(--text-primary);
+    }
+    
+    
+    .td-main-nav ul {
+        
+        display: flex;
+        flex-direction: column; 
+        gap: 8px; 
+        padding: 16px;
+        overflow-y: auto; 
+
+    .td-main-nav a {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 20px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 10px;
+        width: 100%;
+        color: var(--text-secondary); 
+    }
+    .td-main-nav a:hover {
+        background-color: #F3F4F6;
+        color: var(--text-primary);
+    }
+    .td-main-nav a.active {
+        background-image: linear-gradient(90deg, #6d28d9, #4f46e5);
+        color: #fff;
+        font-weight: 600;
+    }
+    .td-main-nav a.active i {
+        color: #fff;
+    }
+
+    body.menu-open::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(17, 24, 39, 0.6);
+        z-index: 1999;
+        transition: opacity 0.3s ease;
+    } */

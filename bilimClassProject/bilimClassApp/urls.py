@@ -78,4 +78,5 @@ urlpatterns = [
     path('api/lesson-plans/<int:pk>/delete/', views.delete_lesson_plan_api, name='api_delete_lesson_plan'),
     # === КОНЕЦ: URL-АДРЕСА ===
     path('api/lesson-plans/<int:pk>/update-status/', views.update_lesson_plan_status_api, name='api_update_lesson_plan_status'),
+    path('profile/change-password/', views.change_password, name='change_password'),
 ]

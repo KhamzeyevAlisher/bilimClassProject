@@ -5,18 +5,62 @@
 {% block content %}
 <div class="form-wrapper">
     <h2>Редактирование профиля: {{ user.username }}</h2>
-    <div id="message-container"></div>
+    <div id="profile-message-container" class="message-container"></div>
     
-    <form id="profile-form" method="post">
+    <form id="profile-form" method="post" novalidate>
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Сохранить изменения</button>
     </form>
 </div>
 
-    <script>
-        document.getElementById('profile-form').addEventListener('submit', function(e) {
+<!-- НОВЫЙ БЛОК ДЛЯ СМЕНЫ ПАРОЛЯ -->
+<div class="form-wrapper" style="margin-top: 40px;">
+    <h2>Смена пароля</h2>
+    <div id="password-message-container" class="message-container"></div>
+    <div id="password-errors-list" class="errors-list"></div>
+
+    <form id="password-form" method="post" action="{% url 'change_password' %}" novalidate>
+        {% csrf_token %}
+        {{ password_form.as_p }}
+        <button type="submit">Изменить пароль</button>
+    </form>
+</div>
+
+<style>
+    /* Просто для наглядности сообщений об успехе/ошибке */
+    .message-container {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        display: none; /* Скрыто по умолчанию */
+    }
+
+    .errors-list {
+        color: #721c24; /* Темно-красный цвет */
+        background-color: #f8d7da; /* Светло-красный фон */
+        border: 1px solid #f5c6cb;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .errors-list ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- ОБРАБОТЧИК ДЛЯ ФОРМЫ ПРОФИЛЯ (немного изменен) ---
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
             e.preventDefault(); 
+
+            
 
             const form = e.target;
             const formData = new FormData(form);
@@ -28,31 +72,93 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest',
+                    'x-requested-with': 'XMLHttpRequest', // <--- Все в нижнем регистре
                 },
                 body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
-                const messageContainer = document.getElementById('message-container');
+                const messageContainer = document.getElementById('profile-message-container');
+                messageContainer.style.display = 'block';
                 if (data.status === 'success') {
                     messageContainer.textContent = data.message;
                     messageContainer.style.backgroundColor = '#d4edda';
                     messageContainer.style.color = '#155724';
                 } else {
-                    messageContainer.textContent = 'Произошла ошибка. Проверьте данные.';
+                    // Собираем ошибки в строку
+                    let errorText = 'Произошла ошибка. Проверьте данные.\n';
+                    if (data.errors) {
+                        for (const field in data.errors) {
+                            errorText += `${field}: ${data.errors[field][0].message}\n`;
+                        }
+                    }
+                    messageContainer.textContent = errorText;
                     messageContainer.style.backgroundColor = '#f8d7da';
                     messageContainer.style.color = '#721c24';
-                    console.log(data.errors);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                const messageContainer = document.getElementById('message-container');
-                messageContainer.textContent = 'Произошла ошибка при отправке запроса.';
-                messageContainer.style.backgroundColor = '#f8d7da';
-                messageContainer.style.color = '#721c24';
-            });
+            .catch(error => console.error('Error:', error));
         });
-    </script>
+    }
+
+    // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ ФОРМЫ СМЕНЫ ПАРОЛЯ ---
+    const passwordForm = document.getElementById('password-form');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            console.log("Submitting profile form via AJAX");
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Очищаем старые сообщения перед новым запросом
+            const messageContainer = document.getElementById('password-message-container');
+            const errorsListContainer = document.getElementById('password-errors-list');
+            messageContainer.style.display = 'none';
+            errorsListContainer.innerHTML = ''; // Очищаем список ошибок
+            errorsListContainer.style.display = 'none';
+
+            console.log(data);
+            
+            fetch("{% url 'change_password' %}", { // Отправляем на новый URL
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                    'x-requested-with': 'XMLHttpRequest', // <--- Все в нижнем регистре
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageContainer = document.getElementById('password-message-container');
+                messageContainer.style.display = 'block';
+                if (data.status === 'success') {
+                    messageContainer.textContent = data.message;
+                    messageContainer.style.backgroundColor = '#d4edda';
+                    messageContainer.style.color = '#155724';
+                    form.reset(); // Очищаем поля формы после успеха
+                } else {
+                    let errorText = 'Ошибка при смене пароля:\n';
+                    if (data.errors) {
+                        // Ошибки от PasswordChangeForm имеют другую структуру
+                        for (const field in data.errors) {
+                            data.errors[field].forEach(error => {
+                                errorText += `- ${error.message}\n`;
+                            });
+                        }
+                    }
+                    messageContainer.textContent = errorText;
+                    messageContainer.style.backgroundColor = '#f8d7da';
+                    messageContainer.style.color = '#721c24';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm, LessonPlanForm
+from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm, LessonPlanForm, CustomPasswordChangeForm, UserNameChangeForm, EmailChangeForm
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed
 import json
 from datetime import date, timedelta
@@ -102,44 +102,47 @@ def home(request):
 
 @login_required
 def profile_view(request):
-    current_user = request.user
-    
-    # Логика для учителей остается без изменений
-    teacher_profile = None
+    # --- НАДЕЖНОЕ ПОЛУЧЕНИЕ ИЛИ СОЗДАНИЕ ПРОФИЛЯ ---
     try:
-        teacher_profile = current_user.teacher
-    except Teacher.DoesNotExist:
-        pass
-        
-    if teacher_profile:
-        schedule = Schedule.objects.filter(teacher=teacher_profile).order_by('day_of_week', 'start_time')
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        # Если профиля нет, создаем его!
+        profile = Profile.objects.create(user=request.user)
 
-    # Обработка AJAX-запроса на ОБНОВЛЕНИЕ ПРОФИЛЯ
+    # Теперь мы всегда работаем с существующим объектом `profile`
+    profile_form = ProfileForm(instance=profile)
+    password_form = CustomPasswordChangeForm(request.user)
+    name_form = UserNameChangeForm(instance=request.user)
+    email_form = EmailChangeForm(initial={'email': request.user.email})
+
     if request.method == 'POST':
-        if not request.content_type == 'application/json':
-            data = json.loads(request.body)
-            form = ProfileForm(data, instance=request.user.profile)
-            if form.is_valid():
-                form.save()
-                return JsonResponse({'status': 'success', 'message': 'Профиль успешно обновлен!'})
-            else:
-                return JsonResponse({'status': 'error', 'errors': form.errors})
-        else: # Обработка обычной POST-отправки (на всякий случай)
-            form = ProfileForm(request.POST, instance=request.user.profile)
+        if 'application/json' in request.content_type:
+            try:
+                data = json.loads(request.body)
+                print(data)
+                # Важно: используем `profile`, а не `request.user.profile`
+                form = ProfileForm(data, instance=profile)
+                if form.is_valid():
+                    form.save()
+                    return JsonResponse({'status': 'success', 'message': 'Профиль успешно обновлен!'})
+                else:
+                    return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'error', 'message': 'Неверные JSON данные.'}, status=400)
+        else:
+            # Обработка обычной формы
+            form = ProfileForm(request.POST, instance=profile)
             if form.is_valid():
                 form.save()
                 return redirect('profile')
-    else:
-        # Для GET-запроса создаем экземпляры обеих форм
-        form = ProfileForm(instance=request.user.profile)
-    
-    # Создаем экземпляр формы смены пароля и передаем его в контекст
-    password_form = PasswordChangeForm(request.user)
+            else:
+                profile_form = form 
 
     context = {
-        'form': form,
+        'form': profile_form,
         'password_form': password_form,
-        
+        'name_form': name_form,
+        'email_form': email_form,
     }
     
     return render(request, 'bilimClassApp/profile.html', context)
@@ -2334,3 +2337,66 @@ def update_lesson_plan_status_api(request, pk):
     except Exception as e:
         # Ловим любые другие возможные ошибки
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+@login_required
+def change_name(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    
+    if 'application/json' not in request.content_type:
+        return JsonResponse({'status': 'error', 'message': 'Ожидался JSON.'}, status=400)
+
+    data = json.loads(request.body)
+    # Используем instance=request.user, чтобы обновить существующего пользователя
+    form = UserNameChangeForm(data, instance=request.user)
+
+    if form.is_valid():
+        user = form.save()
+        # Готовим данные для динамического обновления на странице
+        new_full_name = user.get_full_name()
+        new_initials = (user.first_name[0] + user.last_name[0]).upper() if user.first_name and user.last_name else ''
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Ваши имя и фамилия успешно изменены!',
+            'new_full_name': new_full_name,
+            'new_initials': new_initials
+        })
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    
+@login_required
+def change_email(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    
+    if 'application/json' not in request.content_type:
+        return JsonResponse({'status': 'error', 'message': 'Ожидался JSON.'}, status=400)
+
+    data = json.loads(request.body)
+    form = EmailChangeForm(data)
+    user = request.user
+
+    if form.is_valid():
+        # Если базовая валидация прошла (поля не пустые и email корректный),
+        # выполняем наши собственные проверки безопасности.
+        password = form.cleaned_data['password']
+        new_email = form.cleaned_data['email']
+
+        # ПРОВЕРКА 1: Правильность текущего пароля
+        if not user.check_password(password):
+            # Возвращаем ошибку в том же формате, что и form.errors
+            return JsonResponse({'status': 'error', 'errors': {'password': [{'message': 'Неверный пароль.'}]}}, status=400)
+
+        # ПРОВЕРКА 2: Уникальность нового email
+        # Исключаем текущего пользователя из проверки, чтобы он мог "пересохранить" свой же email
+        if User.objects.filter(email=new_email).exclude(pk=user.pk).exists():
+            return JsonResponse({'status': 'error', 'errors': {'email': [{'message': 'Этот email уже используется другим пользователем.'}]}}, status=400)
+        
+        # Все проверки пройдены, сохраняем email
+        user.email = new_email
+        user.save(update_fields=['email']) # Обновляем только поле email
+        return JsonResponse({'status': 'success', 'message': 'Ваш email успешно изменен!'})
+    else:
+        # Если не прошли стандартные проверки (например, поле пустое)
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)

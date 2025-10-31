@@ -3,13 +3,64 @@
 from django import forms
 from django.db import transaction
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule,  Holiday, LessonPlan # Импортируем нужные модели
 
 class ProfileForm(forms.ModelForm):
+
+    birth_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     class Meta:
         model = Profile
-        fields = ('bio', 'location', 'birth_date')
+        fields = ('bio', 'location', 'birth_date', 'phone_number','iin',)
+
+    def clean_phone_number(self):
+        # Получаем данные из поля
+        phone = self.cleaned_data.get('phone_number')
+
+        # Если поле пустое, ничего не делаем, так как оно необязательное
+        if not phone:
+            return phone
+
+        # Очищаем номер от лишних символов для проверки
+        cleaned_phone = ''.join(filter(str.isdigit, phone))
+
+        # Проверяем, что после очистки остались только цифры и их достаточное количество
+        # Например, от 10 (без кода страны) до 12 (с кодом страны)
+        if not cleaned_phone.isdigit() or not (10 <= len(cleaned_phone) <= 12):
+            # Если проверка не пройдена, вызываем ошибку валидации
+            raise forms.ValidationError("Пожалуйста, введите корректный номер телефона (например, +77071234567).")
+            
+        # Если все хорошо, возвращаем исходное (неочищенное) значение
+        return phone
+    
+    # 2. --- НОВЫЙ МЕТОД ВАЛИДАЦИИ ДЛЯ ИИН ---
+    def clean_iin(self):
+        iin = self.cleaned_data.get('iin')
+
+        # Если поле пустое, ничего не делаем
+        if not iin:
+            return iin
+
+        # Проверяем, что в поле только цифры
+        if not iin.isdigit():
+            raise forms.ValidationError("ИИН должен состоять только из цифр.")
+
+        # Проверяем, что длина поля ровно 12 символов
+        if len(iin) != 12:
+            raise forms.ValidationError("ИИН должен состоять ровно из 12 цифр.")
+            
+        # Если все проверки пройдены, возвращаем значение
+        return iin
+
+# --- НОВЫЙ КЛАСС ФОРМЫ ДЛЯ СМЕНЫ ПАРОЛЯ ---
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        # Сначала вызываем родительский конструктор
+        super().__init__(*args, **kwargs)
+        
+        # Убираем атрибут 'autofocus' из виджета поля old_password
+        if 'autofocus' in self.fields['old_password'].widget.attrs:
+            del self.fields['old_password'].widget.attrs['autofocus']
 
 class CustomLoginForm(AuthenticationForm):
     # Переопределяем поля, чтобы добавить виджеты с атрибутами
@@ -356,3 +407,28 @@ class LessonPlanForm(forms.ModelForm):
             'goals_and_objectives': forms.Textarea(attrs={'rows': 3}),
             # 'learning_materials': forms.Textarea(attrs={'rows': 3}),
         }
+
+
+class UserNameChangeForm(forms.ModelForm):
+    class Meta:
+        model = User # Работаем с основной моделью User
+        fields = ('first_name', 'last_name')
+        labels = {
+            'first_name': 'Ваше имя',
+            'last_name': 'Ваша фамилия',
+        }
+
+class EmailChangeForm(forms.Form):
+    # required=True гарантирует, что поле не будет пустым
+    email = forms.EmailField(
+        label="Новый email", 
+        required=True,
+        widget=forms.EmailInput(attrs={'autocomplete': 'email', 'placeholder': 'Введите новый email'})
+    )
+    # strip=False важно для паролей, чтобы не обрезались пробелы
+    password = forms.CharField(
+        label="Текущий пароль для подтверждения", 
+        required=True, 
+        strip=False, 
+        widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'})
+    )

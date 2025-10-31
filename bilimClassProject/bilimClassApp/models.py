@@ -63,6 +63,18 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True, verbose_name="О себе")
     location = models.CharField(max_length=30, blank=True, verbose_name="Местоположение")
     birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")
+    
+    phone_number = models.CharField(
+        max_length=20,
+        blank=True, 
+        verbose_name="Номер телефона"
+    )
+
+    iin = models.CharField(
+        max_length=12,
+        blank=True, # Делаем поле необязательным
+        verbose_name="ИИН"
+    )
 
     role = models.CharField(
         max_length=20, 

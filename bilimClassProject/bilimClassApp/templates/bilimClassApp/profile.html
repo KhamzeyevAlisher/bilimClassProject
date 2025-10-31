@@ -1,164 +1,405 @@
-{% extends "bilimClassApp/base.html" %}
-
-{% block title %}Редактировать профиль - BilimClass{% endblock %}
-
-{% block content %}
-<div class="form-wrapper">
-    <h2>Редактирование профиля: {{ user.username }}</h2>
-    <div id="profile-message-container" class="message-container"></div>
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьная Платформа</title>
     
-    <form id="profile-form" method="post" novalidate>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Сохранить изменения</button>
-    </form>
-</div>
+    <!-- Подключаем иконки Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- ПОДКЛЮЧАЕМ ВСЕ СТИЛИ ЗДЕСЬ -->
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/admin_panel.css' %}">
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/school_structure.css' %}">
+    <style>
+        /* Добавляем стиль для скрытия неактивных страниц и вкладок */
+        .main-nav {
+            display: none;
+        }
 
-<!-- НОВЫЙ БЛОК ДЛЯ СМЕНЫ ПАРОЛЯ -->
-<div class="form-wrapper" style="margin-top: 40px;">
-    <h2>Смена пароля</h2>
-    <div id="password-message-container" class="message-container"></div>
-    <div id="password-errors-list" class="errors-list"></div>
+        .page-content, .content-tab-pane {
+            display: none;
+        }
+        .page-content.active, .content-tab-pane.active {
+            display: block;
+        }
 
-    <form id="password-form" method="post" action="{% url 'change_password' %}" novalidate>
-        {% csrf_token %}
-        {{ password_form.as_p }}
-        <button type="submit">Изменить пароль</button>
-    </form>
-</div>
+        .td-user-section { display: flex; align-items: center; gap: 16px; }
+        .td-user-info { text-align: right; } .td-user-info h3 { font-weight: 600; }
+        .td-user-info p { font-size: 14px; color: var(--text-secondary); }
+        .td-user-link { text-decoration: none; color: inherit; }
+        .container {width:100%;}
+        .logout-link {
+            color: #6B7280;
+            font-size: 14px; 
+        }
+        .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ===================================================================== -->
+        <!-- === ОБЩАЯ ШАПКА (видна на всех страницах) === -->
+        <!-- ===================================================================== -->
+        <header class="site-header">
+            <div class="logo-section">
+                <a href="{% url 'login' %}" style="text-decoration: none;"><div class="logo-icon">ШП</div></a>
+                <div class="logo-text">
+                    <h1>Школьная Платформа</h1>
+                    <span>Система управления учебным процессом</span>
+                </div>
+            </div>
+            <div class="td-user-section">
+                <div class="td-user-info">
+                    <a href="{% url 'profile' %}" class="td-user-link">
+                        <h3>{{ user.get_full_name }}</h3>
+                    </a>
+                    <p>Ученик</p>
+                    <a href="{% url 'logout' %}" class="logout-link" title="Выйти из аккаунта">
+                        Выйти
+                    </a>
+                </div>
+                <a href="{% url 'profile' %}" class="td-user-link">
+                    <div class="td-user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
+                </a>
+            </div>
+        </header>
 
-<style>
-    /* Просто для наглядности сообщений об успехе/ошибке */
-    .message-container {
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 5px;
-        display: none; /* Скрыто по умолчанию */
-    }
+        <!-- ===================================================================== -->
+        <!-- === ОБЩАЯ НАВИГАЦИЯ (видна на всех страницах) === -->
+        <!-- ===================================================================== -->
+        <nav class="main-nav">
+            <ul>
+                <!-- data-target используется JS для переключения контента -->
+                <li><a href="#" data-target="home"><i class="fa-solid fa-house"></i> Главная</a></li>
+                <li><a href="#" data-target="users" class="active"><i class="fa-solid fa-users"></i> Пользователи</a></li>
+                <li><a href="#" data-target="structure"><i class="fa-solid fa-sitemap"></i> Структура школы</a></li>
+                <li><a href="#" data-target="assignments"><i class="fa-solid fa-user-tag"></i> Назначения</a></li>
+                <li><a href="#" data-target="settings"><i class="fa-solid fa-gear"></i> Настройки</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="form-wrapper">
+        <h2>Редактирование профиля: {{ user.username }}</h2>
+        <div id="profile-message-container" class="message-container"></div>
+        <div id="profile-errors-list" class="errors-list"></div>
+        
+        <form id="profile-form" method="post" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Сохранить изменения</button>
+        </form>
+    </div>
 
-    .errors-list {
-        color: #721c24; /* Темно-красный цвет */
-        background-color: #f8d7da; /* Светло-красный фон */
-        border: 1px solid #f5c6cb;
-        padding: 10px 15px;
-        margin-bottom: 20px;
-        border-radius: 5px;
-    }
-    .errors-list ul {
-        margin: 0;
-        padding-left: 20px;
-    }
-</style>
-{% endblock %}
+    <!-- НОВЫЙ БЛОК ДЛЯ СМЕНЫ ПАРОЛЯ -->
+    <div class="form-wrapper" style="margin-top: 40px;">
+        <h2>Смена пароля</h2>
+        <div id="password-message-container" class="message-container"></div>
+        <div id="password-errors-list" class="errors-list"></div>
 
-{% block scripts_extra %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // --- ОБРАБОТЧИК ДЛЯ ФОРМЫ ПРОФИЛЯ (немного изменен) ---
-    const profileForm = document.getElementById('profile-form');
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
-            e.preventDefault(); 
+        <form id="password-form" method="post" action="{% url 'change_password' %}" novalidate>
+            {% csrf_token %}
+            {{ password_form.as_p }}
+            <button type="submit">Изменить пароль</button>
+        </form>
+    </div>
 
-            
+    <!-- 2. НОВЫЙ БЛОК ДЛЯ СМЕНЫ ФИО -->
+    <div class="form-wrapper" style="margin-top: 40px;">
+        <h2>Смена имени и фамилии</h2>
+        <div id="name-message-container" class="message-container"></div>
+        <div id="name-errors-list" class="errors-list"></div>
 
-            const form = e.target;
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            fetch("{% url 'profile' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                    'x-requested-with': 'XMLHttpRequest', // <--- Все в нижнем регистре
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                const messageContainer = document.getElementById('profile-message-container');
-                messageContainer.style.display = 'block';
-                if (data.status === 'success') {
-                    messageContainer.textContent = data.message;
-                    messageContainer.style.backgroundColor = '#d4edda';
-                    messageContainer.style.color = '#155724';
-                } else {
-                    // Собираем ошибки в строку
-                    let errorText = 'Произошла ошибка. Проверьте данные.\n';
-                    if (data.errors) {
-                        for (const field in data.errors) {
-                            errorText += `${field}: ${data.errors[field][0].message}\n`;
-                        }
-                    }
-                    messageContainer.textContent = errorText;
-                    messageContainer.style.backgroundColor = '#f8d7da';
-                    messageContainer.style.color = '#721c24';
+        <form id="name-form" method="post" action="{% url 'change_name' %}" novalidate>
+            {% csrf_token %}
+            <!-- Рендерим новую форму -->
+            {{ name_form.as_p }}
+            <button type="submit">Сохранить ФИО</button>
+        </form>
+    </div>
+
+    <!-- НОВЫЙ БЛОК ДЛЯ СМЕНЫ EMAIL -->
+    <div class="form-wrapper" style="margin-top: 40px;">
+        <h2>Смена Email</h2>
+        <p>Текущий email: <strong>{{ user.email|default:"не указан" }}</strong></p>
+        <div id="email-message-container" class="message-container"></div>
+        <div id="email-errors-list" class="errors-list"></div>
+
+        <form id="email-form" method="post" action="{% url 'change_email' %}" novalidate>
+            {% csrf_token %}
+            {{ email_form.as_p }}
+            <button type="submit">Изменить Email</button>
+        </form>
+    </div>
+
+    <style>
+
+        .errors-list { display: none; }
+        /* Просто для наглядности сообщений об успехе/ошибке */
+        .message-container {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none; /* Скрыто по умолчанию */
+        }
+
+        .errors-list {
+            color: #721c24; /* Темно-красный цвет */
+            background-color: #f8d7da; /* Светло-красный фон */
+            border: 1px solid #f5c6cb;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .errors-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+    </style>
+   
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- ОБРАБОТЧИК ДЛЯ ФОРМЫ ПРОФИЛЯ (немного изменен) ---
+        const profileForm = document.getElementById('profile-form');
+        if (profileForm) {
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault(); 
+
+                const form = e.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                if (data.birth_date === '') {
+                    data.birth_date = null;
                 }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    }
 
-    // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ ФОРМЫ СМЕНЫ ПАРОЛЯ ---
-    const passwordForm = document.getElementById('password-form');
-    if (passwordForm) {
-        passwordForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+                // Очистка старых сообщений
+                document.getElementById('profile-message-container').style.display = 'none';
+                try {
+                    document.getElementById('profile-errors-list').innerHTML = '';
+                } catch {
 
-            console.log("Submitting profile form via AJAX");
+                }
+                
+                fetch("{% url 'profile' %}", {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const messageContainer = document.getElementById('profile-message-container');
+                    messageContainer.style.display = 'block';
+                    if (data.status === 'success') {
+                        messageContainer.textContent = data.message;
+                        messageContainer.style.backgroundColor = '#d4edda';
+                        messageContainer.style.color = '#155724';
+                    } else {
+                        const errorsListContainer = document.getElementById('profile-errors-list');
+                        errorsListContainer.style.display = 'block';
+                        errorsListContainer.innerHTML = '';
+                        
+                        const errors = data.errors;
+                        const ul = document.createElement('ul');
 
-            const form = e.target;
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+                        if (errors) {
+                            for (const field in errors) {
+                                // errors[field] - это массив
+                                errors[field].forEach(error => {
+                                    const li = document.createElement('li');
+                                    // Проверяем, является ли ошибка объектом с полем 'message' или просто строкой
+                                    const errorMessage = (typeof error === 'object' && error.message) ? error.message : error;
+                                    // Добавляем имя поля для ясности
+                                    li.textContent = `${form.querySelector(`[name=${field}]`).labels[0].textContent}: ${errorMessage}`;
+                                    ul.appendChild(li);
+                                });
+                            }
+                        } else {
+                            // Если объект errors пуст, но статус 'error'
+                            const li = document.createElement('li');
+                            li.textContent = data.message || 'Произошла неизвестная ошибка.';
+                            ul.appendChild(li);
+                        }
+                        
+                        errorsListContainer.appendChild(ul);
+                        // --- КОНЕЦ ЗАМЕНЫ ---
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }s
 
-            // Очищаем старые сообщения перед новым запросом
-            const messageContainer = document.getElementById('password-message-container');
-            const errorsListContainer = document.getElementById('password-errors-list');
-            messageContainer.style.display = 'none';
-            errorsListContainer.innerHTML = ''; // Очищаем список ошибок
-            errorsListContainer.style.display = 'none';
+        // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ ФОРМЫ СМЕНЫ ПАРОЛЯ ---
+        const passwordForm = document.getElementById('password-form');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            console.log(data);
-            
-            fetch("{% url 'change_password' %}", { // Отправляем на новый URL
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                    'x-requested-with': 'XMLHttpRequest', // <--- Все в нижнем регистре
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
+                console.log("Submitting profile form via AJAX");
+
+                const form = e.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                // Очищаем старые сообщения перед новым запросом
                 const messageContainer = document.getElementById('password-message-container');
-                messageContainer.style.display = 'block';
-                if (data.status === 'success') {
-                    messageContainer.textContent = data.message;
-                    messageContainer.style.backgroundColor = '#d4edda';
-                    messageContainer.style.color = '#155724';
-                    form.reset(); // Очищаем поля формы после успеха
-                } else {
-                    let errorText = 'Ошибка при смене пароля:\n';
-                    if (data.errors) {
-                        // Ошибки от PasswordChangeForm имеют другую структуру
+                const errorsListContainer = document.getElementById('password-errors-list');
+                messageContainer.style.display = 'none';
+                errorsListContainer.innerHTML = ''; // Очищаем список ошибок
+                errorsListContainer.style.display = 'none';
+
+                fetch("{% url 'change_password' %}", { // Отправляем на новый URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                        'x-requested-with': 'XMLHttpRequest', // <--- Все в нижнем регистре
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const messageContainer = document.getElementById('password-message-container');
+                    messageContainer.style.display = 'block';
+                    if (data.status === 'success') {
+                        messageContainer.textContent = data.message;
+                        messageContainer.style.backgroundColor = '#d4edda';
+                        messageContainer.style.color = '#155724';
+                        form.reset(); // Очищаем поля формы после успеха
+                    } else {
+                        let errorText = 'Ошибка при смене пароля:\n';
+                        if (data.errors) {
+                            // Ошибки от PasswordChangeForm имеют другую структуру
+                            for (const field in data.errors) {
+                                data.errors[field].forEach(error => {
+                                    errorText += `- ${error.message}\n`;
+                                });
+                            }
+                        }
+                        messageContainer.textContent = errorText;
+                        messageContainer.style.backgroundColor = '#f8d7da';
+                        messageContainer.style.color = '#721c24';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+
+        const nameForm = document.getElementById('name-form');
+        if (nameForm) {
+            nameForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const form = e.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                // Очистка старых сообщений
+                document.getElementById('name-message-container').style.display = 'none';
+                document.getElementById('name-errors-list').innerHTML = '';
+
+                fetch("{% url 'change_name' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const messageContainer = document.getElementById('name-message-container');
+                    messageContainer.style.display = 'block';
+
+                    if (data.status === 'success') {
+                        messageContainer.textContent = data.message;
+                        messageContainer.style.backgroundColor = '#d4edda';
+                        messageContainer.style.color = '#155724';
+
+                        // --- ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ ШАПКИ ---
+                        document.getElementById('header-user-fullname').textContent = data.new_full_name;
+                        document.getElementById('header-user-initials').textContent = data.new_initials;
+
+                    } else {
+                        // Обработка ошибок валидации
+                        const errorsListContainer = document.getElementById('name-errors-list');
+                        errorsListContainer.style.display = 'block';
+                        const ul = document.createElement('ul');
                         for (const field in data.errors) {
                             data.errors[field].forEach(error => {
-                                errorText += `- ${error.message}\n`;
+                                const li = document.createElement('li');
+                                li.textContent = error.message || error;
+                                ul.appendChild(li);
                             });
                         }
+                        errorsListContainer.appendChild(ul);
                     }
-                    messageContainer.textContent = errorText;
-                    messageContainer.style.backgroundColor = '#f8d7da';
-                    messageContainer.style.color = '#721c24';
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    }
-});
-</script>
-{% endblock %}
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+
+        // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ ФОРМЫ СМЕНЫ EMAIL ---
+        const emailForm = document.getElementById('email-form');
+        if (emailForm) {
+            emailForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const form = e.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                // Очистка старых сообщений
+                document.getElementById('email-message-container').style.display = 'none';
+                const errorsListContainer = document.getElementById('email-errors-list');
+                errorsListContainer.innerHTML = '';
+                errorsListContainer.style.display = 'none';
+
+                fetch("{% url 'change_email' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const messageContainer = document.getElementById('email-message-container');
+                        messageContainer.style.display = 'block';
+                        messageContainer.textContent = data.message;
+                        messageContainer.style.backgroundColor = '#d4edda';
+                        messageContainer.style.color = '#155724';
+                        form.reset();
+                        // Можно также обновить текст текущего email на странице, если нужно
+                        // location.reload(); // или просто перезагрузить страницу
+                    } else {
+                        errorsListContainer.style.display = 'block';
+                        const ul = document.createElement('ul');
+                        for (const field in data.errors) {
+                            data.errors[field].forEach(error => {
+                                const li = document.createElement('li');
+                                li.textContent = error.message || error;
+                                ul.appendChild(li);
+                            });
+                        }
+                        errorsListContainer.appendChild(ul);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+
+    });
+    </script>
+</body>
+</html>

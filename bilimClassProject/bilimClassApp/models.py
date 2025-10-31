@@ -299,6 +299,7 @@ class LessonPlan(models.Model):
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+    print(instance)
     if created:
         # Устанавливаем роль по умолчанию для всех новых пользователей.
         # Вы можете выбрать любую, например, 'student'.

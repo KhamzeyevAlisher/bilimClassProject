@@ -49,6 +49,9 @@
                         <h3>{{ user.get_full_name }}</h3>
                     </a>
                     <p>Ученик</p>
+                    <a href="{% url 'logout' %}" class="logout-link" style="font-size: 14px; color: #6B7280;" title="Выйти из аккаунта">
+                        Выйти
+                    </a>
                 </div>
                 <a href="{% url 'profile' %}" class="td-user-link">
                     <div class="td-user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>

@@ -180,6 +180,8 @@ class UserManagementForm(forms.Form):
             user = User.objects.create_user(username=username, email=self.cleaned_data['email'])
             # Устанавливаем временный пароль. В реальной системе лучше отправлять email.
             user.set_password('password123')
+
+        user._role_to_set = self.cleaned_data['role']
         
         # Обновление данных User
         name_parts = self.cleaned_data['full_name'].split()

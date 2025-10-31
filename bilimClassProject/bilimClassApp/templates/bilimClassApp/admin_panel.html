@@ -28,46 +28,231 @@
         .td-user-link { text-decoration: none; color: inherit; }
         .td-user-avatar { width: 40px; height: 40px; border-radius: 10px; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
     
-@media (max-width: 1000px) {
+/* =================================================================
+   СТИЛИ ДЛЯ МОБИЛЬНОЙ АДАПТАЦИИ (ADMIN_PANEL)
+   Версия с использованием CSS ::before для подписей
+================================================================= */
 
-    /* --- Общие улучшения для контейнера --- */
-    .td-container {
-        padding: 16px; /* Уменьшаем боковые отступы */
+/* Скрываем мобильную навигацию по умолчанию */
+.td-mobile-nav,
+.mobile-menu-header {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+
+    /* --- 1. ОБЩИЕ ИЗМЕНЕНИЯ МАКЕТА --- */
+    .container {
+        padding: 16px;
+    }
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .page-header .btn-primary {
+        width: 100%;
+    }
+    .page-title h2 {
+        font-size: 20px;
+    }
+    .content-card {
+        padding: 16px;
     }
 
-    /* --- Новая мобильная шапка (Header) --- */
-    .td-header {
+    /* --- 2. МОБИЛЬНАЯ НАВИГАЦИЯ (САЙДБАР) --- */
+    .td-user-info { display: none; }
+    .td-mobile-nav {
         display: flex;
-        flex-direction: row; /* Элементы в строку */
-        justify-content: space-between; /* Логотип слева, аватар справа */
-        align-items: center; /* Вертикальное выравнивание по центру */
+        justify-content: space-between;
+        align-items: center;
         padding: 12px 16px;
+        background-color: var(--bg-widget);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 20px;
     }
-    
-    .td-logo-section h1 {
-        font-size: 16px; /* Немного уменьшаем заголовок */
-        margin-bottom: 2px;
+    #mobile-nav-title { font-size: 18px; font-weight: 600; }
+    #mobile-menu-btn {
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+    }
+    .main-nav {
+        position: fixed;
+        top: 0; right: 0;
+        width: 300px;
+        max-width: 90%;
+        height: 100%;
+        background-color: var(--bg-widget);
+        box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1);
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 2000;
+        padding: 0;
+        margin: 0;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .main-nav.is-open { transform: translateX(0); }
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    #mobile-menu-close-btn {
+        background: transparent;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: var(--text-secondary);
+    }
+    .main-nav ul {
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+    }
+    .main-nav a { padding: 14px 20px; font-size: 16px; font-weight: 500; }
+    .main-nav a.active { background-color: var(--accent-primary); color: #fff; }
+    body.menu-open::after {
+        content: '';
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(17, 24, 39, 0.6);
+        z-index: 1999;
     }
 
-    /* Скрываем подзаголовок и текстовую информацию о пользователе,
-       чтобы оставить интерфейс чистым и оставить только самое важное. */
-    .td-logo-section p,
-    .td-user-info {
+    /* --- 3. АДАПТАЦИЯ ТАБЛИЦ (НОВЫЙ БЛОК) --- */
+
+    /* Общие стили для всех адаптивных таблиц */
+    .users-table thead,
+    .data-table thead {
+        display: none;
+    }
+    .users-table tr,
+    .data-table tr {
+        display: block;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        background-color: #fff;
+    }
+    .users-table td,
+    .data-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .users-table tr td:last-child,
+    .data-table tr td:last-child {
+        border-bottom: none;
+    }
+    .users-table td::before,
+    .data-table td::before {
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-align: left;
+        margin-right: 16px;
+    }
+
+    /* Делаем первую ячейку "заголовком" карточки */
+    .users-table td:first-child,
+    .data-table td:first-child {
+        font-weight: 600;
+        font-size: 16px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+    .users-table td:first-child::before,
+    .data-table td:first-child::before {
+        content: "" !important; /* Убираем подпись у первой ячейки */
+    }
+
+    /* --- Подписи для таблицы ПОЛЬЗОВАТЕЛЕЙ --- */
+    #page-users .users-table td:nth-of-type(2)::before { content: 'Email'; }
+    #page-users .users-table td:nth-of-type(3)::before { content: 'Телефон'; }
+    #page-users .users-table td:nth-of-type(4)::before { content: 'Роль'; }
+    #page-users .users-table td:nth-of-type(5)::before { content: 'Статус'; }
+    #page-users .users-table td:nth-of-type(6)::before { content: 'Последний вход'; }
+    #page-users .users-table td:nth-of-type(7)::before { content: 'Действия'; }
+    
+    /* --- Подписи для таблицы КЛАССОВ --- */
+    #tab-classes .data-table td:nth-of-type(2)::before { content: 'Учеников'; }
+    #tab-classes .data-table td:nth-of-type(3)::before { content: 'Руководитель'; }
+    #tab-classes .data-table td:nth-of-type(4)::before { content: 'Действия:'; }
+
+    /* --- Подписи для таблицы ПРЕДМЕТОВ --- */
+    #tab-subjects .data-table td:nth-of-type(2)::before { content: 'Действия:'; }
+
+    #tab-subjects .data-table td {
+        gap: 20px;
+    }
+
+    #page-assignments i {
         display: none;
     }
 
-    .td-logo-icon,
-    .td-user-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
+
+    /* --- Подписи для таблицы НАЗНАЧЕНИЙ --- */
+    #page-assignments .data-table td:nth-of-type(2)::before { content: 'Класс'; }
+    #page-assignments .data-table td:nth-of-type(3)::before { content: 'Предмет'; }
+    #page-assignments .data-table td:nth-of-type(4)::before { content: 'Часы в неделю'; }
+    #page-assignments .data-table td:nth-of-type(5)::before { content: 'Действия'; }
+    
+    /* --- Подписи для таблицы ВЫХОДНЫХ --- */
+    #page-settings .data-table td:nth-of-type(2)::before { content: 'Причина'; }
+    /* #page-settings .data-table td:nth-of-type(3)::before { content: 'Действия'; } */
+    
+
+
+    /* --- 4. АДАПТАЦИЯ ФИЛЬТРОВ (СТРАНИЦА ПОЛЬЗОВАТЕЛЕЙ) --- */
+    .filters-toolbar {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .filters-toolbar .search-group,
+    .filters-toolbar .filter-select,
+    .filters-toolbar .btn-primary,
+    .filters-toolbar .btn-secondary {
+        width: 100%;
     }
 
-
+    /* --- 5. АДАПТАЦИЯ ВКЛАДОК (СТРАНИЦА СТРУКТУРЫ) --- */
+    #structure-card-header { flex-direction: column; gap: 16px; }
+    #structure-tabs-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+        gap: 8px;
+    }
+    #structure-tabs-nav a { justify-content: center; }
+    #structure-action-buttons { width: 100%; }
+    #structure-action-buttons .btn-success,
+    #structure-action-buttons .btn-info {
+        width: 100%;
+        justify-content: center;
+    }
 }
+      
     </style>
 </head>
-<body>
+<body class="td-body">
     
     <div class="container">
         <!-- ===================================================================== -->
@@ -86,7 +271,6 @@
                     <a href="{% url 'profile' %}" class="td-user-link">
                         <h3>{{ user.get_full_name }}</h3>
                     </a>
-                    <p>Ученик</p>
                     <a href="{% url 'logout' %}" class="logout-link" style="font-size: 14px; color: #6B7280;" title="Выйти из аккаунта">
                         Выйти
                     </a>
@@ -97,10 +281,23 @@
             </div>
         </header>
 
+        <div class="td-mobile-nav">
+            <h2 id="mobile-nav-title">Главная</h2>
+            <button id="mobile-menu-btn" aria-label="Открыть меню">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
         <!-- ===================================================================== -->
         <!-- === ОБЩАЯ НАВИГАЦИЯ (видна на всех страницах) === -->
         <!-- ===================================================================== -->
         <nav class="main-nav">
+            <div class="mobile-menu-header">
+                <h3>Меню</h3>
+                <button id="mobile-menu-close-btn" aria-label="Закрыть меню">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             <ul>
                 <!-- data-target используется JS для переключения контента -->
                 <li><a href="#" data-target="users" class="active"><i class="fa-solid fa-users"></i> Пользователи</a></li>
@@ -1096,6 +1293,58 @@
         initSchoolStructureScripts();
         initAssignmentsScripts();
         initHolidayManagementScripts(); // <-- ВЫЗОВ НОВОЙ ФУНКЦИИ
+    });
+    </script>
+    <script>
+    /* Вставьте этот код в тег <script> в конце вашего HTML */
+    /* ЗАМЕНИТЕ ВАШ СУЩЕСТВУЮЩИЙ СКРИПТ НА ЭТОТ */
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 2. ЛОГИКА ДЛЯ МОБИЛЬНОГО МЕНЮ ---
+        const menuButton = document.getElementById('mobile-menu-btn');
+        const closeButton = document.getElementById('mobile-menu-close-btn');
+        const navMenu = document.querySelector('.main-nav');
+        const mobileNavTitle = document.getElementById('mobile-nav-title');
+        const navLinks = navMenu.querySelectorAll('a');
+
+        if (menuButton) {
+            // Функция для закрытия меню
+            const closeMenu = () => {
+                navMenu.classList.remove('is-open');
+                document.body.classList.remove('menu-open');
+            };
+
+            // Открытие меню по клику на бургер
+            menuButton.addEventListener('click', function() {
+                navMenu.classList.add('is-open');
+                document.body.classList.add('menu-open');
+            });
+
+            // Закрытие меню по клику на крестик
+            closeButton.addEventListener('click', closeMenu);
+
+            // При клике на ссылку в мобильном меню, мы обновляем заголовок и закрываем его
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileNavTitle.textContent = this.textContent.trim();
+                    // Само переключение вкладок обработается в блоке №1
+                    closeMenu();
+                });
+            });
+            
+            // Закрытие меню при клике вне его (на оверлей)
+            document.addEventListener('click', function(event) {
+                if (navMenu.classList.contains('is-open') && !navMenu.contains(event.target) && !menuButton.contains(event.target)) {
+                    closeMenu();
+                }
+            });
+
+            // Закрытие по клавише Escape
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && navMenu.classList.contains('is-open')) {
+                    closeMenu();
+                }
+            });
+        }
     });
     </script>
 </body>

@@ -836,7 +836,12 @@ input[name="attached_file"]::file-selector-button:hover {
     .td-main-nav ul { gap:12px; }
     .td-main-nav a { background:transparent; padding:10px 16px; border-radius:999px; box-shadow: none; }
     .td-main-nav a:hover { transform: translateY(-2px); }
-    .td-main-nav a.active { background-image: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%); color:#fff; box-shadow: 0 6px 18px rgba(79,70,229,0.18); }
+    .td-main-nav a.active { 
+        /* background-image: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%);  */
+        background-color: #4F46E5;
+        color:#fff; 
+        box-shadow: 0 6px 18px rgba(79,70,229,0.18);
+    }
 
     /* Responsive stats grid */
     .td-stats-cards { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }

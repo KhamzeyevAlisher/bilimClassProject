@@ -9,346 +9,914 @@
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/teacher_homework.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/teacher_dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">    
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    /* ===================================================================
+   1. КОРНЕВЫЕ ПЕРЕМЕННЫЕ И ГЛОБАЛЬНЫЕ СТИЛИ
+=================================================================== */
 
-        :root {
-            --bg-main: #F9FAFB; --bg-widget: #FFFFFF; --text-primary: #111827;
-            --text-secondary: #6B7280; --border-color: #E5E7EB; --accent-primary: #4F46E5;
-            --accent-light: #EEF2FF; --accent-blue: #3B82F6; --accent-orange: #F97316;
-            --accent-purple: #8B5CF6; --accent-red: #EF4444; --accent-green: #10B981;
-            /* Стили для журнала */
-            --grade-5:#D1FAE5; --grade-5-text:#065F46; --grade-4:#DBEAFE;
-            --grade-4-text:#1E40AF; --grade-3:#FEF3C7; --grade-3-text:#92400E;
-            /* Тень для виджетов */
-            --widget-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--accent-light); color: var(--text-primary); }
-        .td-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-        .td-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .td-logo-section { display: flex; align-items: center; gap: 12px; }
-        .td-logo-icon { width: 40px; height: 40px; background-color: var(--accent-primary); border-radius: 8px; color: white; display: grid; place-items: center; font-size: 20px; }
-        .td-logo-section h1 { font-size: 18px; } .td-logo-section p { font-size: 14px; color: var(--text-secondary); }
-        .td-user-section { display: flex; align-items: center; gap: 16px; }
-        .td-user-info { text-align: right; } .td-user-info h3 { font-weight: 600; }
-        .td-user-info p { font-size: 14px; color: var(--text-secondary); }
-        .td-user-link { text-decoration: none; color: inherit; }
-        .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
-        .td-main-grid { display: grid; }
-        .td-main-nav { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px; margin-bottom: 24px; box-shadow: var(--widget-shadow); }
-        .td-main-nav ul { display: flex; list-style: none; gap: 8px; }
-        .td-main-nav a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--text-secondary); font-weight: 600; border-radius: 8px; transition: all 0.2s; cursor: pointer; }
-        .td-main-nav a:hover { background-color: #F3F4F6; color: var(--text-primary); }
-        .td-main-nav a.active { background-color: var(--accent-light); color: var(--accent-primary); }
-        .td-card { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: var(--widget-shadow); }
-        .td-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-        .td-card-header i { color: var(--text-secondary); } .td-card-header h3 { font-size: 18px; font-weight: 600; }
-        .td-card-subtitle { color: var(--text-secondary); margin-bottom: 20px; }
-        
-        .td-stats-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .td-stat-card {
-            background-color: var(--bg-widget);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--widget-shadow);
-        }
-        .td-stat-card .stat-info p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin: 0 0 4px 0;
-        }
-        .td-stat-card .stat-info h2 {
-            font-size: 28px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
-            font-size: 20px;
-            color: #FFFFFF;
-        }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        .stat-icon i { margin-top: 12px;}
+:root {
+    /* Палитра */
+    --bg-main: #F9FAFB;
+    --bg-widget: #FFFFFF;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --border-color: #E5E7EB;
+    
+    /* Акцентные цвета */
+    --accent-primary: #4F46E5;
+    --accent-light: #EEF2FF;
+    --accent-purple: #8B5CF6;
+    --accent-blue: #3B82F6;
+    --accent-orange: #F97316;
+    --accent-red: #EF4444;
+    --accent-green: #10B981;
 
-        .stat-icon.blue { background-color: var(--accent-blue); }
-        .stat-icon.orange { background-color: var(--accent-orange); }
-        .stat-icon.purple { background-color: var(--accent-purple); }
-        .stat-icon.red { background-color: var(--accent-red); }
+    /* Стили для оценок */
+    --grade-5: #D1FAE5;
+    --grade-5-text: #065F46;
+    --grade-4: #DBEAFE;
+    --grade-4-text: #1E40AF;
+    --grade-3: #FEF3C7;
+    --grade-3-text: #92400E;
 
-        .td-schedule-list { display: flex; flex-direction: column; gap: 12px; }
-        .td-lesson-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 10px; background-color: #F9FAFB; }
-        .td-lesson-time p { font-weight: 600; } .td-lesson-info { flex-grow: 1; }
-        .td-right-column { display: flex; flex-direction: column; gap: 24px; }
-        .tab-content { display: none; } .tab-content.active { display: block; }
-        
-        /* СТИЛИ ДЛЯ РАСПИСАНИЯ — обновлённый, более современный вид */
-        .schedule-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .schedule-stat-item {
-            background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
-            border-radius: 12px;
-            padding: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 6px 18px rgba(16,24,40,0.06);
-            border: 1px solid rgba(15,23,42,0.04);
-        }
-        .schedule-stat-item .icon-bg {
-            font-size: 18px;
-            width: 52px;
-            height: 52px;
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
-            color: #fff;
-        }
-        .schedule-stat-item .icon-bg.blue { background-image: linear-gradient(135deg,#60A5FA,#3B82F6); }
-        .schedule-stat-item .icon-bg.purple { background-image: linear-gradient(135deg,#A78BFA,#7C3AED); }
-        .schedule-stat-item .icon-bg.green { background-image: linear-gradient(135deg,#86EFAC,#10B981); }
+    /* Тень для виджетов */
+    --widget-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
 
-        .schedule-week-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-        }
-        .schedule-day-column {
-            background: transparent;
-            border-radius: 12px;
-            padding: 0;
-        }
-        .schedule-day-column .day-header {
-            margin-bottom: 12px;
-            text-align: center;
-            padding: 12px 8px;
-            border-radius: 8px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        .schedule-day-column.today .day-header {
-            background-color: var(--accent-light);
-            border: 1px solid var(--accent-primary);
-        }
-        .lessons-list { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
-        .lesson-card {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background-color: var(--bg-widget);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: var(--widget-shadow);
-        }
-        .lesson-card .time { color: var(--text-secondary); font-size: 13px; }
-        .lesson-card .subject { font-weight: 700; font-size: 15px; color: var(--text-primary); }
-        .lesson-card .details { color: var(--text-secondary); font-size: 13px; display:flex; gap:8px; align-items:center; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        /* СТИЛИ ДЛЯ ЖУРНАЛА */
-        .journal-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
-        .journal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .journal-title h2 { font-size: 20px; font-weight: 600; }
-        .journal-title p { color: var(--text-secondary); }
-        .class-selector {
-            padding: 10px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-weight: 500;
-            background-color: #F9FAFB;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right .75rem center;
-            background-repeat: no-repeat;
-            background-size: 1.1em 1.1em;
-            padding-right: 2.5rem;
-            color: var(--text-primary);
-            transition: box-shadow .15s ease, border-color .15s ease, transform .06s ease;
-        }
-        .class-selector:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 6px 18px rgba(79,70,229,0.08);
-            transform: translateY(-1px);
-        }
-        /* Modern option styling (best-effort across browsers) */
-        .class-selector option {
-            background: #ffffff;
-            color: var(--text-primary);
-            padding: 8px 12px;
-        }
-        /* Remove native dropdown arrow on IE/Edge and style the control */
-        .class-selector::-ms-expand { display: none; }
-        /* Chrome/Safari: subtle scrollbar for long option lists */
-        .class-selector::-webkit-scrollbar { width: 8px; }
-        .class-selector::-webkit-scrollbar-thumb { background: rgba(16,24,40,0.08); border-radius: 8px; }
-        /* Accent color for native selects in modern browsers */
-        .class-selector { accent-color: var(--accent-primary); }
-        .journal-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
-        .tab-btn { padding: 8px 16px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; transition: all .2s; }
-        .tab-btn.active { background-color: var(--accent-primary); border-color: var(--accent-primary); color: #fff; }
-        .journal-table { width: 100%; border-collapse: collapse; display: table; }
-        .journal-table tr { display: table-row; }
-        .journal-table th, .journal-table td { display: table-cell; vertical-align: middle; }
-        .journal-table th { font-size: 12px; text-transform: uppercase; color: var(--text-secondary); font-weight: 600; text-align: center; padding-bottom: 16px; }
-        .journal-table th:first-child { text-align: left; }
-        .journal-table td { padding: 6px; text-align: center; border-bottom: 1px solid var(--border-color); }
-        .journal-table tr:last-child td { border-bottom: none; }
-        .journal-table td:first-child { text-align: left; font-weight: 500; }
-        .grade-cell {background-color: #EFF6FF; margin-left: 50%; transform: translateX(-50%); width:73px; border: 1px solid #90a5ea; cursor:pointer;border-radius:8px;min-height:48px;display:flex;align-items:center;justify-content:center;transition:background-color .2s}
-        .attendance-cell {background-color: #EFF6FF; width:100px; border: 1px solid #90a5ea; cursor:pointer;border-radius:8px;min-height:48px;display:flex;align-items:center;justify-content:center;transition:background-color .2s}
-        .grade-cell:hover, .attendance-cell:hover{background-color:#EFF6FF}
-        .grade-badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-weight:700;font-size:16px}
-        .grade-5{background-color:var(--grade-5);color:var(--grade-5-text)}.grade-4{background-color:var(--grade-4);color:var(--grade-4-text)}.grade-3{background-color:var(--grade-3);color:var(--grade-3-text)}
-        .grade-badge-container{position:relative;display:inline-flex}
-        .grade-comment-icon{font-size:10px;color:var(--text-secondary);position:absolute;bottom:5px;right:5px}
-        .attendance-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-weight:bold;font-size:16px}
-        .status-P{color:#059669;background-color:#ECFDF5}.status-A{color:#DC2626;background-color:#FEF2F2}.status-L{color:#D97706;background-color:#FFFBEB}
-        .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,.5)}
-        .modal-content{background-color:#F9FAFB;margin:15% auto;padding:20px;border:none;width:90%;max-width:400px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.1)}
-        .close-btn{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer}
-        #grade-form input,#grade-form textarea{width:100%;padding:12px;font-size:16px;border:1px solid var(--border-color);border-radius:8px;margin:10px 0;font-family:'Inter',sans-serif}
-        #grade-form button{width:100%;padding:12px;background-color:var(--accent-primary);color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer}
-        
-        /* СТИЛИ ДЛЯ ПОУРОЧНЫХ ПЛАНОВ */
-        .lp-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
-        
-        /* СТИЛИ ДЛЯ ДОМАШНИХ ЗАДАНИЙ */
-        .homework-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
-        .widget-header { display: flex; justify-content: space-between; align-items: center;  }
-        .widget-title h2 { font-size: 20px; font-weight: 600; }
-        .widget-title p { color: var(--text-secondary); }
-        .btn-create { background-color: var(--accent-primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; }
-        .btn-create:hover { background-color: #4338CA; }
-        .homework-list { display: flex; flex-direction: column; gap: 16px; }
-        .homework-card { background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
-        .hw-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .hw-title-group { display: flex; align-items: center; gap: 12px; }
-        .hw-title-group h3 { font-size: 16px; font-weight: 600; }
-        .hw-tag { background-color: #E0E7FF; color: #3730A3; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; }
-        .hw-actions button { background: none; border: 1px solid var(--border-color); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; }
-        .hw-actions button:hover { background-color: var(--accent-light); color: var(--accent-primary); }
-        .hw-description { color: var(--text-secondary); margin-bottom: 16px; font-size: 14px; }
-        .hw-card-footer { display: flex; justify-content: space-between; align-items: center; }
-        .hw-stats { font-size: 13px; color: var(--text-secondary); }
-        .btn-view-submissions { background-color: var(--bg-widget); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; }
-        .btn-view-submissions:hover { background-color: #F3F4F6; }
-        
-        /* Стили для модальных окон */
-        .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.6); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-container { background-color: var(--bg-widget); border-radius: 12px; padding: 24px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; }
-        .modal-header { text-align: center; margin-bottom: 16px; }
-        .modal-header h2 { font-size: 20px; }
-        .modal-container .close-btn { position: absolute; top: 16px; right: 16px; background: #e5e7eb ; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
-        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-        .form-group.full-width { grid-column: 1 / -1; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; grid-column: 1 / -1; }
-                /* Стили для кнопок в модальных окнах */
-        .btn-secondary { 
-            width: 40px;
-            height: 40px;
-            background-color: #f3f4f6;
-            color: #6b7280;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-secondary:hover {
-            background-color: #e5e7eb;
-            color: #4b5563;
-        }
-        .btn-secondary.close-btn::after {
-            content: '\f00d';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-        }
-
-        /* Стили для таблицы сданных работ */
-        .submissions-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .submissions-table th, .submissions-table td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: left; font-size: 14px; }
-        .submissions-table th { color: var(--text-secondary); font-weight: 600; }
-        .status-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; font-weight: 500; font-size: 12px; }
-        .status-checked { background-color: #D1FAE5; color: #065F46; }
-        .status-submitted { background-color: #DBEAFE; color: #1E40AF; }
-        .status-awaiting { background-color: #FEF3C7; color: #92400E; }
-        .grade-circle { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background-color: var(--accent-primary); color: white; font-weight: bold; }
-        .file-link { color: var(--accent-primary); text-decoration: none; font-weight: 500; }
-        .file-link i { margin-right: 4px; }
-
-        /* --- КРАСИВЫЙ СТИЛЬ ДЛЯ ПОЛЯ ЗАГРУЗКИ ФАЙЛА --- */
-
-/* Стиль для метки (label) над полем ввода */
-.form-group label[for*="attached_file"] {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 14px;
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--accent-light);
     color: var(--text-primary);
 }
 
-/* Стили для самого поля input[type=file] */
+body.td-body {
+    background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
+}
+
+
+/* ===================================================================
+   2. ОСНОВНАЯ СТРУКТУРА И МАКЕТ
+=================================================================== */
+
+.td-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.td-main-grid {
+    display: grid;
+}
+
+/* --- Шапка (Header) --- */
+.td-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 18px 22px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
+    margin-bottom: 24px;
+}
+
+.td-logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.td-logo-icon {
+    width: 48px;
+    height: 48px;
+    background-color: var(--accent-primary);
+    border-radius: 12px;
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+}
+
+.td-logo-section h1 {
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.td-logo-section p {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.td-user-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.td-user-info h3 {
+    font-weight: 600;
+}
+
+.td-user-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.td-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: #D8B4FE;
+    color: #581C87;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+
+/* --- Главная навигация --- */
+.td-main-nav {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 24px;
+    box-shadow: var(--widget-shadow);
+}
+
+.td-main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 12px;
+}
+
+.td-main-nav a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-radius: 999px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.td-main-nav a:hover {
+    background-color: #F3F4F6;
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.td-main-nav a.active {
+    /* background-image: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%); */
+    background-color: #4F46E5;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.18);
+}
+
+/* Мобильная навигация (бургер) */
+.td-mobile-nav { display: none; }
+.mobile-menu-header { display: none; }
+
+
+/* ===================================================================
+   3. ОБЩИЕ КОМПОНЕНТЫ И ВИДЖЕТЫ
+=================================================================== */
+
+/* --- Базовая карточка --- */
+.td-card {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--widget-shadow);
+}
+
+.td-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.td-card-header i {
+    color: var(--text-secondary);
+}
+
+.td-card-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.td-card-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+
+/* --- Статистические карточки --- */
+.td-stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.td-stat-card {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--widget-shadow);
+}
+
+.td-stat-card .stat-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 4px 0;
+}
+
+.td-stat-card .stat-info h2 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    color: #FFFFFF;
+}
+
+.stat-icon.blue { background-color: var(--accent-blue); }
+.stat-icon.orange { background-color: var(--accent-orange); }
+.stat-icon.purple { background-color: var(--accent-purple); }
+.stat-icon.red { background-color: var(--accent-red); }
+
+/* --- Табы --- */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+
+/* ===================================================================
+   4. ВИДЖЕТ: РАСПИСАНИЕ
+=================================================================== */
+
+.schedule-week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.schedule-day-column .day-header {
+    margin-bottom: 12px;
+    text-align: center;
+    padding: 10px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.schedule-day-column.today .day-header {
+    background-color: var(--accent-light);
+    border: 1px solid var(--accent-primary);
+}
+
+.lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px;
+}
+
+.lesson-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: var(--widget-shadow);
+}
+
+.lesson-card .time {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.lesson-card .subject {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.lesson-card .details {
+    color: var(--text-secondary);
+    font-size: 13px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+
+/* ===================================================================
+   5. ВИДЖЕТ: ЖУРНАЛ
+=================================================================== */
+
+.journal-widget {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--widget-shadow);
+}
+
+.journal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.journal-title h2 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.journal-title p {
+    color: var(--text-secondary);
+}
+
+.journal-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: all .2s;
+}
+
+.tab-btn.active {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+
+/* --- Таблица журнала --- */
+.journal-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.journal-table th {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: center;
+    padding: 12px 10px;
+}
+
+.journal-table th:first-child {
+    text-align: left;
+}
+
+.journal-table td {
+    padding: 6px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.journal-table tr:last-child td {
+    border-bottom: none;
+}
+
+.journal-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+
+/* --- Элементы журнала --- */
+.grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.grade-5 { background-color: var(--grade-5); color: var(--grade-5-text); }
+.grade-4 { background-color: var(--grade-4); color: var(--grade-4-text); }
+.grade-3 { background-color: var(--grade-3); color: var(--grade-3-text); }
+
+.attendance-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.status-P { color: #059669; background-color: #ECFDF5; } /* Present */
+.status-A { color: #DC2626; background-color: #FEF2F2; } /* Absent */
+.status-L { color: #D97706; background-color: #FFFBEB; } /* Late */
+
+
+/* ===================================================================
+   6. ВИДЖЕТ: ПОУРОЧНЫЕ ПЛАНЫ
+=================================================================== */
+
+.lp-widget {
+    background: transparent;
+    padding: 0;
+}
+
+.lp-widget .widget-header {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+    padding: 20px 24px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+    border: 1px solid rgba(15, 23, 42, 0.04);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.lp-widget .widget-title h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.lp-widget .widget-title p {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* --- Таблица планов --- */
+.lp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.lp-table thead th {
+    text-align: left;
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.lp-table tbody tr {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.04);
+}
+
+.lp-table td {
+    padding: 24px;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.lp-table td:first-child {
+    font-weight: 600;
+    border-radius: 16px 0 0 16px;
+}
+
+.lp-table td:last-child {
+    border-radius: 0 16px 16px 0;
+}
+
+.lp-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.lp-actions button {
+    background: transparent;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: grid;
+    place-items: center;
+    transition: all 0.2s ease;
+}
+
+.lp-actions button:hover {
+    background: #F3F4F6;
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+/* --- Статусы планов --- */
+.lp-status {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lp-status.approved { background-color: #D1FAE5; color: #065F46; }
+.lp-status.pending { background-color: #FEF3C7; color: #92400E; }
+.lp-status.rejected { background-color: #FEE2E2; color: #991B1B; }
+
+
+/* ===================================================================
+   7. ВИДЖЕТ: ДОМАШНИЕ ЗАДАНИЯ
+=================================================================== */
+
+.homework-widget {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--widget-shadow);
+}
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.widget-title h2 { font-size: 20px; font-weight: 600; }
+.widget-title p { color: var(--text-secondary); }
+
+.homework-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.homework-card {
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.hw-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.hw-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.hw-title-group h3 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.hw-tag {
+    background-color: #E0E7FF;
+    color: #3730A3;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.hw-actions button {
+    background: none;
+    border: 1px solid var(--border-color);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.hw-actions button:hover {
+    background-color: var(--accent-light);
+    color: var(--accent-primary);
+}
+
+.hw-description {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.hw-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hw-stats {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* --- Таблица сданных работ --- */
+.submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.submissions-table th,
+.submissions-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    font-size: 14px;
+}
+
+.submissions-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.status-checked { background-color: #D1FAE5; color: #065F46; }
+.status-submitted { background-color: #DBEAFE; color: #1E40AF; }
+.status-awaiting { background-color: #FEF3C7; color: #92400E; }
+
+
+/* ===================================================================
+   8. МОДАЛЬНЫЕ ОКНА И ФОРМЫ
+=================================================================== */
+
+/* --- Модальные окна --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(17, 24, 39, 0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-container {
+    background-color: var(--bg-widget);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+}
+
+.modal-container .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #e5e7eb;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-container .close-btn:hover {
+    background-color: #e5e7eb;
+    color: #4b5563;
+}
+
+
+/* --- Элементы форм --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    grid-column: 1 / -1;
+}
+
+#grade-form input,
+#grade-form textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin: 10px 0;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Кастомный селект (Выпадающий список) --- */
+.custom-select {
+    position: relative;
+    display: inline-block;
+    min-width: 180px;
+}
+
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 16px;
+    background: #F9FAFB;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.custom-select-trigger:after {
+    content: '\f107';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-left: 8px;
+    color: var(--text-secondary);
+}
+
+.custom-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+    list-style: none;
+    padding: 8px 6px;
+    margin: 0;
+    max-height: 260px;
+    overflow: auto;
+    display: none;
+    z-index: 1200;
+}
+
+.custom-options.open { display: block; }
+
+.custom-option {
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.custom-option:hover { background: #F3F4F6; }
+
+.custom-option.selected {
+    background: linear-gradient(90deg, rgba(79, 70, 229, 0.08), rgba(79, 70, 229, 0.04));
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* --- Поле для загрузки файла --- */
 input[name="attached_file"] {
     width: 100%;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: var(--text-secondary);
-    
-    /* Для выравнивания и аккуратного вида */
     background-color: var(--bg-widget);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 4px;
 }
 
-/* Стиль для кнопки "Выберите файл" в современных браузерах */
 input[name="attached_file"]::file-selector-button {
-    /* Сбрасываем стандартные стили браузера */
-    -webkit-appearance: none;
-    appearance: none;
-    
-    /* Наши кастомные стили */
     background-color: var(--accent-primary);
     color: white;
     border: none;
     padding: 10px 16px;
     border-radius: 8px;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
     cursor: pointer;
-    margin-right: 16px; /* Отступ между кнопкой и текстом с именем файла */
+    margin-right: 16px;
     transition: background-color 0.2s;
 }
 
-/* Эффект при наведении на кнопку */
 input[name="attached_file"]::file-selector-button:hover {
-    background-color: #4338CA; /* Более темный оттенок --accent-primary */
+    background-color: #4338CA;
 }
 
-/* --- СТИЛЬ ДЛЯ ГРАДИЕНТНОЙ КНОПКИ --- */
+
+/* ===================================================================
+   9. КНОПКИ И ДРУГИЕ UI-ЭЛЕМЕНТЫ
+=================================================================== */
+
+.btn-create {
+    background-image: linear-gradient(135deg, #4338CA, #4F46E5);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.14);
+    transition: all 0.2s ease;
+}
+
+.btn-create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+}
+
+.btn-view-submissions {
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-view-submissions:hover {
+    background-color: #F3F4F6;
+}
 
 .btn-gradient {
-    /* Основные стили кнопки */
     border: none;
     border-radius: 8px;
     padding: 12px 20px;
@@ -357,475 +925,117 @@ input[name="attached_file"]::file-selector-button:hover {
     font-weight: 600;
     color: white;
     cursor: pointer;
-    
-    /* Создание градиента */
     background-image: linear-gradient(to right, var(--accent-primary) 0%, var(--accent-purple) 100%);
-    
-    /* Тень для объема */
-    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.2), 0 1px 2px rgba(0,0,0,0.05);
-    
-    /* Плавный переход для всех свойств */
+    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease-in-out;
 }
 
-/* Эффект при наведении курсора */
 .btn-gradient:hover {
-    /* Слегка приподнимаем кнопку */
     transform: translateY(-2px);
-    /* Усиливаем тень для "парящего" эффекта */
-    box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3), 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Эффект при нажатии на кнопку */
 .btn-gradient:active {
-    /* Возвращаем кнопку на место для эффекта "нажатия" */
     transform: translateY(0);
-    /* Возвращаем стандартную тень */
-    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.2), 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.file-link {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.file-link i {
+    margin-right: 4px;
+}
+
+.modal-content {
+    position: relative;
+}
+
+.modal-content .close-btn {
+    top: 8px;
+    right: 8px;
+}
+
+#cancel-homework-btn {
+    width: auto;
 }
 
 
-    </style>
-    
-    <!-- Lesson-plans: modern minimal table styling -->
-    <style>
+/* ===================================================================
+   10. АДАПТИВНЫЕ СТИЛИ (MEDIA QUERIES)
+=================================================================== */
 
-    .mobile-menu-header {
-        display: none; /* Скрываем шапку по умолчанию */
-    }
-    .lp-widget { 
-        background: transparent; 
-        padding: 0; 
-        /* margin-bottom: 32px;  */
-    }
-    .lp-widget .widget-header { 
-        background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
-        padding: 24px;
-        border-radius: 16px;
-        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
-        border: 1px solid rgba(15,23,42,0.04);
-        
-    }
-    .lp-widget .widget-title h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-    .lp-widget .widget-title p { color: var(--text-secondary); font-size: 14px; }
-    .lp-widget .btn-create {
-        background-image: linear-gradient(135deg, #4338CA, #4F46E5);
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 14px;
-        box-shadow: 0 6px 18px rgba(79,70,229,0.14);
-        transition: all 0.2s ease;
-    }
-    .lp-widget .btn-create:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(79,70,229,0.2);
-    }
-    .lp-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; padding:0px 10px;}
-    .lp-table thead th { text-align: left; padding: 12px 16px; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: 700; }
-    .lp-table tbody tr { background: #fff; border-radius: 16px; box-shadow: 0 6px 18px rgba(16,24,40,0.04); display: table-row; }
-    .lp-table td { padding: 24px; vertical-align: middle; font-size: 14px; color: var(--text-primary); }
-    .lp-table td:first-child { font-weight: 600; border-radius: 16px 0 0 16px; }
-    .lp-table td:last-child { border-radius: 0 16px 16px 0; }
-    .lp-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .lp-actions button { background: transparent; border: 1px solid rgba(15,23,42,0.06); width: 36px; height: 36px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); display: grid; place-items: center; }
-    .lp-actions button:hover { background: #F3F4F6; color: var(--text-primary); transform: translateY(-1px); }
-    .lp-actions .view-plan-btn { border-color: rgba(79,70,229,0.12); }
-    .lp-actions .edit-plan-btn { border-color: rgba(16,185,129,0.12); }
-    .lp-actions .delete-plan-btn { border-color: rgba(239,68,68,0.08); }
-
-    /* Status pills */
-    .lp-status { padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
-    .lp-status.approved { background-color: #D1FAE5; color: #065F46; }
-    .lp-status.pending { background-color: #FEF3C7; color: #92400E; }
-    .lp-status.rejected { background-color: #FEE2E2; color: #991B1B; }
-
-    /* Empty state card */
-    #no-plans-row td { background: transparent; box-shadow: none; padding: 24px; }
-
-    /* Responsive: stack rows on small screens */
-    @media (max-width: 1000px) {
-        .lp-table thead { display: none; }
-        .lp-table tbody tr { display: block; padding: 12px; }
-        .lp-table td { display: flex; justify-content: space-between; padding: 8px 0; border: none; }
-        .lp-table td::before { content: attr(data-label); color: var(--text-secondary); font-weight: 600; margin-right: 12px; }
-        .lp-table td:last-child { margin-top: 8px; }
-    }
-    </style>
-    
-    <!-- Modern overrides for teacher dashboard -->
-    <style>
-    /* Overall page polish */
-    body.td-body { background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%); }
-
-    /* Header: cleaner, slightly elevated */
-    .td-header {
-        background: #fff;
-        padding: 18px 22px;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(16,24,40,0.06);
-        align-items: center;
-    }
-    .td-logo-icon { width:48px; height:48px; border-radius:12px; font-size:20px; }
-    .td-logo-section h1 { font-size:18px; margin-bottom:4px; }
-    .td-logo-section p { font-size:13px; color:var(--text-secondary); }
-
-    /* User avatar and info */
-    .td-user-section { gap:20px; }
-    .td-user-avatar { width:48px; height:48px; border-radius:12px; font-size:16px; }
-
-    /* Main navigation — pill style */
-    .td-main-nav { padding:10px; display:flex; justify-content:start; }
-    .td-main-nav ul { gap:12px; }
-    .td-main-nav a { background:transparent; padding:10px 16px; border-radius:999px; box-shadow: none; }
-    .td-main-nav a:hover { transform: translateY(-2px); }
-    .td-main-nav a.active { background-image: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%); color:#fff; box-shadow: 0 6px 18px rgba(79,70,229,0.18); }
-
-    /* Responsive stats grid */
-    .td-stats-cards { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-    .td-stat-card { padding:18px; border-radius:12px; }
-    .td-stat-card .stat-info p { color:var(--text-secondary); }
-
-    /* Card surfaces and spacing */
-    .td-card { padding:20px; border-radius:12px; }
-    .td-card-header { gap:14px; }
-
-    /* Schedule: compact day cards with subtle separators */
-    .schedule-week-grid { gap:12px; }
-    .schedule-day-column { background: transparent; }
-    .schedule-day-column .day-header { font-size:15px; padding:10px; }
-    .lessons-list { padding:8px; }
-    .lesson-card { padding:10px; border-radius:10px; }
-    .lesson-card .subject { font-size:14px; }
-
-    /* Journal table — modernized */
-    .journal-table th, .journal-table td { padding:12px 10px; }
-    .journal-table th { background: transparent; font-size:12px; color:var(--text-secondary); }
-    .journal-table td { background: #fff; border-radius:8px; border:1px solid rgba(229,231,235,0.6); }
-    .journal-table tbody tr { display: grid; grid-template-columns: 1fr 240px 140px; gap:8px; align-items:center; margin-bottom:10px; }
-    @media(min-width:1000px) { .journal-table tbody tr { display: table-row; } .journal-table td { border-radius: 6px; } }
-
-    /* Homework and lesson-plan buttons uniform look */
-    .btn-create, .btn-submit { border-radius: 10px; padding:10px 14px; font-weight:700; }
-    .btn-create { background-image: linear-gradient(90deg,#4338CA,#4F46E5); color:#fff; box-shadow:0 6px 18px rgba(79,70,229,0.14); }
-
-    /* Modal polish */
-    .modal-overlay .modal-container { border-radius:12px; padding:20px; }
-    .modal-container h2 { font-size:18px; }
-
-    /* Small screens — tighten spacing */
-    @media(max-width:1000px) {
-        .td-header { flex-direction:column; gap:12px; align-items:flex-start; }
-        .td-main-nav ul { flex-wrap:wrap; justify-content:center; }
-        .journal-table tbody tr { grid-template-columns: 1fr; }
-    }
-    </style>
-
-    <!-- Spacing fixes for lesson plans -->
-    <style>
-    .lp-widget .widget-header { padding: 20px !important; }
-    .lp-widget .widget-title h2 { margin-bottom: 2px !important; }
-    .lp-widget .widget-title p { font-size: 13px !important; }
-    </style>
-
-    <!-- Custom dropdown for journal selects (replaces native select for consistent styling) -->
-    <style>
-    .custom-select { position: relative; display: inline-block; min-width: 180px; }
-    .custom-select-trigger {
-        display: flex; align-items: center; justify-content: space-between;
-        width: 100%; padding: 10px 16px; background: #F9FAFB; border: 1px solid var(--border-color);
-        border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--text-primary);
-    }
-    .custom-select-trigger:after { content: '\f107'; font-family: 'Font Awesome 5 Free'; font-weight: 900; margin-left: 8px; color: var(--text-secondary); }
-    .custom-options { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #fff; border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,0.08); list-style: none; padding: 8px 6px; margin: 0; max-height: 260px; overflow: auto; display: none; z-index: 1200; }
-    .custom-options.open { display: block; }
-    .custom-option { padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-primary); font-size: 14px; }
-    .custom-option:hover { background: #F3F4F6; }
-    .custom-option.selected { background: linear-gradient(90deg, rgba(79,70,229,0.08), rgba(79,70,229,0.04)); color: var(--accent-primary); font-weight: 600; }
-    .custom-select input[type="hidden"] { display: none; }
-    @media(max-width:700px) { .custom-select { width: 100%; min-width: 0; } }
-
-    /* =================================================================
-   АДАПТИВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ
-================================================================= */
-
-/* --- Стили для планшетов и небольших ноутбуков (до 900px) --- */
-@media (max-width: 900px) {
-    .journal-table tbody tr {
-        display: table-row; /* Возвращаем табличное отображение для планшетов */
-    }
-    .journal-table td {
-        border-radius: 6px;
-    }
-}
-
-
-/* --- Стили для мобильных устройств (до 780px) --- */
-@media (max-width: 780px) {
-    /* Адаптация таблицы поурочных планов */
+/* --- Планшеты и небольшие ноутбуки (до 1000px) --- */
+@media (max-width: 1000px) {
     .lp-table thead {
-        display: none; /* Скрываем заголовки таблицы */
+        display: none;
     }
+
     .lp-table tbody tr {
-        display: block; /* Строки становятся блоками */
+        display: block;
         padding: 12px;
-        margin-bottom: 12px; /* Добавляем отступ между карточками планов */
     }
+
     .lp-table td {
-        display: flex; /* Используем flex для выравнивания */
-        justify-content: space-between; /* Название слева, значение справа */
+        display: flex;
+        justify-content: space-between;
         padding: 8px 0;
         border: none;
-        text-align: right; /* Выравниваем текст значения по правому краю */
     }
-    .lp-table td:first-child {
-        font-weight: 600; /* Имя ученика делаем жирным */
-        text-align: left; /* А имя - по левому */
-    }
+
     .lp-table td::before {
-        content: attr(data-label); /* Добавляем подписи к данным из атрибута */
+        content: attr(data-label);
         color: var(--text-secondary);
         font-weight: 600;
         margin-right: 12px;
-        text-align: left; /* Выравниваем подпись по левому краю */
-    }
-    .lp-table td:last-child {
-        margin-top: 8px;
-        justify-content: flex-end; /* Кнопки действий прижимаем вправо */
-    }
-    .lp-table td:last-child::before {
-        display: none; /* Убираем подпись для блока с кнопками */
     }
 }
 
 
-/* --- Стили для мобильных устройств (до 700px) --- */
-@media (max-width: 700px) {
-    /* Общие изменения */
-    body { font-size: 14px; }
-    .custom-select { width: 100%; min-width: 0; }
-
-    /* Шапка */
-    .td-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    /* Статистика */
-    .td-stats-cards {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-
-    /* Основная сетка */
-    .td-main-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    /* Навигация */
-    .td-main-nav ul {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    /* Делаем таблицы горизонтально прокручиваемыми */
-    #grades-table, #attendance-table, .lp-table, .submissions-table {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
-    }
-    #grades-table thead, #attendance-table thead {
-        display: table-header-group;
-    }
-    #grades-table tr, #attendance-table tr {
-        display: flex;
-    }
-    #grades-table th, #grades-table td, #attendance-table th, #attendance-table td {
-        white-space: nowrap; /* Запрещаем перенос строк в ячейках */
-    }
-
-    /* Адаптация таблицы журнала */
-    .journal-table tbody tr {
-        display: grid; /* Строки журнала становятся грид-контейнерами */
-        grid-template-columns: 1fr; /* Все ячейки в одну колонку */
-        gap: 8px;
-        margin-bottom: 10px;
-        padding: 12px;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        background-color: #fff;
-    }
-    .journal-table td {
-        display: flex; /* Flex для выравнивания подписи и значения */
-        justify-content: space-between;
-        text-align: right;
-        padding: 10px 0;
-        border: none;
-        background: transparent;
-    }
-    .journal-table td:first-child {
-        padding-top: 0;
-        font-size: 16px;
-        justify-content: center; /* Имя студента по центру */
-    }
-    .journal-table td:first-child::before {
-        display: none; /* Убираем псевдоэлемент для имени */
-    }
-    .journal-table td::before {
-        content: attr(data-label); /* Добавляем подписи */
-        font-weight: 500;
-        color: var(--text-secondary);
-        text-align: left;
-    }
-
-    /* Модальные окна */
-    .modal-container {
-        width: 96%;
-        max-width: 96%;
-        padding: 16px;
-        border-radius: 10px;
-    }
-    .form-grid {
-        grid-template-columns: 1fr !important;
-    }
-}
-
-
-/* --- Стили для самых маленьких экранов (до 480px) --- */
-@media (max-width: 480px) {
-    /* Статистика в одну колонку */
-    .td-stats-cards {
-        grid-template-columns: 1fr;
-    }
-
-    /* Увеличиваем кнопки и значки для удобства нажатия */
-    .grade-badge, .attendance-icon {
-        min-width: 40px;
-        height: 40px;
-        font-size: 15px;
-    }
-
-    /* Скрываем менее важные колонки в таблице поурочных планов */
-    .lp-table thead th:nth-child(3), /* Предмет */
-    .lp-table tbody td:nth-child(3) {
-        display: none;
-    }
-    
-    /* Уменьшаем отступы в поле загрузки файла */
-    input[type="file"] {
-        padding: 8px;
-    }
-    input[type="file"]::file-selector-button {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-}
-
-/* =================================================================
-   УЛУЧШЕННЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ
-   (для экранов шириной 768px и меньше)
-================================================================= */
+/* --- Мобильные устройства (до 768px) --- */
 @media (max-width: 768px) {
 
-    /* --- Общие улучшения для контейнера --- */
-    .td-container {
-        padding: 16px; /* Уменьшаем боковые отступы */
+    .modal-container {
+        padding-top: 35px;
     }
 
-    /* --- Новая мобильная шапка (Header) --- */
+    .modal-container .close-btn {
+        top: 8px;
+        right: 8px;
+    }
+
+    .modal-content {
+        position: relative;
+    }
+
+    .modal-content .close-btn {
+        top: 8px;
+        right: 8px;
+    }
+
+    .td-container {
+        padding: 16px;
+    }
+
+    /* --- Мобильная шапка --- */
     .td-header {
-        display: flex;
-        flex-direction: row; /* Элементы в строку */
-        justify-content: space-between; /* Логотип слева, аватар справа */
-        align-items: center; /* Вертикальное выравнивание по центру */
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         padding: 12px 16px;
     }
-    
-    .td-logo-section h1 {
-        font-size: 16px; /* Немного уменьшаем заголовок */
-        margin-bottom: 2px;
-    }
+    .td-logo-section h1 { font-size: 16px; }
+    .td-logo-section p, .td-user-info { display: none; }
+    .td-logo-icon, .td-user-avatar { width: 44px; height: 44px; }
 
-    /* Скрываем подзаголовок и текстовую информацию о пользователе,
-       чтобы оставить интерфейс чистым и оставить только самое важное. */
-    .td-logo-section p,
-    .td-user-info {
-        display: none;
-    }
-
-    .td-logo-icon,
-    .td-user-avatar {
-        width: 44px;
-        height: 44px;
-    }
-
-    /* --- Новая мобильная навигация (Grid Layout) --- */
+    /* --- Скрытие десктопной навигации и показ кнопки бургера --- */
     .td-main-nav {
-        padding: 16px;
-        background-color: transparent; /* Убираем фон у контейнера навигации */
-        border: none;
-        box-shadow: none;
-    }
-
-    .td-main-nav ul {
-        display: grid;
-        /* Создаем идеальную сетку 2x3 для 5-6 элементов */
-        grid-template-columns: 1fr 1fr;
-        gap: 12px; /* Расстояние между кнопками */
-    }
-
-    .td-main-nav a {
-        /* Превращаем каждую ссылку в красивую кнопку */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 16px 8px;
-        font-size: 13px;
-        gap: 10px; /* Отступ между иконкой и текстом */
-        border-radius: 12px; /* Более современное скругление */
-        background-color: var(--bg-widget); /* Белый фон */
-        border: 1px solid var(--border-color); /* Тонкая рамка */
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .td-main-nav a:hover {
-        transform: translateY(-2px); /* Эффект приподнимания при наведении */
-        box-shadow: var(--widget-shadow);
+        display: none; /* Скрываем основную навигацию */
     }
     
-    .td-main-nav a i {
-        font-size: 18px; /* Делаем иконки чуть крупнее */
-    }
-
-    /* Стиль для активной/выбранной кнопки */
-    .td-main-nav a.active {
-        background-image: linear-gradient(135deg, #6d28d9, #4f46e5);
-        color: #fff;
-        border-color: transparent;
-        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.2);
-    }
-
-    .td-main-nav a.active i {
-        color: #fff;
-    }
-}
-
-/* =================================================================
-   СТИЛИ ДЛЯ МОБИЛЬНОГО БУРГЕР-МЕНЮ
-================================================================= */
-
-/* Сначала скрываем новую мобильную панель на больших экранах */
-.td-mobile-nav {
-    display: none;
-}
-
-/* Применяем стили, когда ширина экрана 768px или меньше */
-@media (max-width: 768px) {
-
-    /* --- 1. Стили для верхней мобильной панели (остаются без изменений) --- */
     .td-mobile-nav {
         display: flex;
         justify-content: space-between;
@@ -837,10 +1047,9 @@ input[name="attached_file"]::file-selector-button:hover {
         box-shadow: var(--widget-shadow);
         margin-bottom: 20px;
     }
-    #mobile-nav-title {
-        font-size: 18px;
-        font-weight: 600;
-    }
+    
+    #mobile-nav-title { font-size: 18px; font-weight: 600; }
+    
     #mobile-menu-btn {
         background: transparent;
         border: none;
@@ -853,50 +1062,43 @@ input[name="attached_file"]::file-selector-button:hover {
         border-radius: 8px;
         transition: background-color 0.2s;
     }
-
     
-    #mobile-menu-btn:hover {
-        background-color: var(--accent-light);
-    }
-    
-    /* --- 2. НОВЫЕ СТИЛИ для самого выезжающего меню --- */
-    .td-main-nav {
+    /* --- Стили для выезжающего меню --- */
+    nav.td-main-nav {
+        display: flex; /* Переопределяем display:none для меню */
+        flex-direction: column;
         position: fixed;
         top: 0;
         right: 0;
-        width: 300px; /* Можно сделать чуть шире */
+        width: 300px;
         max-width: 90%;
         height: 100%;
         background-color: var(--bg-widget);
         box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1);
         transform: translateX(100%);
-        transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Более плавная анимация */
+        transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         z-index: 2000;
-        padding: 0; /* Убираем внутренние отступы, чтобы шапка прилегала */
+        padding: 0;
         margin: 0;
         border-radius: 0;
-        display: flex;
-        flex-direction: column; /* Элементы внутри меню будут в столбик */
+        border: none;
     }
-
+    
     .td-main-nav.is-open {
         transform: translateX(0);
     }
-
-    /* --- 3. Стили для новой шапки меню --- */
+    
     .mobile-menu-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 16px 24px;
         border-bottom: 1px solid var(--border-color);
-        flex-shrink: 0; /* Шапка не должна сжиматься */
+        flex-shrink: 0;
     }
-
-    .mobile-menu-header h3 {
-        font-size: 18px;
-    }
-
+    
+    .mobile-menu-header h3 { font-size: 18px; }
+    
     #mobile-menu-close-btn {
         background: transparent;
         border: none;
@@ -907,48 +1109,27 @@ input[name="attached_file"]::file-selector-button:hover {
         height: 40px;
         border-radius: 50%;
         color: var(--text-secondary);
-        transition: background-color 0.2s, color 0.2s;
-    }
-    #mobile-menu-close-btn:hover {
-        background-color: #F3F4F6;
-        color: var(--text-primary);
+        transition: all 0.2s;
     }
     
-    /* --- 4. Стили для списка и ссылок в меню --- */
+    #mobile-menu-close-btn:hover { background-color: #F3F4F6; color: var(--text-primary); }
+    
     .td-main-nav ul {
-        /* ВАЖНО: переопределяем старые стили */
-        display: flex;
-        flex-direction: column; /* Вертикальный список */
-        gap: 8px; /* Небольшой отступ между ссылками */
+        flex-direction: column;
+        gap: 8px;
         padding: 16px;
-        overflow-y: auto; /* Позволяет прокручивать, если меню не влезает по высоте */
+        overflow-y: auto;
     }
-
+    
     .td-main-nav a {
-        display: flex;
-        align-items: center;
         gap: 16px;
         padding: 14px 20px;
         font-size: 16px;
         font-weight: 500;
         border-radius: 10px;
         width: 100%;
-        color: var(--text-secondary); /* Цвет неактивной ссылки */
     }
-    .td-main-nav a:hover {
-        background-color: #F3F4F6;
-        color: var(--text-primary);
-    }
-    .td-main-nav a.active {
-        background-image: linear-gradient(90deg, #6d28d9, #4f46e5);
-        color: #fff;
-        font-weight: 600;
-    }
-    .td-main-nav a.active i {
-        color: #fff;
-    }
-
-    /* --- 5. Затемняющий фон --- */
+    
     body.menu-open::after {
         content: '';
         position: fixed;
@@ -960,483 +1141,225 @@ input[name="attached_file"]::file-selector-button:hover {
         z-index: 1999;
         transition: opacity 0.3s ease;
     }
-
-    /* --- Превращаем заголовок в красивую карточку --- */
-    .lp-widget .widget-header {
-        background-color: var(--bg-widget);
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--widget-shadow);
-
-        /* Вертикальное расположение элементов */
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px; /* Расстояние между текстом и кнопкой */
-        padding: 20px;
-        margin-bottom: 24px; /* Отступ от списка планов */
-    }
-
-    #homework-content .widget-header {
-        display: block;
-        background-color: var(--bg-widget);
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--widget-shadow);
-
-        /* Вертикальное расположение элементов */
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px; /* Расстояние между текстом и кнопкой */
-        padding: 20px;
-
-        margin: 0 auto;
-        margin-bottom: 15px;
-        margin-top: 15px;
-        
-        width: 100%;
-       
-        box-sizing: border-box;
-    }
-
-    #homework-content .widget-header h2 {
-        text-align: center;
-    }
-
-    #homework-content .widget-header p {
-        display: none;
-    }
-
-    #homework-content .widget-header .btn-create {
-        margin-top: 20px;
-        justify-self: center;
-        width: 80%;
-        justify-content: center;
-    }
-
-    /* --- Стилизуем кнопку "Создать план" --- */
-    .lp-widget .btn-create {
-        width: 100%; /* Кнопка на всю ширину карточки */
-        justify-content: center; /* Центрируем иконку и текст */
-        padding: 14px 16px; /* Делаем кнопку выше для удобства нажатия */
-        font-size: 15px;
-        border-radius: 10px;
-        
-        /* Убираем десктопный градиент и ставим основной цвет */
-        background-image: none;
-        background-color: var(--accent-primary);
-        box-shadow: none; /* Убираем лишние тени */
-    }
-    .lp-widget .btn-create:hover {
-        /* Убираем десктопный эффект приподнимания */
-        transform: none;
-        /* Просто делаем цвет чуть темнее при наведении */
-        background-color: #4338CA;
-    }
-
-    /* --- Финальные штрихи --- */
-    /* Убираем лишний отступ у самого виджета, т.к. header стал карточкой */
-    .lp-widget {
-        padding: 0;
+    
+    /* --- Статистика --- */
+    .td-stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
     
-    /* Делаем так, чтобы сам заголовок "Поурочные планы" был крупнее */
-    .lp-widget .widget-title h2 {
-        font-size: 20px;
+    /* --- Адаптация виджетов (Журнал, Планы, ДЗ) --- */
+    .lp-widget, .homework-widget {
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
     }
-
-    .widget-title {
-        margin: 0 auto;
+    
+    .lp-widget .widget-header, #homework-content .widget-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+        background-color: var(--bg-widget);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--widget-shadow);
     }
-
-
-    .widget-header { 
-        margin: 0 auto;
-        margin-bottom: 15px;
-        margin-top: 15px;
-        display: block;
-        width: 90%;
-       
-        box-sizing: border-box;
+    
+    .lp-widget .btn-create, #homework-content .btn-create {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 16px;
+        background-image: none;
+        background-color: var(--accent-primary);
+        box-shadow: none;
+        transform: none;
     }
-
-    .lp-table {
-        border-spacing: 0;
-    }
-
-    /* Скрываем заголовки таблицы */
-    .lp-table thead {
-        display: none;
-    }
-
-    .lp-table tbody {
-        display: block;
-        width: 95%;
-        margin: 0 auto;
-    }
-
-    /* --- Стили для карточки плана --- */
+    
+    /* --- Карточки Поурочных планов --- */
+    .lp-table thead { display: none; }
+    .lp-table tbody, .lp-table { border-spacing: 0; }
     .lp-table tbody tr {
         display: block;
-        background: var(--bg-widget);
-        border-radius: 12px;
-        box-shadow: var(--widget-shadow);
         padding: 20px;
         margin-bottom: 16px;
         border: 1px solid var(--border-color);
     }
-    
-    #no-plans-row {
-        background: transparent;
-        box-shadow: none;
-        border: none;
-        padding: 0;
-    }
-
-    /* --- Стили для полей внутри карточки --- */
     .lp-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 14px 0;
         border-bottom: 1px solid var(--border-color);
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-primary);
     }
-    
-    .lp-table td:first-child,
-    .lp-table td:last-child {
-        border-radius: 0;
-    }
-    
-    .lp-table td:last-child {
-        border-bottom: none;
-    }
-    
-    /* --- Добавляем текстовые метки (Название, Класс и т.д.) --- */
-    .lp-table td::before {
-        font-weight: 500;
-        color: var(--text-secondary);
-        text-align: left;
-    }
-
-    /* --- Стиль для заголовка (Название) --- */
+    .lp-table td:last-child { border-bottom: none; }
     .lp-table td:first-child {
         flex-direction: column;
         align-items: flex-start;
         gap: 4px;
-        padding-top: 0;
         font-size: 18px;
         font-weight: 600;
-        line-height: 1.4;
     }
-
-    .lp-table td:first-child::before {
-        content: 'Название';
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text-secondary);
-        margin-bottom: 0;
-    }
-    
-    /* --- Текстовые метки для остальных полей --- */
     .lp-table tr td:nth-of-type(2)::before { content: 'Класс'; }
     .lp-table tr td:nth-of-type(4)::before { content: 'Дата'; }
     .lp-table tr td:nth-of-type(5)::before { content: 'Статус'; }
-
-    /* --- Скрываем ненужные элементы --- */
-    /* Скрываем колонку "Предмет", чтобы не загромождать карточку */
-    .lp-table tr td:nth-of-type(3) {
-        display: none;
-    }
-    /* Скрываем метку для блока с кнопками */
-    .lp-table tr td:nth-of-type(6)::before {
-        display: none;
-    }
-
-    /* --- Стили для блока с кнопками действий --- */
-    .lp-table td:last-child {
-        padding-bottom: 0;
-        padding-top: 16px;
-    }
-
-    .lp-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
-
-    /* --- Общий контейнер виджета --- */
-    .journal-widget {
-        padding: 20px; /* Немного уменьшаем отступы на мобильных */
-    }
-
-    /* --- Шапка виджета (Заголовок + Фильтры) --- */
+    .lp-table tr td:nth-of-type(3) { display: none; } /* Скрываем предмет */
+    
+    /* --- Журнал --- */
     .journal-header {
-        flex-direction: column; /* Ставим заголовок и фильтры друг под другом */
-        align-items: flex-start; /* Выравниваем все по левому краю */
-        gap: 20px; /* Увеличиваем расстояние между заголовком и фильтрами */
-        margin-bottom: 24px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
     }
-
-    /* --- Форма с фильтрами --- */
     #filter-form {
-        display: flex; /* Убедимся, что это flex-контейнер */
-        flex-direction: column; /* Располагаем фильтры в столбик */
-        width: 100%; /* Форма должна занимать всю ширину */
-        gap: 12px; /* Расстояние между фильтрами */
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
     }
-
-    /* --- Сами выпадающие списки (фильтры) --- */
-    /* Важно: этот селектор нацелен на кастомные выпадающие списки */
-    .journal-header .custom-select {
-        width: 100%; /* Каждый фильтр занимает всю ширину */
-    }
-
-    /* --- Внутренние табы (Оценки / Посещаемость) --- */
-    .journal-tabs {
-        display: grid; /* Используем grid для идеального разделения 50/50 */
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .tab-btn {
-        padding: 12px 10px; /* Делаем кнопки выше для удобства нажатия */
-        font-size: 14px;
-        text-align: center; /* Центрируем текст внутри кнопки */
-    }
-
-    #grades-table tbody tr {
-        flex-direction: row;
-    }
+    .journal-header .custom-select { width: 100%; }
+    .journal-tabs { display: grid; grid-template-columns: 1fr 1fr; }
     
     #journal-content-container {
-        overflow-x: auto; /* Включаем горизонтальный скролл */
-        padding-bottom: 8px; /* Место для кастомного скроллбара */
-        margin: 0 -20px; /* Расширяем контейнер, чтобы таблицы начинались от края */
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin: 0 -20px;
         padding: 0 20px;
     }
-
-    #journal-content-container thead tr{
-        width:100%;
-    }
-
-    #journal-content-container thead th{
-        width: 14.2857%;
-    }
-
-    /* --- 2. Общие стили для обеих таблиц --- */
-    #grades-table,
-    #attendance-table {
-        min-width: 700px; /* Задаем минимальную ширину, чтобы появился скролл */
-        border-collapse: separate; /* Позволяет использовать border-spacing */
-        border-spacing: 0 12px; /* Расстояние между "карточками" студентов */
-        border: none;
+    
+    #grades-table, #attendance-table {
+        min-width: 700px;
+        border-collapse: separate;
+        border-spacing: 0 12px;
     }
     
-    #grades-table tbody,
-    #attendance-table tbody {
-        background-color: transparent;
+    #grades-table th, #attendance-table th,
+    #grades-table td, #attendance-table td {
+        white-space: nowrap; /* Запрет переноса строк */
     }
-
-    /* --- 3. Стилизуем ячейки и заголовок --- */
-    #grades-table th,
-    #attendance-table th {
-        padding: 12px 16px;
-        font-size: 13px;
-        white-space: nowrap;
-        /* "Приклеиваем" заголовок к верху при прокрутке */
+    
+    #grades-table th, #attendance-table th {
         position: sticky;
         top: 0;
-        background-color: var(--bg-main, #F9FAFB); /* Фон, чтобы контент не просвечивал */
+        background-color: var(--bg-main);
         z-index: 10;
     }
-
-    #grades-table td,
-    #attendance-table td {
+    
+    #grades-table td, #attendance-table td {
         background-color: var(--bg-widget);
-        padding: 8px 16px;
         border: none;
         border-top: 1px solid var(--border-color);
         border-bottom: 1px solid var(--border-color);
-        white-space: nowrap;
     }
-
-    /* --- 4. "Приклеиваем" колонку с именами студентов --- */
-    #grades-table th:first-child,
-    #attendance-table th:first-child,
-    #grades-table td:first-child,
-    #attendance-table td:first-child {
-        /* Магия "залипания" колонки слева */
+    
+    /* "Приклеивание" первой колонки */
+    #grades-table th:first-child, #attendance-table th:first-child,
+    #grades-table td:first-child, #attendance-table td:first-child {
         position: sticky;
         left: 0;
         z-index: 5;
         background-color: var(--bg-widget);
-        border-right: 1px solid var(--border-color); /* Линия-разделитель */
+        border-right: 1px solid var(--border-color);
     }
     
-    /* Самый левый верхний угол должен быть поверх всего */
-    #grades-table th:first-child,
-    #attendance-table th:first-child {
+    #grades-table th:first-child, #attendance-table th:first-child {
         z-index: 15;
-        background-color: var(--bg-main, #F9FAFB);
+        background-color: var(--bg-main);
     }
     
-    /* Стилизуем имя студента */
-    #grades-table td:first-child,
-    #attendance-table td:first-child {
-        font-weight: 600;
-        font-size: 15px;
-    }
-
-    /* --- 5. Скругляем углы у "карточек" студентов --- */
-    #grades-table td:first-child,
-    #attendance-table td:first-child {
-        border-radius: 12px 0 0 12px;
-    }
-    #grades-table td:last-of-type,
-    #attendance-table td:last-of-type {
-        border-radius: 0 12px 12px 0;
-    }
-
-    /* --- 6. Кастомный скроллбар --- */
-    #journal-content-container::-webkit-scrollbar {
-        height: 6px;
-    }
-    #journal-content-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    #journal-content-container::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 10px;
-    }
-    #journal-content-container::-webkit-scrollbar-thumb:hover {
-        background: #aaa;
-    }
-
-    .homework-widget {
-        /* Убираем лишние отступы и фон, чтобы карточки стали основным элементом */
-        padding: 0;
-        background: transparent;
-        border: none;
-        box-shadow: none;
-    }
-
-    /* --- Стили для отдельной карточки --- */
+    #grades-table td:first-child, #attendance-table td:first-child { border-radius: 12px 0 0 12px; }
+    #grades-table td:last-of-type, #attendance-table td:last-of-type { border-radius: 0 12px 12px 0; }
+    
+    /* --- Карточки Домашних заданий --- */
     .homework-card {
-        background-color: var(--bg-widget);
-        border: 1px solid var(--border-color);
-        border-radius: 16px; /* Более заметное скругление */
+        border-radius: 16px;
         padding: 20px;
-        box-shadow: var(--widget-shadow);
-        display: flex;
-        flex-direction: column;
-        gap: 16px; /* Равномерный отступ между элементами карточки */
+        gap: 16px;
     }
-    
-    /* --- Шапка карточки (заголовок, теги, кнопки) --- */
     .hw-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start; /* Выравнивание по верху */
-        gap: 12px;
-        margin-bottom: 0; /* Используем gap вместо margin */
+        align-items: flex-start;
+        margin-bottom: 0;
     }
-
-    .hw-title-group {
-        display: flex;
-        flex-wrap: wrap; /* Позволяет тегам переноситься на новую строку */
-        align-items: center;
-        gap: 8px; /* Расстояние между тегами */
-    }
-
     .hw-title-group h3 {
-        width: 100%; /* Заголовок всегда на своей строке */
+        width: 100%;
         font-size: 18px;
-        font-weight: 600;
-        margin: 0;
     }
-    
-    .hw-tag {
-        background-color: #EEF2FF; /* Светло-фиолетовый фон */
-        color: #4338CA; /* Темно-фиолетовый текст */
-        font-size: 12px;
-        font-weight: 500;
-        padding: 4px 10px;
-        border-radius: 6px;
-    }
-
-    /* --- Кнопки действий (Редактировать, Удалить) --- */
-    .hw-actions {
-        display: flex;
-        gap: 8px;
-    }
-
-    .hw-actions button {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        background-color: transparent;
-        font-size: 14px;
-        color: var(--text-secondary);
-    }
-    .hw-actions button:hover {
-        background-color: #F3F4F6;
-    }
-    
-    /* --- Описание задания --- */
-    .hw-description {
-        margin: 0; /* Отступы контролируются родительским gap */
-        color: var(--text-secondary);
-    }
-
-    /* --- Подвал карточки (статистика и кнопка) --- */
     .hw-card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         padding-top: 16px;
-        margin-top: auto; /* Прижимает подвал к низу карточки */
         border-top: 1px solid var(--border-color);
     }
-
-    /* --- Статистика сдачи --- */
-    .hw-stats {
-        font-size: 13px;
-        color: var(--text-secondary);
-        line-height: 1.5; /* Улучшаем читаемость */
-    }
     .hw-stats span {
-        display: block; /* Заставляем статистику располагаться вертикально */
+        display: block;
     }
-    
-    /* --- Кнопка "Просмотреть работы" --- */
     .btn-view-submissions {
-        font-size: 14px;
-        font-weight: 600;
-        padding: 10px 16px;
-        border-radius: 10px;
-        background-color: #F9FAFB; /* Слегка серый фон */
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    /*
+    * =================================================================
+    *   ИСПРАВЛЕНИЕ: Горизонтальное отображение ячеек в таблице журнала
+    * =================================================================
+    * Этот блок кода отменяет "карточный" вид на мобильных устройствах
+    * и возвращает таблицам стандартное горизонтальное поведение со скроллом.
+    */
+
+    #grades-table tbody tr,
+    #attendance-table tbody tr {
+        /* Возвращаем элементу <tr> поведение строки таблицы */
+        display: table-row;
+        
+        /* Отменяем лишние стили от "карточного" вида */
+        border: none;
+        padding: 0;
+        margin-bottom: 0;
+        border-radius: 0;
+    }
+
+    #grades-table td,
+    #attendance-table td {
+        /* Возвращаем элементу <td> поведение ячейки таблицы */
+        display: table-cell;
+
+        /* Восстанавливаем стили, которые могли быть изменены */
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Стили для ячейки с оценкой, если они были изменены */
+    .grade-cell-wrapper {
+        background-color: transparent;
+        padding: 6px; /* Стандартный отступ для ячейки */
+    }
+
+    /* Убираем рамку у последней строки, как было в десктопной версии */
+    .journal-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .lp-actions {
+        justify-content: flex-end !important;
+        gap:15px !important;
+    }
+
+    .schedule-week-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 
-#grade-modal .close-btn {
-    position: relative !important;
-    top: 0px !important;
-    right: 0px !important;
-    border-radius: 5px;
+
+/* --- Маленькие мобильные устройства (до 480px) --- */
+@media (max-width: 480px) {
+    .td-stats-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .grade-badge, .attendance-icon {
+        min-width: 40px;
+        height: 40px;
+    }
 }
-
-.close-btn {
-    position: relative !important;
-    top: 0px !important;
-    right: 0px !important;
-    border-radius: 5px;
-}
-
-
     </style>
 </head>
 <body class="td-body">

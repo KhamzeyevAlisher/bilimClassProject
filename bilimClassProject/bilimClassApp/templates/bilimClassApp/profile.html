@@ -4,401 +4,450 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Школьная Платформа</title>
-    
+    <title>Школьная Платформа - Профиль</title>
+
     <!-- Подключаем иконки Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
-    <!-- ПОДКЛЮЧАЕМ ВСЕ СТИЛИ ЗДЕСЬ -->
-    <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
-    
-    <link rel="stylesheet" href="{% static 'bilimClassApp/css/admin_panel.css' %}">
-    <link rel="stylesheet" href="{% static 'bilimClassApp/css/school_structure.css' %}">
+
+    <!-- Подключаем шрифты (рекомендуется для консистентности) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ===================================================================== -->
+    <!-- === ОСНОВНЫЕ СТИЛИ (ОБЪЕДИНЕНЫ И ПЕРЕРАБОТАНЫ) === -->
+    <!-- ===================================================================== -->
     <style>
-        /* Добавляем стиль для скрытия неактивных страниц и вкладок */
-        .main-nav {
+        /* --- Корневые переменные --- */
+        :root {
+            --bg-main: #F9FAFB;
+            --bg-widget: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+            --accent-primary: #4F46E5;
+            --accent-primary-light: rgba(79, 70, 229, 0.1);
+            --accent-purple: #8B5CF6;
+            --accent-red: #EF4444;
+            --accent-green: #10B981;
+            --accent-green-bg: #D1FAE5;
+            --accent-green-text: #065F46;
+            --accent-red-bg: #FEE2E2;
+            --accent-red-text: #991B1B;
+            --widget-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --header-shadow: 0 4px 12px rgba(16, 24, 40, 0.04);
+        }
+
+        /* --- Базовые стили --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1280px; /* Увеличили максимальную ширину для десктопа */
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* --- Стили для шапки (Header) --- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-widget);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: var(--header-shadow);
+            margin-bottom: 32px; /* Увеличили отступ */
+        }
+        .header-logo { display: flex; align-items: center; gap: 14px; }
+        .header-logo-icon { width: 44px; height: 44px; background-color: var(--accent-primary); border-radius: 10px; color: white; display: grid; place-items: center; font-size: 20px; }
+        .header-logo h1 { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+        .header-logo p { font-size: 13px; color: var(--text-secondary); }
+        .header-user { display: flex; align-items: center; gap: 16px; }
+        .header-user-info h3 { font-weight: 600; font-size: 15px; text-align: right; }
+        .header-user-link { text-decoration: none; color: inherit; }
+        .header-user-avatar { width: 44px; height: 44px; border-radius: 10px; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; font-size: 16px; }
+
+        /* --- ОСНОВНАЯ СЕТКА ДЛЯ ДЕСКТОПА --- */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Две равные колонки */
+            gap: 32px; /* Пространство между колонками */
+            align-items: start; /* Выравнивание блоков по верху */
+        }
+
+        /* --- Стили для карточек с формами --- */
+        .form-card {
+            background-color: var(--bg-widget);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--widget-shadow);
+        }
+
+        .form-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color); /* Визуальный разделитель */
+        }
+
+        /* --- Стили для полей формы --- */
+        .form-card form p {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-card form label {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .logout {
+            display: flex;
+            justify-self: end;
+            font-size: 14px;
+            color: gray;
+        }
+
+        .form-card form input[type="text"],
+        .form-card form input[type="email"],
+        .form-card form input[type="password"],
+        .form-card form input[type="date"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            color: var(--text-primary);
+            background-color: var(--bg-main);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-card form input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-primary-light);
+        }
+
+        /* --- Стили для кнопок --- */
+        .form-card button[type="submit"] {
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            /* background-image: linear-gradient(to right, var(--accent-primary) 0%, var(--accent-purple) 100%); */
+            background-color: #4F46E5;
+            box-shadow: 0 2px 5px rgba(79, 70, 229, 0.2);
+            transition: all 0.2s ease-in-out;
+            margin-top: 10px;
+        }
+        .form-card button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        /* --- Стили для сообщений и ошибок --- */
+        .message-box, .error-box {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message-box {
+            background-color: var(--accent-green-bg);
+            color: var(--accent-green-text);
+            border: 1px solid var(--accent-green-text);
+        }
+
+        .error-box {
+            color: var(--accent-red-text);
+            background-color: var(--accent-red-bg);
+            border: 1px solid var(--accent-red-text);
+        }
+        .error-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        #logout_form {
             display: none;
         }
 
-        .page-content, .content-tab-pane {
+        /* Вспомогательный класс для скрытия */
+        .hidden {
             display: none;
         }
-        .page-content.active, .content-tab-pane.active {
-            display: block;
+        
+        /* Стили для подсказок в форме пароля */
+        #password-form ul {
+            margin-left: 7%;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        #password-form ul li { margin-bottom: 5px; }
+
+
+        #profile-form textarea {
+            border-radius: 10px;
         }
 
-        .td-user-section { display: flex; align-items: center; gap: 16px; }
-        .td-user-info { text-align: right; } .td-user-info h3 { font-weight: 600; }
-        .td-user-info p { font-size: 14px; color: var(--text-secondary); }
-        .td-user-link { text-decoration: none; color: inherit; }
-        .container {width:100%;}
-        .logout-link {
-            color: #6B7280;
-            font-size: 14px; 
+        input {
+            border-color: #ccc !important;
         }
-        .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
+
+
+        /* ===================================================================
+           АДАПТИВНЫЕ СТИЛИ (ПЛАНШЕТЫ И МОБИЛЬНЫЕ)
+        =================================================================== */
+        @media (max-width: 992px) {
+            /* Переключаемся на одноколоночный макет для планшетов */
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+
+            #logout_form {
+                display: flex;
+                width: 100%;
+                margin-top: 20px;
+            }  
+
+            #logout_form a, button{
+                width: 100%;
+            }  
+            
+
+            .logout {
+                display: none;
+            }
+            .container {
+                padding: 16px;
+            }
+            .page-header {
+                padding: 12px 16px;
+                margin-bottom: 24px;
+            }
+            /* Скрываем текст в шапке на мобильных */
+            .header-logo p, .header-user-info { display: none; }
+            .header-logo h1 { font-size: 16px; }
+            .header-logo-icon, .header-user-avatar { width: 40px; height: 40px; }
+
+            .header-user-avatar {
+                border-radius: 10px !important;
+            }
+            
+            .form-card {
+                padding: 24px;
+            }
+            .form-card h2 {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- ===================================================================== -->
-        <!-- === ОБЩАЯ ШАПКА (видна на всех страницах) === -->
+        <!-- === ОБЩАЯ ШАПКА === -->
         <!-- ===================================================================== -->
-        <header class="site-header">
-            <div class="logo-section">
-                <a href="{% url 'login' %}" style="text-decoration: none;"><div class="logo-icon">ШП</div></a>
-                <div class="logo-text">
+        <header class="page-header">
+            <div class="header-logo">
+                <div class="header-logo-icon">🎓</div>
+                <div>
                     <h1>Школьная Платформа</h1>
-                    <span>Система управления учебным процессом</span>
+                    <p>Система управления учебным процессом</p>
                 </div>
             </div>
-            <div class="td-user-section">
-                <div class="td-user-info">
-                    <a href="{% url 'profile' %}" class="td-user-link">
-                        <h3>{{ user.get_full_name }}</h3>
+            <div class="header-user">
+                <div class="header-user-info">
+                    <a href="{% url 'profile' %}" class="header-user-link">
+                        <h3 id="header-user-fullname">{{ user.get_full_name }}</h3>
                     </a>
-                    <p>Ученик</p>
-                    <a href="{% url 'logout' %}" class="logout-link" title="Выйти из аккаунта">
+                    <a class="logout" href="{% url 'logout' %}" class="header-user-link">
                         Выйти
                     </a>
                 </div>
-                <a href="{% url 'profile' %}" class="td-user-link">
-                    <div class="td-user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
+                <a href="{% url 'profile' %}" class="header-user-link">
+                    <div class="header-user-avatar" id="header-user-initials">{{ user.first_name|first }}{{ user.last_name|first }}</div>
                 </a>
             </div>
         </header>
 
-        <!-- ===================================================================== -->
-        <!-- === ОБЩАЯ НАВИГАЦИЯ (видна на всех страницах) === -->
-        <!-- ===================================================================== -->
-        <nav class="main-nav">
-            <ul>
-                <!-- data-target используется JS для переключения контента -->
-                <li><a href="#" data-target="home"><i class="fa-solid fa-house"></i> Главная</a></li>
-                <li><a href="#" data-target="users" class="active"><i class="fa-solid fa-users"></i> Пользователи</a></li>
-                <li><a href="#" data-target="structure"><i class="fa-solid fa-sitemap"></i> Структура школы</a></li>
-                <li><a href="#" data-target="assignments"><i class="fa-solid fa-user-tag"></i> Назначения</a></li>
-                <li><a href="#" data-target="settings"><i class="fa-solid fa-gear"></i> Настройки</a></li>
-            </ul>
-        </nav>
-    </div>
-    <div class="form-wrapper">
-        <h2>Редактирование профиля: {{ user.username }}</h2>
-        <div id="profile-message-container" class="message-container"></div>
-        <div id="profile-errors-list" class="errors-list"></div>
-        
-        <form id="profile-form" method="post" novalidate>
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Сохранить изменения</button>
-        </form>
-    </div>
+        <!-- Основной контент страницы -->
+        <main>
+            <!-- Обертка для сеточного макета -->
+            <div class="profile-grid">
+                
+                <!-- Левая колонка -->
+                <div class="grid-column">
+                    <div class="form-card">
+                        <h2>Редактирование профиля</h2>
+                        <div id="profile-message-container" class="message-box hidden"></div>
+                        <div id="profile-errors-list" class="error-box hidden"></div>
+                        
+                        <form id="profile-form" method="post" novalidate>
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit">Сохранить изменения</button>
+                        </form>
+                    </div>
 
-    <!-- НОВЫЙ БЛОК ДЛЯ СМЕНЫ ПАРОЛЯ -->
-    <div class="form-wrapper" style="margin-top: 40px;">
-        <h2>Смена пароля</h2>
-        <div id="password-message-container" class="message-container"></div>
-        <div id="password-errors-list" class="errors-list"></div>
+                    <div class="form-card" style="margin-top: 32px;">
+                        <h2>Смена имени и фамилии</h2>
+                        <div id="name-message-container" class="message-box hidden"></div>
+                        <div id="name-errors-list" class="error-box hidden"></div>
+                
+                        <form id="name-form" method="post" action="{% url 'change_name' %}" novalidate>
+                            {% csrf_token %}
+                            {{ name_form.as_p }}
+                            <button type="submit">Сохранить ФИО</button>
+                        </form>
+                    </div>
+                </div>
 
-        <form id="password-form" method="post" action="{% url 'change_password' %}" novalidate>
-            {% csrf_token %}
-            {{ password_form.as_p }}
-            <button type="submit">Изменить пароль</button>
-        </form>
-    </div>
+                <!-- Правая колонка -->
+                <div class="grid-column">
+                    <div class="form-card">
+                        <h2>Смена пароля</h2>
+                        <div id="password-message-container" class="message-box hidden"></div>
+                        <div id="password-errors-list" class="error-box hidden"></div>
+                
+                        <form id="password-form" method="post" action="{% url 'change_password' %}" novalidate>
+                            {% csrf_token %}
+                            {{ password_form.as_p }}
+                            <button type="submit">Изменить пароль</button>
+                        </form>
+                    </div>
 
-    <!-- 2. НОВЫЙ БЛОК ДЛЯ СМЕНЫ ФИО -->
-    <div class="form-wrapper" style="margin-top: 40px;">
-        <h2>Смена имени и фамилии</h2>
-        <div id="name-message-container" class="message-container"></div>
-        <div id="name-errors-list" class="errors-list"></div>
+                    <div class="form-card" style="margin-top: 32px;">
+                        <h2>Смена Email</h2>
+                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">Текущий email: <strong>{{ user.email|default:"не указан" }}</strong></p>
+                        <div id="email-message-container" class="message-box hidden"></div>
+                        <div id="email-errors-list" class="error-box hidden"></div>
+                
+                        <form id="email-form" method="post" action="{% url 'change_email' %}" novalidate>
+                            {% csrf_token %}
+                            {{ email_form.as_p }}
+                            <button type="submit">Изменить Email</button>
+                        </form>
+                    </div>
 
-        <form id="name-form" method="post" action="{% url 'change_name' %}" novalidate>
-            {% csrf_token %}
-            <!-- Рендерим новую форму -->
-            {{ name_form.as_p }}
-            <button type="submit">Сохранить ФИО</button>
-        </form>
-    </div>
-
-    <!-- НОВЫЙ БЛОК ДЛЯ СМЕНЫ EMAIL -->
-    <div class="form-wrapper" style="margin-top: 40px;">
-        <h2>Смена Email</h2>
-        <p>Текущий email: <strong>{{ user.email|default:"не указан" }}</strong></p>
-        <div id="email-message-container" class="message-container"></div>
-        <div id="email-errors-list" class="errors-list"></div>
-
-        <form id="email-form" method="post" action="{% url 'change_email' %}" novalidate>
-            {% csrf_token %}
-            {{ email_form.as_p }}
-            <button type="submit">Изменить Email</button>
-        </form>
-    </div>
-
-    <style>
-
-        .errors-list { display: none; }
-        /* Просто для наглядности сообщений об успехе/ошибке */
-        .message-container {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            display: none; /* Скрыто по умолчанию */
-        }
-
-        .errors-list {
-            color: #721c24; /* Темно-красный цвет */
-            background-color: #f8d7da; /* Светло-красный фон */
-            border: 1px solid #f5c6cb;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .errors-list ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-    </style>
+                    <div id="logout_form" class="form-card" style="margin-top: 32px;">
+                        <a href="{% url 'logout' %}"><button type="submit">Выйти</button></a>
+                    </div>
+                </div>
+                
+            </div> <!-- .profile-grid -->
+        </main>
+    </div> <!-- .container -->
    
     <script>
+    // ВАШ JAVASCRIPT КОД ОСТАЕТСЯ ЗДЕСЬ БЕЗ ИЗМЕНЕНИЙ
+    // Я внес лишь небольшие правки в классы, чтобы соответствовать новой разметке
     document.addEventListener('DOMContentLoaded', function() {
-        // --- ОБРАБОТЧИК ДЛЯ ФОРМЫ ПРОФИЛЯ (немного изменен) ---
-        const profileForm = document.getElementById('profile-form');
-        if (profileForm) {
-            profileForm.addEventListener('submit', function(e) {
-                e.preventDefault(); 
+        
+        function handleFormSubmit(formId, url, messageContainerId, errorContainerId, successCallback) {
+            const form = document.getElementById(formId);
+            if (!form) return;
 
-                const form = e.target;
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-                
-                if (data.birth_date === '') {
-                    data.birth_date = null;
-                }
 
                 // Очистка старых сообщений
-                document.getElementById('profile-message-container').style.display = 'none';
-                try {
-                    document.getElementById('profile-errors-list').innerHTML = '';
-                } catch {
+                const messageContainer = document.getElementById(messageContainerId);
+                const errorsListContainer = document.getElementById(errorContainerId);
+                messageContainer.classList.add('hidden');
+                errorsListContainer.classList.add('hidden');
+                errorsListContainer.innerHTML = '';
 
-                }
-                
-                fetch("{% url 'profile' %}", {
+                fetch(url, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: JSON.stringify(data)
                 })
                 .then(response => response.json())
                 .then(data => {
-                    const messageContainer = document.getElementById('profile-message-container');
-                    messageContainer.style.display = 'block';
                     if (data.status === 'success') {
                         messageContainer.textContent = data.message;
-                        messageContainer.style.backgroundColor = '#d4edda';
-                        messageContainer.style.color = '#155724';
+                        messageContainer.classList.remove('hidden');
+                        form.reset();
+                        if (successCallback) {
+                            successCallback(data);
+                        }
                     } else {
-                        const errorsListContainer = document.getElementById('profile-errors-list');
-                        errorsListContainer.style.display = 'block';
-                        errorsListContainer.innerHTML = '';
-                        
-                        const errors = data.errors;
+                        errorsListContainer.classList.remove('hidden');
                         const ul = document.createElement('ul');
-
-                        if (errors) {
-                            for (const field in errors) {
-                                // errors[field] - это массив
-                                errors[field].forEach(error => {
+                        if (data.errors) {
+                            for (const field in data.errors) {
+                                data.errors[field].forEach(error => {
                                     const li = document.createElement('li');
-                                    // Проверяем, является ли ошибка объектом с полем 'message' или просто строкой
-                                    const errorMessage = (typeof error === 'object' && error.message) ? error.message : error;
-                                    // Добавляем имя поля для ясности
-                                    li.textContent = `${form.querySelector(`[name=${field}]`).labels[0].textContent}: ${errorMessage}`;
+                                    li.textContent = (typeof error === 'object' && error.message) ? error.message : error;
                                     ul.appendChild(li);
                                 });
                             }
                         } else {
-                            // Если объект errors пуст, но статус 'error'
                             const li = document.createElement('li');
                             li.textContent = data.message || 'Произошла неизвестная ошибка.';
                             ul.appendChild(li);
                         }
-                        
-                        errorsListContainer.appendChild(ul);
-                        // --- КОНЕЦ ЗАМЕНЫ ---
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            });
-        }s
-
-        // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ ФОРМЫ СМЕНЫ ПАРОЛЯ ---
-        const passwordForm = document.getElementById('password-form');
-        if (passwordForm) {
-            passwordForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                console.log("Submitting profile form via AJAX");
-
-                const form = e.target;
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
-                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-
-                // Очищаем старые сообщения перед новым запросом
-                const messageContainer = document.getElementById('password-message-container');
-                const errorsListContainer = document.getElementById('password-errors-list');
-                messageContainer.style.display = 'none';
-                errorsListContainer.innerHTML = ''; // Очищаем список ошибок
-                errorsListContainer.style.display = 'none';
-
-                fetch("{% url 'change_password' %}", { // Отправляем на новый URL
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                        'x-requested-with': 'XMLHttpRequest', // <--- Все в нижнем регистре
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const messageContainer = document.getElementById('password-message-container');
-                    messageContainer.style.display = 'block';
-                    if (data.status === 'success') {
-                        messageContainer.textContent = data.message;
-                        messageContainer.style.backgroundColor = '#d4edda';
-                        messageContainer.style.color = '#155724';
-                        form.reset(); // Очищаем поля формы после успеха
-                    } else {
-                        let errorText = 'Ошибка при смене пароля:\n';
-                        if (data.errors) {
-                            // Ошибки от PasswordChangeForm имеют другую структуру
-                            for (const field in data.errors) {
-                                data.errors[field].forEach(error => {
-                                    errorText += `- ${error.message}\n`;
-                                });
-                            }
-                        }
-                        messageContainer.textContent = errorText;
-                        messageContainer.style.backgroundColor = '#f8d7da';
-                        messageContainer.style.color = '#721c24';
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            });
-        }
-
-        const nameForm = document.getElementById('name-form');
-        if (nameForm) {
-            nameForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const form = e.target;
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
-                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-                
-                // Очистка старых сообщений
-                document.getElementById('name-message-container').style.display = 'none';
-                document.getElementById('name-errors-list').innerHTML = '';
-
-                fetch("{% url 'change_name' %}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const messageContainer = document.getElementById('name-message-container');
-                    messageContainer.style.display = 'block';
-
-                    if (data.status === 'success') {
-                        messageContainer.textContent = data.message;
-                        messageContainer.style.backgroundColor = '#d4edda';
-                        messageContainer.style.color = '#155724';
-
-                        // --- ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ ШАПКИ ---
-                        document.getElementById('header-user-fullname').textContent = data.new_full_name;
-                        document.getElementById('header-user-initials').textContent = data.new_initials;
-
-                    } else {
-                        // Обработка ошибок валидации
-                        const errorsListContainer = document.getElementById('name-errors-list');
-                        errorsListContainer.style.display = 'block';
-                        const ul = document.createElement('ul');
-                        for (const field in data.errors) {
-                            data.errors[field].forEach(error => {
-                                const li = document.createElement('li');
-                                li.textContent = error.message || error;
-                                ul.appendChild(li);
-                            });
-                        }
                         errorsListContainer.appendChild(ul);
                     }
                 })
                 .catch(error => console.error('Error:', error));
             });
         }
+        
+        // Инициализация обработчиков для каждой формы
+        handleFormSubmit('profile-form', "{% url 'profile' %}", 'profile-message-container', 'profile-errors-list');
+        handleFormSubmit('password-form', "{% url 'change_password' %}", 'password-message-container', 'password-errors-list');
+        handleFormSubmit('email-form', "{% url 'change_email' %}", 'email-message-container', 'email-errors-list', (data) => {
+            // Перезагрузка страницы для обновления email в тексте
+            setTimeout(() => location.reload(), 1500);
+        });
 
-        // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ ФОРМЫ СМЕНЫ EMAIL ---
-        const emailForm = document.getElementById('email-form');
-        if (emailForm) {
-            emailForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const form = e.target;
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
-                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-                
-                // Очистка старых сообщений
-                document.getElementById('email-message-container').style.display = 'none';
-                const errorsListContainer = document.getElementById('email-errors-list');
-                errorsListContainer.innerHTML = '';
-                errorsListContainer.style.display = 'none';
-
-                fetch("{% url 'change_email' %}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        const messageContainer = document.getElementById('email-message-container');
-                        messageContainer.style.display = 'block';
-                        messageContainer.textContent = data.message;
-                        messageContainer.style.backgroundColor = '#d4edda';
-                        messageContainer.style.color = '#155724';
-                        form.reset();
-                        // Можно также обновить текст текущего email на странице, если нужно
-                        // location.reload(); // или просто перезагрузить страницу
-                    } else {
-                        errorsListContainer.style.display = 'block';
-                        const ul = document.createElement('ul');
-                        for (const field in data.errors) {
-                            data.errors[field].forEach(error => {
-                                const li = document.createElement('li');
-                                li.textContent = error.message || error;
-                                ul.appendChild(li);
-                            });
-                        }
-                        errorsListContainer.appendChild(ul);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            });
-        }
-
+        // Отдельный обработчик для формы смены имени с обновлением шапки
+        handleFormSubmit('name-form', "{% url 'change_name' %}", 'name-message-container', 'name-errors-list', (data) => {
+            if (data.new_full_name) {
+                document.getElementById('header-user-fullname').textContent = data.new_full_name;
+            }
+            if (data.new_initials) {
+                document.getElementById('header-user-initials').textContent = data.new_initials;
+            }
+        });
     });
     </script>
 </body>

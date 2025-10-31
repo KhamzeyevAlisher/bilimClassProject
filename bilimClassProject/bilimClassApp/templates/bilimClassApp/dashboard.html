@@ -15,7 +15,7 @@
         .td-user-info { text-align: right; } .td-user-info h3 { font-weight: 600; }
         .td-user-info p { font-size: 14px; color: var(--text-secondary); }
         .td-user-link { text-decoration: none; color: inherit; }
-        .td-user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
+        .td-user-avatar { width: 40px; height: 40px; border-radius: 10px; background-color: #D8B4FE; color: #581C87; display: grid; place-items: center; font-weight: 600; }
     </style>
 
     <style>
@@ -33,6 +33,11 @@
 
 /* --- Основные мобильные стили (до 768px) --- */
 @media (max-width: 768px) {
+
+    .schedule-section {
+        padding: 16px 20px 16px 20px ;
+    }
+
     body {
         font-size: 14px;
     }
@@ -52,9 +57,17 @@
         margin-left: auto;
     }
 
-    /* --- Заголовки и табы --- */
+    .day-tabs ul{
+        justify-content: center !important;
+    }
+
+    /* --- Заголовки и табы --- */ 
+    .welcome-section {
+        margin: 0px 20px 24px 20px;
+    } 
+
     .welcome-section h1 {
-        font-size: 24px;
+        font-size: 20px;
     }
     .main-tabs ul, .day-tabs ul {
         overflow-x: auto;
@@ -290,7 +303,6 @@
                     <li data-tab="schedule" class="{% if active_tab == 'schedule' or not active_tab %}active{% endif %}"><a href="#">Расписание</a></li>
                     <li data-tab="dnevnik" class="{% if active_tab == 'dnevnik' %}active{% endif %}"><a href="#">Дневник</a></li>
                     <li data-tab="homework" class="{% if active_tab == 'homework' %}active{% endif %}"><a href="#">Домашние задания</a></li>
-                    <li data-tab="profile" class="{% if active_tab == 'profile' %}active{% endif %}"><a href="#">Профиль</a></li>
                 </ul>
             </nav>
 
@@ -300,7 +312,7 @@
                     <h3>Расписание уроков</h3>
                     <p>Ваше расписание на неделю</p>
                     <nav class="day-tabs">
-                        <ul><li data-day="1" class="active">ПН</li><li data-day="2">ВТ</li><li data-day="3">СР</li><li data-day="4">ЧТ</li><li data-day="5">ПТ</li><li data-day="6">СБ</li></ul>
+                        <ul><li data-day="1" class="active">ПН</li><li data-day="2">ВТ</li><li data-day="3">СР</li><li data-day="4">ЧТ</li><li data-day="5">ПТ</li></ul>
                     </nav>
                     <div class="schedule-content">
                         {% for day, lessons in schedule_by_day.items %}

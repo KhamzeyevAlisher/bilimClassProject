@@ -139,7 +139,7 @@
     .grades-table-v2 .grades-list {
         display: flex;
         flex-direction: row;    /* ЯВНО указываем горизонтальное направление */
-        flex-wrap: nowrap;      /* Запрещаем перенос */
+        flex-wrap: wrap;      /* Запрещаем перенос */
         align-items: center;
         gap: 8px;
         overflow-x: auto;       /* Добавляем скролл, если не помещается */
@@ -233,6 +233,20 @@
         color: #fff; /* Белый текст */
         box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3); /* Та самая тень */
     }
+
+    #tab-content-not_submitted .homework-card {
+        margin-top: 10px;
+    }
+
+    .site-header {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .grades-list {
+        
+        overflow-x:scroll !important;
+    }
 }
 
 
@@ -262,6 +276,12 @@
     .dnevnik-filters a {
         text-align: center;
     }
+
+    .welcome-section h1 {
+        font-size: 18px;
+    }
+
+    
 }
     </style>
 </head>

@@ -18,6 +18,7 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models.functions import Coalesce
+from collections import defaultdict
 
 def _get_redirect_for_user(user):
     """
@@ -483,7 +484,7 @@ def teacher_dashboard_view(request):
     homeworks = Homework.objects.filter(teacher=teacher).annotate(
         submission_count=Count('submissions'),
         checked_count=Count('submissions', filter=Q(submissions__grade__isnull=False))
-    ).prefetch_related('school_class', 'subject')
+    ).order_by('-created_at').prefetch_related('school_class', 'subject')
 
     # Создаем экземпляр формы для создания/редактирования ДЗ,
     # передавая в него учителя для фильтрации классов и предметов
@@ -1868,11 +1869,13 @@ def headteacher_view(request):
     Отображает страницу завуча со сложной фильтрацией успеваемости,
     управлением расписанием и утверждением планов.
     """
+
     if not (request.user.profile and request.user.profile.role == 'headteacher'):
         return HttpResponseForbidden("Доступ к этой странице есть только у Завучей.")
 
     # --- 1. ПОЛУЧЕНИЕ ПАРАМЕТРОВ ИЗ URL ---
     selected_school_id = request.GET.get('school_id')
+    selected_class_id = request.GET.get('class_id')
     active_tab = request.GET.get('tab', 'performance')
     
     # Параметры для вкладки "Успеваемость"
@@ -1883,14 +1886,12 @@ def headteacher_view(request):
     status_filter = request.GET.get('status', 'pending')
     subject_filter_plans = request.GET.get('subject_id')
     teacher_filter_plans = request.GET.get('teacher_id')
-    
-    # Параметры для вкладки "Расписание"
-    selected_class_id_schedule = request.GET.get('class_id')
 
     # --- 2. ИНИЦИАЛИЗАЦИЯ КОНТЕКСТА ---
     context = {
         'all_schools': School.objects.all().order_by('name'),
         'selected_school_id': int(selected_school_id) if selected_school_id else None,
+        'selected_class_id': int(selected_class_id) if selected_class_id else None,
         'active_tab': active_tab,
         'active_filter': filter_by,
         'active_sort': sort_by,
@@ -1902,7 +1903,6 @@ def headteacher_view(request):
     }
 
     # --- 3. ЛОГИКА ДЛЯ ВКЛАДКИ "УТВЕРЖДЕНИЕ ПЛАНОВ" ---
-    # Эта логика не зависит от выбранной школы, поэтому выполняется всегда.
     plans_queryset = LessonPlan.objects.select_related('teacher__user', 'school_class', 'subject').order_by('-created_at')
     if subject_filter_plans:
         plans_queryset = plans_queryset.filter(subject_id=subject_filter_plans)
@@ -1920,8 +1920,8 @@ def headteacher_view(request):
         'subjects_for_filter': Subject.objects.filter(lesson_plans__in=plans_queryset).distinct().order_by('name'),
         'teachers_for_filter': Teacher.objects.filter(lesson_plans__in=plans_queryset).select_related('user').distinct(),
         'current_status': status_filter,
-        'selected_subject_id_plans': int(subject_filter_plans) if subject_filter_plans else None,
-        'selected_teacher_id_plans': int(teacher_filter_plans) if teacher_filter_plans else None,
+        'selected_subject_id': int(subject_filter_plans) if subject_filter_plans else None,
+        'selected_teacher_id': int(teacher_filter_plans) if teacher_filter_plans else None,
     })
 
     # --- 4. ЛОГИКА, ЗАВИСЯЩАЯ ОТ ВЫБРАННОЙ ШКОЛЫ ---
@@ -1936,7 +1936,7 @@ def headteacher_view(request):
         )
         context['performance_data'] = {
             'overall_avg_grade': overall_stats['overall_avg_grade'],
-            'overall_attendance': 99.0, # ЗАГЛУШКА: Замените на ваш реальный расчет посещаемости
+            'overall_attendance': 99.0, # ЗАГЛУШКА
             'total_students': overall_stats['total_students'],
         }
 
@@ -1970,12 +1970,15 @@ def headteacher_view(request):
         elif filter_by == 'subject':
             subject_grades = Assessment.objects.filter(school_class__school_id=selected_school_id, was_absent=False)\
                 .values('subject__name', 'school_class__name').annotate(avg=Avg('grade')).order_by('subject__name')
-            subject_data = {}
+            
+            subject_data = defaultdict(dict)
             for grade_info in subject_grades:
-                subject_name = grade_info['subject__name']
-                if subject_name not in subject_data: subject_data[subject_name] = {}
-                subject_data[subject_name][grade_info['school_class__name']] = grade_info['avg']
-            context['subject_performance_data'] = subject_data
+                if not grade_info['subject__name']:
+                    continue
+                subject_data[grade_info['subject__name']][grade_info['school_class__name']] = grade_info['avg']
+            
+            # <-- ИСПРАВЛЕНО ЗДЕСЬ
+            context['subject_performance_data'] = dict(subject_data)
 
         # ВАРИАНТ 3: Фильтрация по УЧЕНИКАМ
         elif filter_by == 'student':
@@ -1984,18 +1987,16 @@ def headteacher_view(request):
                 .filter(avg_grade__isnull=False).select_related('profile').order_by('-avg_grade')
 
         # --- ЛОГИКА ДЛЯ ВКЛАДКИ "РАСПИСАНИЕ" ---
-        context['schedule_form'] = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id_schedule)
-        context['selected_class_id_schedule'] = int(selected_class_id_schedule) if selected_class_id_schedule else None
-        
-        schedule_by_day = {day: [] for day in range(1, 7)}
-        if selected_class_id_schedule:
-            schedule_items = Schedule.objects.filter(school_class_id=selected_class_id_schedule).select_related('subject', 'teacher__user').order_by('start_time')
+        schedule_by_day = defaultdict(list)
+        if selected_class_id:
+            schedule_items = Schedule.objects.filter(school_class_id=selected_class_id).select_related('subject', 'teacher__user').order_by('start_time')
             for item in schedule_items:
-                if item.day_of_week in schedule_by_day: schedule_by_day[item.day_of_week].append(item)
+                schedule_by_day[item.day_of_week].append(item)
         
-        context['schedule_by_day'] = schedule_by_day
-        context['days_of_week'] = {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница", 6: "Суббота"}
-
+        context['schedule_form'] = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id)
+        context['schedule_by_day'] = dict(schedule_by_day)
+        context['days_of_week'] = dict(Schedule.DAY_CHOICES)
+        
     return render(request, 'bilimClassApp/headteacher.html', context)
 
 # @login_required

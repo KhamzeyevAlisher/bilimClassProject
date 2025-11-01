@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дашборд Учителя | Школьная Платформа</title>
+    <title>Sabaq Saqshy</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/teacher_homework.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/teacher_dashboard.css' %}">
@@ -751,6 +751,9 @@ body.td-body {
     color: #4b5563;
 }
 
+.form-group option {
+    border-radius: 20px;
+}
 
 /* --- Элементы форм --- */
 .form-grid {
@@ -963,6 +966,90 @@ input[name="attached_file"]::file-selector-button:hover {
     width: auto;
 }
 
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%; /* Заставляем занимать всю ширину родителя */
+}
+
+/* Скрываем оригинальный select, но оставляем его для функциональности формы */
+.custom-select select {
+    display: none;
+}
+
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px;
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px; /* Увеличим шрифт для соответствия полям ввода */
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+    margin: 10px 0; /* Добавим отступ как у других полей формы */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.custom-select-trigger:hover {
+    border-color: #A5B4FC;
+}
+
+.custom-select-trigger:after {
+    content: '\f078'; /* Иконка шеврона вниз из Font Awesome */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-left: 8px;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.custom-options.open + .custom-select-trigger:after {
+    transform: rotate(180deg);
+}
+
+.custom-options {
+    position: absolute;
+    top: calc(100% + 2px); /* Располагаем чуть ниже триггера */
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.1);
+    list-style: none;
+    padding: 8px 6px;
+    margin: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1200;
+}
+
+.custom-options.open {
+    display: block;
+}
+
+.custom-option {
+    padding: 12px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.custom-option:hover {
+    background-color: #F3F4F6;
+}
+
+.custom-option.selected {
+    background: #EEF2FF;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
 
 /* ===================================================================
    10. АДАПТИВНЫЕ СТИЛИ (MEDIA QUERIES)
@@ -1027,7 +1114,7 @@ input[name="attached_file"]::file-selector-button:hover {
         align-items: center;
         padding: 12px 16px;
     }
-    .td-logo-section h1 { font-size: 16px; }
+    .td-logo-section h1 { font-size: 18px; }
     .td-logo-section p, .td-user-info { display: none; }
     .td-logo-icon, .td-user-avatar { width: 44px; height: 44px; }
 
@@ -1377,7 +1464,7 @@ input[name="attached_file"]::file-selector-button:hover {
         <div class="td-logo-section">
             <div class="td-logo-icon">🎓</div>
             <div>
-                <h1>Школьная Платформа</h1>
+                <h1>Sabaq Saqshy</h1>
                 <p>Система управления учебным процессом</p>
             </div>
         </div>
@@ -1593,9 +1680,9 @@ input[name="attached_file"]::file-selector-button:hover {
                         </div>
                         <form method="get" id="filter-form" style="display: flex; gap: 16px;">
                             <select name="school_id" onchange="this.form.submit()" class="class-selector">
-                                <option value="">Выберите школу</option>
+                                <option  value="">Выберите школу</option>
                                 {% for school in all_schools %}
-                                    <option value="{{ school.pk }}" {% if school.pk == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
+                                    <option  value="{{ school.pk }}" {% if school.pk == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
                                 {% endfor %}
                             </select>
                             <select name="class_id" onchange="this.form.submit()" class="class-selector">
@@ -2392,41 +2479,81 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 // Replace native journal selects with a simple custom dropdown for consistent styling
 document.addEventListener('DOMContentLoaded', function() {
-    const journalSelects = document.querySelectorAll('.journal-header select.class-selector');
-    journalSelects.forEach(select => {
-        try {
-            const form = select.closest('form');
-            const wrapper = document.createElement('div'); wrapper.className = 'custom-select';
-            const trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 'custom-select-trigger';
-            trigger.textContent = (select.options[select.selectedIndex] && select.options[select.selectedIndex].text) || select.options[0].text || '';
-            const list = document.createElement('ul'); list.className = 'custom-options';
-            Array.from(select.options).forEach(opt => {
-                const li = document.createElement('li'); li.className = 'custom-option'; li.dataset.value = opt.value; li.textContent = opt.text;
-                if (opt.disabled) li.classList.add('disabled');
-                if (opt.selected) li.classList.add('selected');
-                list.appendChild(li);
-            });
-            const hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = select.name; hidden.value = select.value;
-            wrapper.appendChild(trigger); wrapper.appendChild(list); wrapper.appendChild(hidden);
-            select.parentNode.insertBefore(wrapper, select); select.remove();
+    function initializeCustomSelects(container) {
+        const selector = container ? container.querySelectorAll('select') : document.querySelectorAll('select');
+        
+        selector.forEach(selectElement => {
+            // Проверяем, не был ли этот элемент уже инициализирован
+            if (selectElement.nextElementSibling && selectElement.nextElementSibling.classList.contains('custom-select-wrapper')) {
+                return;
+            }
+            selectElement.style.display = 'none';
 
-            trigger.addEventListener('click', function(e) {
-                e.stopPropagation(); document.querySelectorAll('.custom-options.open').forEach(o => { if (!wrapper.contains(o)) o.classList.remove('open'); });
-                list.classList.toggle('open');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'custom-select';
+            
+            const trigger = document.createElement('button');
+            trigger.type = 'button';
+            trigger.className = 'custom-select-trigger';
+            
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'custom-options';
+
+            function syncUI() {
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                trigger.textContent = selectedOption ? selectedOption.text : '...';
+                
+                Array.from(optionsList.children).forEach((li) => {
+                    li.classList.toggle('selected', li.dataset.value === selectElement.value);
+                });
+            }
+
+            Array.from(selectElement.options).forEach(option => {
+                const li = document.createElement('li');
+                li.className = 'custom-option';
+                li.textContent = option.textContent;
+                li.dataset.value = option.value;
+                
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectElement.value = option.value;
+                    syncUI();
+                    optionsList.classList.remove('open');
+                    
+                    const changeEvent = new Event('change', { bubbles: true });
+                    selectElement.dispatchEvent(changeEvent);
+
+                    // Если это форма фильтров, отправляем ее при выборе
+                    if (selectElement.closest('form')?.id === 'filter-form') {
+                        selectElement.closest('form').submit();
+                    }
+                });
+                optionsList.appendChild(li);
             });
 
-            list.addEventListener('click', function(e) {
-                const li = e.target.closest('.custom-option');
-                if (!li || li.classList.contains('disabled')) return;
-                hidden.value = li.dataset.value; trigger.textContent = li.textContent;
-                list.querySelectorAll('.custom-option').forEach(x => x.classList.remove('selected'));
-                li.classList.add('selected'); list.classList.remove('open');
-                if (form) form.submit();
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const wasOpen = optionsList.classList.contains('open');
+                document.querySelectorAll('.custom-options.open').forEach(el => el.classList.remove('open'));
+                if (!wasOpen) {
+                    optionsList.classList.add('open');
+                }
             });
+            
+            wrapper.appendChild(trigger);
+            wrapper.appendChild(optionsList);
+            selectElement.parentNode.insertBefore(wrapper, selectElement.nextSibling);
 
-            // close when clicking outside
-            document.addEventListener('click', function(e) { if (!wrapper.contains(e.target)) list.classList.remove('open'); });
-        } catch (err) { console.error('custom-select init error', err); }
+            syncUI();
+        });
+    }
+
+    // Первоначальная инициализация для всей страницы
+    initializeCustomSelects();
+
+    // Глобальный слушатель для закрытия списков при клике вне их
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-options.open').forEach(el => el.classList.remove('open'));
     });
 });
 </script>

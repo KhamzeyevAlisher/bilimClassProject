@@ -7,11 +7,12 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule,  Holiday, LessonPlan # Импортируем нужные модели
 
 class ProfileForm(forms.ModelForm):
-
-    birth_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    
+    birth_date = forms.DateField(label='Дата рождения',required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     class Meta:
         model = Profile
         fields = ('bio', 'location', 'birth_date', 'phone_number','iin',)
+
 
     def clean_phone_number(self):
         # Получаем данные из поля
@@ -146,6 +147,9 @@ class HomeworkSubmissionForm(forms.ModelForm):
 class UserManagementForm(forms.Form):
     # Поля из User
     full_name = forms.CharField(label="ФИО", max_length=150, required=True)
+    # === НАЧАЛО ИЗМЕНЕНИЙ ===
+    username = forms.CharField(label="Логин (Username)", max_length=150, required=True)
+    # === КОНЕЦ ИЗМЕНЕНИЙ ===
     email = forms.EmailField(label="Email", required=True)
     is_active = forms.ChoiceField(label="Статус", choices=[(True, 'Активен'), (False, 'Заблокирован')])
 
@@ -175,8 +179,10 @@ class UserManagementForm(forms.Form):
 
         # --- 1. Обработка User ---
         if not user:
-            # Создание нового пользователя
-            username = self.cleaned_data['email']
+            # === НАЧАЛО ИЗМЕНЕНИЙ ===
+            # Создание нового пользователя. Теперь username берется из формы.
+            username = self.cleaned_data['username']
+            # === КОНЕЦ ИЗМЕНЕНИЙ ===
             user = User.objects.create_user(username=username, email=self.cleaned_data['email'])
             # Устанавливаем временный пароль. В реальной системе лучше отправлять email.
             user.set_password('password123')
@@ -187,6 +193,9 @@ class UserManagementForm(forms.Form):
         name_parts = self.cleaned_data['full_name'].split()
         user.first_name = name_parts[0] if len(name_parts) > 0 else ''
         user.last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+        # === НАЧАЛО ИЗМЕНЕНИЙ ===
+        user.username = self.cleaned_data['username'] # Обновляем username и при редактировании
+        # === КОНЕЦ ИЗМЕНЕНИЙ ===
         user.email = self.cleaned_data['email']
         user.is_active = self.cleaned_data['is_active'] == 'True'
         user.save()
@@ -194,7 +203,7 @@ class UserManagementForm(forms.Form):
         # --- 2. Обработка Profile ---
         profile, _ = Profile.objects.get_or_create(user=user)
         profile.role = self.cleaned_data['role']
-        # profile.phone_number = self.cleaned_data['phone_number'] # У вас нет этого поля в Profile, но есть в форме
+        profile.phone_number = self.cleaned_data.get('phone_number', '') # Добавим сохранение номера телефона
         profile.save()
 
         # --- 3. Обработка в зависимости от роли ---
@@ -228,6 +237,25 @@ class UserManagementForm(forms.Form):
             Teacher.objects.filter(user=user).delete()
 
         return user
+    
+    # === НАЧАЛО ИЗМЕНЕНИЙ ===
+    def clean_username(self):
+        """Проверяет уникальность username."""
+        username = self.cleaned_data.get('username')
+        user_id = self.cleaned_data.get('user_id')
+
+        # При создании нового пользователя (user_id еще нет)
+        if not user_id:
+            if User.objects.filter(username=username).exists():
+                raise forms.ValidationError("Этот логин уже занят.")
+        # При редактировании существующего
+        else:
+            # Проверяем, существует ли пользователь с таким username, исключая текущего
+            if User.objects.filter(username=username).exclude(id=user_id).exists():
+                raise forms.ValidationError("Этот логин уже занят.")
+        
+        return username
+    # === КОНЕЦ ИЗМЕНЕНИЙ ===
     
 class SchoolClassForm(forms.ModelForm):
     """

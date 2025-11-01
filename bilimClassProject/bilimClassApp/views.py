@@ -1474,7 +1474,6 @@ def is_staff_check(user):
 #     return render(request, 'bilimClassApp/admin_panel.html', context)
 
 @login_required
-@user_passes_test(is_staff_check, login_url='/')
 def admin_user_list_view(request):
     """
     Отображает главную страницу панели администратора,
@@ -1567,6 +1566,7 @@ def get_user_details_view(request, user_id):
         data = {
             "id": user.id,
             "full_name": user.get_full_name(),
+            "username": user.username,
             "email": user.email,
             "is_active": user.is_active,
             "role": user.profile.role,

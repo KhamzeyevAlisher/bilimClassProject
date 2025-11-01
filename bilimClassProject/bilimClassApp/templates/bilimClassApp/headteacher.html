@@ -442,6 +442,91 @@ a.class-details-link:hover {
     background: #aaa;
 }
 
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%; /* Заставляем занимать всю ширину родителя */
+}
+
+/* Скрываем оригинальный select, но оставляем его для функциональности формы */
+.custom-select select {
+    display: none;
+}
+
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px;
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px; /* Увеличим шрифт для соответствия полям ввода */
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+    margin: 10px 0; /* Добавим отступ как у других полей формы */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.custom-select-trigger:hover {
+    border-color: #A5B4FC;
+}
+
+.custom-select-trigger:after {
+    content: '\f078'; /* Иконка шеврона вниз из Font Awesome */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-left: 8px;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.custom-options.open + .custom-select-trigger:after {
+    transform: rotate(180deg);
+}
+
+.custom-options {
+    position: absolute;
+    top: calc(100% + 2px); /* Располагаем чуть ниже триггера */
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.1);
+    list-style: none;
+    padding: 8px 6px;
+    margin: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1200;
+}
+
+.custom-options.open {
+    display: block;
+}
+
+.custom-option {
+    padding: 12px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.custom-option:hover {
+    background-color: #F3F4F6;
+}
+
+.custom-option.selected {
+    background: #EEF2FF;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
 /* .grades-table {
     width: 100%;
     border-collapse: collapse;
@@ -480,10 +565,12 @@ a.class-details-link:hover {
     
     .logo-text h1 {
         font-size: 18px;
+        
     }
 
     .logo-text span {
         font-size: 12px;
+        display: none;
     }
 
     /* --- 1. Стили для верхней мобильной панели (остаются без изменений) --- */
@@ -1503,6 +1590,88 @@ a.class-details-link:hover {
 
 
 {% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function initializeCustomSelects(container) {
+        const selector = container ? container.querySelectorAll('select') : document.querySelectorAll('select');
+        
+        selector.forEach(selectElement => {
+            // Проверяем, не был ли этот элемент уже инициализирован
+            if (selectElement.nextElementSibling && selectElement.nextElementSibling.classList.contains('custom-select-wrapper')) {
+                return;
+            }
+            selectElement.style.display = 'none';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'custom-select';
+            
+            const trigger = document.createElement('button');
+            trigger.type = 'button';
+            trigger.className = 'custom-select-trigger';
+            
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'custom-options';
+
+            function syncUI() {
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                trigger.textContent = selectedOption ? selectedOption.text : '...';
+                
+                Array.from(optionsList.children).forEach((li) => {
+                    li.classList.toggle('selected', li.dataset.value === selectElement.value);
+                });
+            }
+
+            Array.from(selectElement.options).forEach(option => {
+                const li = document.createElement('li');
+                li.className = 'custom-option';
+                li.textContent = option.textContent;
+                li.dataset.value = option.value;
+                
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectElement.value = option.value;
+                    syncUI();
+                    optionsList.classList.remove('open');
+                    
+                    const changeEvent = new Event('change', { bubbles: true });
+                    selectElement.dispatchEvent(changeEvent);
+
+                    // Если это форма фильтров, отправляем ее при выборе
+                    if (selectElement.closest('form')?.id === 'filter-form') {
+                        selectElement.closest('form').submit();
+                    }
+                });
+                optionsList.appendChild(li);
+            });
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const wasOpen = optionsList.classList.contains('open');
+                document.querySelectorAll('.custom-options.open').forEach(el => el.classList.remove('open'));
+                if (!wasOpen) {
+                    optionsList.classList.add('open');
+                }
+            });
+            
+            wrapper.appendChild(trigger);
+            wrapper.appendChild(optionsList);
+            selectElement.parentNode.insertBefore(wrapper, selectElement.nextSibling);
+
+            syncUI();
+        });
+    }
+
+    // Первоначальная инициализация для всей страницы
+    initializeCustomSelects();
+
+    // Глобальный слушатель для закрытия списков при клике вне их
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-options.open').forEach(el => el.classList.remove('open'));
+    });
+})
+</script>
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';

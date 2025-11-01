@@ -81,4 +81,5 @@ urlpatterns = [
     path('profile/change-password/', views.change_password, name='change_password'),
     path('profile/change-name/', views.change_name, name='change_name'),
     path('profile/change-email/', views.change_email, name='change_email'),
+    path('api/student/<int:student_id>/performance/', views.get_student_performance_details_api, name='api_get_student_performance_details'),
 ]

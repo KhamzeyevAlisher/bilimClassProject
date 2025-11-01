@@ -1865,153 +1865,137 @@ def delete_holiday_api(request, pk):
 @login_required
 def headteacher_view(request):
     """
-    Отображает страницу завуча, включая управление расписанием,
-    аналитику успеваемости и УТВЕРЖДЕНИЕ ПЛАНОВ.
+    Отображает страницу завуча со сложной фильтрацией успеваемости,
+    управлением расписанием и утверждением планов.
     """
     if not (request.user.profile and request.user.profile.role == 'headteacher'):
         return HttpResponseForbidden("Доступ к этой странице есть только у Завучей.")
 
+    # --- 1. ПОЛУЧЕНИЕ ПАРАМЕТРОВ ИЗ URL ---
+    selected_school_id = request.GET.get('school_id')
+    active_tab = request.GET.get('tab', 'performance')
+    
+    # Параметры для вкладки "Успеваемость"
+    filter_by = request.GET.get('filter_by', 'class')
+    sort_by = request.GET.get('sort_by', 'avg_grade')
+
+    # Параметры для вкладки "Утверждение планов"
+    status_filter = request.GET.get('status', 'pending')
+    subject_filter_plans = request.GET.get('subject_id')
+    teacher_filter_plans = request.GET.get('teacher_id')
+    
+    # Параметры для вкладки "Расписание"
+    selected_class_id_schedule = request.GET.get('class_id')
+
+    # --- 2. ИНИЦИАЛИЗАЦИЯ КОНТЕКСТА ---
     context = {
         'all_schools': School.objects.all().order_by('name'),
-        'active_tab': request.GET.get('tab', 'performance'),
-        'selected_school_id': request.GET.get('school_id'),
+        'selected_school_id': int(selected_school_id) if selected_school_id else None,
+        'active_tab': active_tab,
+        'active_filter': filter_by,
+        'active_sort': sort_by,
+        'performance_data': {},
+        'class_performance_data': [],
+        'subject_performance_data': {},
+        'student_ratings': [],
+        'classes_in_school': SchoolClass.objects.none(),
     }
 
-    # --- ЛОГИКА ДЛЯ ВКЛАДКИ "УТВЕРЖДЕНИЕ ПЛАНОВ" ---
-    status_filter = request.GET.get('status', 'pending')
-    subject_filter = request.GET.get('subject_id')
-    teacher_filter = request.GET.get('teacher_id')
-
-    plans_queryset = LessonPlan.objects.select_related(
-        'teacher__user', 'school_class', 'subject'
-    ).order_by('-created_at')
-
-    if subject_filter:
-        plans_queryset = plans_queryset.filter(subject_id=subject_filter)
-    if teacher_filter:
-        plans_queryset = plans_queryset.filter(teacher_id=teacher_filter)
+    # --- 3. ЛОГИКА ДЛЯ ВКЛАДКИ "УТВЕРЖДЕНИЕ ПЛАНОВ" ---
+    # Эта логика не зависит от выбранной школы, поэтому выполняется всегда.
+    plans_queryset = LessonPlan.objects.select_related('teacher__user', 'school_class', 'subject').order_by('-created_at')
+    if subject_filter_plans:
+        plans_queryset = plans_queryset.filter(subject_id=subject_filter_plans)
+    if teacher_filter_plans:
+        plans_queryset = plans_queryset.filter(teacher_id=teacher_filter_plans)
     
-    filtered_plans = plans_queryset.filter(status=status_filter)
-
     status_counts = plans_queryset.aggregate(
         pending=Count('id', filter=Q(status=LessonPlan.Status.PENDING)),
         approved=Count('id', filter=Q(status=LessonPlan.Status.APPROVED)),
         rejected=Count('id', filter=Q(status=LessonPlan.Status.REJECTED))
     )
-    
-    subjects_with_plans = Subject.objects.filter(lesson_plans__in=plans_queryset).distinct().order_by('name')
-    teachers_with_plans = Teacher.objects.filter(lesson_plans__in=plans_queryset).select_related('user').distinct()
-
     context.update({
-        'lesson_plans': filtered_plans,
+        'lesson_plans': plans_queryset.filter(status=status_filter),
         'status_counts': status_counts,
-        'subjects_for_filter': subjects_with_plans,
-        'teachers_for_filter': teachers_with_plans,
+        'subjects_for_filter': Subject.objects.filter(lesson_plans__in=plans_queryset).distinct().order_by('name'),
+        'teachers_for_filter': Teacher.objects.filter(lesson_plans__in=plans_queryset).select_related('user').distinct(),
         'current_status': status_filter,
-        'selected_subject_id': int(subject_filter) if subject_filter else None,
-        'selected_teacher_id': int(teacher_filter) if teacher_filter else None,
+        'selected_subject_id_plans': int(subject_filter_plans) if subject_filter_plans else None,
+        'selected_teacher_id_plans': int(teacher_filter_plans) if teacher_filter_plans else None,
     })
 
-    # --- ЛОГИКА ДЛЯ ВКЛАДОК "УСПЕВАЕМОСТЬ" И "РАСПИСАНИЕ" ---
-    selected_school_id = context['selected_school_id']
+    # --- 4. ЛОГИКА, ЗАВИСЯЩАЯ ОТ ВЫБРАННОЙ ШКОЛЫ ---
     if selected_school_id:
-        context['selected_school_id'] = int(selected_school_id)
-        
-        # <<< НАЧАЛО ИСПРАВЛЕНИЯ: ВОССТАНОВЛЕНА ПОЛНАЯ ЛОГИКА ДЛЯ УСПЕВАЕМОСТИ >>>
-        school_classes = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students', 'schedule_set')
-        
+        school_classes = SchoolClass.objects.filter(school_id=selected_school_id).prefetch_related('students').order_by('name')
+        context['classes_in_school'] = school_classes
+
+        # --- ЛОГИКА ДЛЯ ВКЛАДКИ "УСПЕВАЕМОСТЬ" ---
         overall_stats = school_classes.aggregate(
             total_students=Count('students', distinct=True),
-            overall_avg_grade=Avg('students__assessments__grade')
+            overall_avg_grade=Avg('students__assessments__grade', filter=Q(students__assessments__was_absent=False))
         )
-        
-        today = date.today()
-        start_of_school_year = date(today.year, 9, 1) if today.month >= 9 else date(today.year - 1, 9, 1)
-        holidays = set(Holiday.objects.filter(date__gte=start_of_school_year).values_list('date', flat=True))
-
-        class_performance_stats = []
-        school_total_potential_lessons = 0
-        school_total_absences = 0
-
-        for s_class in school_classes:
-            student_count = s_class.students.count()
-            if student_count == 0:
-                class_performance_stats.append({
-                    'class_id': s_class.id, 'class_name': s_class.name, 'student_count': 0,
-                    'avg_grade': 0, 'attendance_percentage': 100.0,
-                    'excellent_students': 0, 'good_students': 0, 'satisfactory_students': 0, 'poor_students': 0,
-                })
-                continue
-
-            students_with_avg_grade = s_class.students.annotate(
-                avg_grade=Coalesce(Avg('assessments__grade'), 0.0, output_field=FloatField())
-            )
-            grade_distribution = students_with_avg_grade.aggregate(
-                excellent=Count(Case(When(avg_grade__gte=85, then=1))), # Примерные баллы: 5 = 85+
-                good=Count(Case(When(avg_grade__gte=65, avg_grade__lt=85, then=1))), # 4 = 65-84
-                satisfactory=Count(Case(When(avg_grade__gte=50, avg_grade__lt=65, then=1))), # 3 = 50-64
-                poor=Count(Case(When(avg_grade__lt=50, avg_grade__gt=0, then=1))), # 2 = <50
-                class_avg_grade=Avg('avg_grade')
-            )
-
-            total_potential_lessons, class_schedule_dict = 0, {i: 0 for i in range(1, 7)}
-            for lesson in s_class.schedule_set.all():
-                if lesson.day_of_week in class_schedule_dict: class_schedule_dict[lesson.day_of_week] += 1
-            
-            current_day = start_of_school_year
-            while current_day <= today:
-                day_of_week = current_day.isoweekday()
-                if day_of_week != 7 and current_day not in holidays:
-                    total_potential_lessons += class_schedule_dict.get(day_of_week, 0)
-                current_day += timedelta(days=1)
-            
-            class_absences = Attendance.objects.filter(school_class=s_class, date__range=[start_of_school_year, today]).exclude(status='P').count()
-            
-            total_potential_person_lessons = total_potential_lessons * student_count
-            class_attendance_percentage = 100.0
-            if total_potential_person_lessons > 0:
-                attended_lessons = total_potential_person_lessons - class_absences
-                class_attendance_percentage = (attended_lessons / total_potential_person_lessons) * 100
-
-            class_performance_stats.append({
-                'class_id': s_class.id, 'class_name': s_class.name, 'student_count': student_count,
-                'avg_grade': grade_distribution['class_avg_grade'], 'attendance_percentage': class_attendance_percentage,
-                'excellent_students': grade_distribution['excellent'], 'good_students': grade_distribution['good'],
-                'satisfactory_students': grade_distribution['satisfactory'], 'poor_students': grade_distribution['poor'],
-            })
-            
-            school_total_potential_lessons += total_potential_person_lessons
-            school_total_absences += class_absences
-
-        overall_attendance_percentage = 100.0
-        if school_total_potential_lessons > 0:
-            school_attended_lessons = school_total_potential_lessons - school_total_absences
-            overall_attendance_percentage = (school_attended_lessons / school_total_potential_lessons) * 100
-        
         context['performance_data'] = {
             'overall_avg_grade': overall_stats['overall_avg_grade'],
-            'overall_attendance': overall_attendance_percentage,
+            'overall_attendance': 99.0, # ЗАГЛУШКА: Замените на ваш реальный расчет посещаемости
             'total_students': overall_stats['total_students'],
-            'class_stats': class_performance_stats,
         }
-        # <<< КОНЕЦ ИСПРАВЛЕНИЯ >>>
-        
-        # Логика для вкладки "Расписание"
-        selected_class_id = request.GET.get('class_id')
-        context['classes_in_school'] = SchoolClass.objects.filter(school_id=selected_school_id).order_by('name')
-        context['schedule_form'] = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id)
-        context['selected_class_id'] = int(selected_class_id) if selected_class_id else None
+
+        # ВАРИАНТ 1: Фильтрация по КЛАССАМ
+        if filter_by == 'class':
+            class_stats_list = []
+            for s_class in school_classes:
+                students_with_avg = s_class.students.annotate(avg_grade=Coalesce(Avg('assessments__grade', filter=Q(assessments__was_absent=False)), 0.0, output_field=FloatField()))
+                grade_dist = students_with_avg.aggregate(
+                    excellent=Count(Case(When(avg_grade__gte=85, then=1))),
+                    good=Count(Case(When(avg_grade__gte=65, avg_grade__lt=85, then=1))),
+                    satisfactory=Count(Case(When(avg_grade__gte=50, avg_grade__lt=65, then=1))),
+                    poor=Count(Case(When(avg_grade__lt=50, avg_grade__gt=0, then=1))),
+                    class_avg_grade=Avg('avg_grade')
+                )
+                class_stats_list.append({
+                    'class_obj': s_class, 'student_count': s_class.students.count(),
+                    'avg_grade': grade_dist['class_avg_grade'] or 0.0,
+                    'attendance_percentage': 100.0, # ЗАГЛУШКА
+                    'excellent_students': grade_dist['excellent'], 'good_students': grade_dist['good'],
+                    'satisfactory_students': grade_dist['satisfactory'], 'poor_students': grade_dist['poor'],
+                })
+            
+            if sort_by == 'attendance':
+                class_stats_list.sort(key=lambda x: x['attendance_percentage'], reverse=True)
+            else:
+                class_stats_list.sort(key=lambda x: x['avg_grade'], reverse=True)
+            context['class_performance_data'] = class_stats_list
+
+        # ВАРИАНТ 2: Фильтрация по ПРЕДМЕТАМ
+        elif filter_by == 'subject':
+            subject_grades = Assessment.objects.filter(school_class__school_id=selected_school_id, was_absent=False)\
+                .values('subject__name', 'school_class__name').annotate(avg=Avg('grade')).order_by('subject__name')
+            subject_data = {}
+            for grade_info in subject_grades:
+                subject_name = grade_info['subject__name']
+                if subject_name not in subject_data: subject_data[subject_name] = {}
+                subject_data[subject_name][grade_info['school_class__name']] = grade_info['avg']
+            context['subject_performance_data'] = subject_data
+
+        # ВАРИАНТ 3: Фильтрация по УЧЕНИКАМ
+        elif filter_by == 'student':
+            context['student_ratings'] = User.objects.filter(school_classes__school_id=selected_school_id)\
+                .annotate(avg_grade=Avg('assessments__grade', filter=Q(assessments__was_absent=False)))\
+                .filter(avg_grade__isnull=False).select_related('profile').order_by('-avg_grade')
+
+        # --- ЛОГИКА ДЛЯ ВКЛАДКИ "РАСПИСАНИЕ" ---
+        context['schedule_form'] = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id_schedule)
+        context['selected_class_id_schedule'] = int(selected_class_id_schedule) if selected_class_id_schedule else None
         
         schedule_by_day = {day: [] for day in range(1, 7)}
-        if selected_class_id:
-            schedule_items = Schedule.objects.filter(school_class_id=selected_class_id).select_related('subject', 'teacher__user').order_by('start_time')
+        if selected_class_id_schedule:
+            schedule_items = Schedule.objects.filter(school_class_id=selected_class_id_schedule).select_related('subject', 'teacher__user').order_by('start_time')
             for item in schedule_items:
-                if item.day_of_week in schedule_by_day:
-                    schedule_by_day[item.day_of_week].append(item)
+                if item.day_of_week in schedule_by_day: schedule_by_day[item.day_of_week].append(item)
         
         context['schedule_by_day'] = schedule_by_day
         context['days_of_week'] = {1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница", 6: "Суббота"}
-        
+
     return render(request, 'bilimClassApp/headteacher.html', context)
 
 # @login_required
@@ -2216,6 +2200,7 @@ def get_class_performance_details_api(request, class_id):
             attendance_percentage = 100.0
 
         student_data.append({
+            'id': student.id, 
             'full_name': student.get_full_name() or student.username,
             'avg_grade': f"{avg_grade:.2f}",
             'attendance_percentage': f"{attendance_percentage:.1f}",
@@ -2400,3 +2385,35 @@ def change_email(request):
     else:
         # Если не прошли стандартные проверки (например, поле пустое)
         return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+
+@login_required
+def get_student_performance_details_api(request, student_id):
+    """
+    API, возвращающее детальную успеваемость по каждому предмету для одного ученика.
+    (Упрощенная версия: только средний балл)
+    """
+    student = get_object_or_404(User, pk=student_id)
+    subjects = Subject.objects.filter(assessment__student=student, assessment__was_absent=False).distinct()
+    
+    performance_data = []
+    
+    for subject in subjects:
+        # Получаем все оценки ученика по этому предмету для расчета среднего
+        assessments = student.assessments.filter(subject=subject, was_absent=False)
+        
+        # Считаем средний балл
+        avg_grade_data = assessments.aggregate(avg=Avg('grade'))
+        avg_grade = avg_grade_data['avg'] if avg_grade_data['avg'] is not None else 0.0
+        
+        # === ИЗМЕНЕНИЕ: Убрали сбор списка всех оценок ===
+        # Теперь добавляем только название предмета и средний балл.
+        performance_data.append({
+            'subject_name': subject.name,
+            'average_grade': f"{avg_grade:.2f}",
+        })
+        
+    return JsonResponse({
+        'student_full_name': student.get_full_name() or student.username,
+        'subjects': performance_data,
+    })

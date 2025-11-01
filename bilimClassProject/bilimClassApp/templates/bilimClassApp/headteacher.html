@@ -361,6 +361,111 @@ a.class-details-link:hover {
     color: #4338CA; /* Более темный оттенок фиолетового */
 }
 
+/* === НАЧАЛО: НОВЫЕ СТИЛИ ДЛЯ ДЕТАЛЕЙ УЧЕНИКА === */
+.student-link {
+    cursor: pointer;
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+.student-link:hover {
+    text-decoration: underline;
+}
+
+.subject-performance-card {
+    background-color: var(--bg-main);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+}
+.subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+.subject-header h4 {
+    margin: 0;
+    font-size: 16px;
+}
+.average-grade {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.average-grade strong {
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Включаем горизонтальную прокрутку, если контент не помещается */
+    -webkit-overflow-scrolling: touch; /* Плавный скролл на мобильных устройствах */
+    margin-bottom: 1rem; /* Небольшой отступ снизу */
+}
+
+/* Стили для самой таблицы внутри обертки */
+.table-responsive-wrapper .performance-table {
+    width: 100%;
+    /* Задаем минимальную ширину, чтобы колонки не сжимались слишком сильно */
+    min-width: 700px; 
+}
+
+/* Первая колонка ("Предмет") будет зафиксирована при скролле */
+.table-responsive-wrapper .performance-table th:first-child,
+.table-responsive-wrapper .performance-table td:first-child {
+    position: -webkit-sticky; /* Для Safari */
+    position: sticky;
+    left: 0;
+    background-color: #ffffff; /* Фон, чтобы контент под ним не просвечивал */
+    z-index: 1;
+    /* Тень для визуального отделения */
+    box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
+}
+
+/* Стилизация скроллбара (необязательно, но красиво) */
+.table-responsive-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+.table-responsive-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+.table-responsive-wrapper::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+.table-responsive-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+/* .grades-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.grades-table th, .grades-table td {
+    padding: 8px;
+    text-align: left;
+    font-size: 14px;
+}
+.grades-table thead th {
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
+}
+.grades-table tbody tr:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+.grades-table td:last-child {
+    text-align: right;
+    font-size: 16px;
+} */
+/* === КОНЕЦ: НОВЫЕ СТИЛИ ДЛЯ ДЕТАЛЕЙ УЧЕНИКА === */
+
 /* Медиа-запрос: эти стили сработают только на экранах шириной 1024px или меньше */
 @media (max-width: 1024px) {
 
@@ -853,6 +958,85 @@ a.class-details-link:hover {
         width: 100%;
     }
 
+    .filters-toolbar {
+        flex-direction: column;
+        align-items: stretch; /* Растягиваем на всю ширину */
+        gap: 12px;
+        background-color: transparent;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    /* Применяем стили ко всем дочерним div и select внутри тулбара */
+    .filters-toolbar > div,
+    .filters-toolbar > select {
+        width: 100%;
+    }
+
+    /* Стилизуем сами выпадающие списки */
+    .filters-toolbar .filter-select {
+        /* 1. Убираем стандартное оформление браузера */
+        -webkit-appearance: none;
+        appearance: none;
+        
+        /* 2. Задаем стиль "таблетки" */
+        background-color: var(--bg-main, #F3F4F6); /* Светло-серый фон */
+        color: var(--text-primary);
+        border: none;
+        border-radius: 12px; /* Скругленные углы */
+        padding: 12px 40px 12px 20px; /* Отступы внутри, справа больше места для стрелки */
+        font-size: 15px;
+        font-weight: 500;
+        text-align: center; /* Текст по центру */
+        width: 100%;
+        cursor: pointer;
+        
+        /* 3. Добавляем свою кастомную стрелку-шеврон */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.2em 1.2em;
+        margin: 0; /* Убираем возможные отступы по умолчанию */
+    }
+    
+    /* Делаем так, чтобы div-обертка не мешала */
+    .filters-toolbar > div {
+        display: flex;
+        flex-direction: column; /* чтобы select внутри растягивался */
+        gap: 12px;
+    }
+    
+    /* Выделяем первый, самый главный фильтр (школа), делая его похожим на активную "таблетку" */
+    .filters-toolbar > .filter-select:first-of-type {
+        /* background-color: var(--accent-primary, #4F46E5); */
+        color: var(--text-primary);
+        font-weight: 600;
+        /* Белая стрелка для активного фильтра */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+
+    .table-responsive-wrapper .performance-table {
+        width: 100%;
+        /* Задаем минимальную ширину, чтобы колонки не сжимались слишком сильно */
+        min-width: 200px; 
+    }
+
+    #performance-content .performance-table td[data-label="Класс"] {
+        justify-content: flex-end;
+        margin:0px 0px 8px 0px;
+    }
+
+    #performance-content .performance-table td[data-label="Класс"]::before {
+        content: attr(data-label);
+    }
+
+    #performance-content .performance-table td[data-label="Номер"]::before {
+        content: attr(data-label);
+    }
+
+    #performance-content .table-responsive-wrapper td[data-label="Предмет"]::before {
+        content: attr(data-label);
+    }
 }
 
     </style>
@@ -860,8 +1044,6 @@ a.class-details-link:hover {
 
 {% block content %}
 <div class="content-card">
-    
-    <!-- === КОНТЕНТ ВКЛАДКИ "УСПЕВАЕМОСТЬ" === -->
     <div id="performance-content" class="tab-content active">
         <div class="page-header">
             <div class="page-title">
@@ -871,99 +1053,151 @@ a.class-details-link:hover {
         </div>
         <form method="GET" class="filters-toolbar">
             <input type="hidden" name="tab" value="performance">
+            
+            <!-- Фильтр по школе (остается как был) -->
             <select name="school_id" class="filter-select" onchange="this.form.submit()">
                 <option value="">-- Выберите школу --</option>
                 {% for school in all_schools %}
                     <option value="{{ school.id }}" {% if school.id == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
                 {% endfor %}
             </select>
+
+            <!-- === ИСПРАВЛЕНИЕ: Этот блок теперь находится ВНУТРИ формы === -->
+            {% if selected_school_id %}
+            <div style="display: flex; gap: 16px; flex-grow: 1;">
+                <!-- Основной фильтр -->
+                <select name="filter_by" class="filter-select" onchange="this.form.submit()">
+                    <option value="class" {% if active_filter == 'class' %}selected{% endif %}>По классам</option>
+                    <option value="subject" {% if active_filter == 'subject' %}selected{% endif %}>По предметам</option>
+                    <option value="student" {% if active_filter == 'student' %}selected{% endif %}>По ученикам</option>
+                </select>
+
+                <!-- Дополнительный фильтр СОРТИРОВКИ (показывается только для вида "По классам") -->
+                {% if active_filter == 'class' %}
+                <select name="sort_by" class="filter-select" onchange="this.form.submit()">
+                    <option value="avg_grade" {% if active_sort == 'avg_grade' %}selected{% endif %}>Сортировать по среднему баллу</option>
+                    <option value="attendance" {% if active_sort == 'attendance' %}selected{% endif %}>Сортировать по посещаемости</option>
+                </select>
+                {% endif %}
+            </div>
+            {% endif %}
+            <!-- === КОНЕЦ ИСПРАВЛЕНИЯ === -->
         </form>
 
         {% if selected_school_id %}
-            {% if performance_data %}
-                <div class="summary-cards">
-                    <div class="summary-card card-grade">
-                        <div>
-                            <div class="label">Средний балл</div>
-                            <div class="value">{{ performance_data.overall_avg_grade|floatformat:2|default:"-" }}</div>
-                        </div>
-                        <div class="icon"><i class="fa-solid fa-award"></i></div>
+            <!-- Сводные карточки (остаются без изменений) -->
+            <div class="summary-cards">
+                <div class="summary-card card-grade">
+                    <div>
+                        <div class="label">Средний балл</div>
+                        <div class="value">{{ performance_data.overall_avg_grade|floatformat:2|default:"-" }}</div>
                     </div>
-                    <div class="summary-card card-attendance">
-                        <div>
-                            <div class="label">Средняя посещаемость</div>
-                            <div class="value">{{ performance_data.overall_attendance|floatformat:0 }}%</div>
-                        </div>
-                         <div class="icon"><i class="fa-solid fa-user-check"></i></div>
-                    </div>
-                    <div class="summary-card card-students">
-                        <div>
-                            <div class="label">Всего учеников</div>
-                            <div class="value">{{ performance_data.total_students }}</div>
-                        </div>
-                         <div class="icon"><i class="fa-solid fa-users"></i></div>
-                    </div>
+                    <div class="icon"><i class="fa-solid fa-award"></i></div>
                 </div>
+                <div class="summary-card card-attendance">
+                    <div>
+                        <div class="label">Средняя посещаемость</div>
+                        <div class="value">{{ performance_data.overall_attendance|floatformat:0 }}%</div>
+                    </div>
+                    <div class="icon"><i class="fa-solid fa-user-check"></i></div>
+                </div>
+                <div class="summary-card card-students">
+                    <div>
+                        <div class="label">Всего учеников</div>
+                        <div class="value">{{ performance_data.total_students }}</div>
+                    </div>
+                    <div class="icon"><i class="fa-solid fa-users"></i></div>
+                </div>
+            </div>
 
+            <!-- === Блок условного отображения таблиц === -->
+
+            <!-- ТАБЛИЦА 1: Вид по КЛАССАМ -->
+            {% if active_filter == 'class' %}
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Класс</th><th>Учеников</th><th>Средний балл</th><th>Посещаемость</th><th>Отличники</th><th>Хорошисты</th><th>Троечники</th><th>Неуспевающие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in class_performance_data %}
+                    <tr>
+                        <td data-label="Класс"><b><a href="#" class="class-details-link" data-class-id="{{ stat.class_obj.id }}">{{ stat.class_obj.name }}</a></b></td>
+                        <td data-label="Учеников">{{ stat.student_count }}</td>
+                        <td data-label="Средний балл">{{ stat.avg_grade|floatformat:2 }}</td>
+                        <td data-label="Посещаемость">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar {% if stat.attendance_percentage > 90 %}bg-success{% elif stat.attendance_percentage > 70 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ stat.attendance_percentage|floatformat:0 }}%;"></div>
+                                <span>{{ stat.attendance_percentage|floatformat:1 }}%</span>
+                            </div>
+                        </td>
+                        <td data-label="Отличники">{{ stat.excellent_students }}</td>
+                        <td data-label="Хорошисты">{{ stat.good_students }}</td>
+                        <td data-label="Троечники">{{ stat.satisfactory_students }}</td>
+                        <td data-label="Неуспевающие">{{ stat.poor_students }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            <!-- ТАБЛИЦА 2: Вид по ПРЕДМЕТАМ -->
+            {% if active_filter == 'subject' %}
+            <div class="table-responsive-wrapper">
                 <table class="performance-table">
                     <thead>
                         <tr>
-                            <th>Класс</th>
-                            <th>Учеников</th>
-                            <th>Средний балл</th>
-                            <th>Посещаемость</th>
-                            <th>Отличники</th>
-                            <th>Хорошисты</th>
-                            <th>Троечники</th>
-                            <th>Неуспевающие</th>
+                            <th>Предмет</th>
+                            {% for class in classes_in_school %}<th style="text-align: center;">{{ class.name }}</th>{% endfor %}
                         </tr>
                     </thead>
                     <tbody>
-                        {% for stat in performance_data.class_stats %}
+                        {% for subject_name, class_avgs in subject_performance_data.items %}
                         <tr>
-                            <!-- Для первой ячейки data-label не нужен, CSS обрабатывает ее особо -->
-                            <td data-label="Класс">
-                                <b><a href="#" class="class-details-link" data-class-id="{{ stat.class_id }}">{{ stat.class_name }}</a></b>
+                            <td data-label="Предмет"><b>{{ subject_name }}</b></td>
+                            {% for class in classes_in_school %}
+                            <td data-label="{{class.name}}" style="text-align: center;">
+                                {{ class_avgs|get_item:class.name|floatformat:2|default:"-" }}
                             </td>
-                            <!-- А вот здесь добавляем data-label для каждой ячейки -->
-                            <td data-label="Учеников">{{ stat.student_count }}</td>
-                            <td data-label="Средний балл">{{ stat.avg_grade|floatformat:2 }}</td>
-                            <td data-label="Посещаемость">
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar 
-                                        {% if stat.attendance_percentage > 90 %}
-                                            bg-success
-                                        {% elif stat.attendance_percentage > 70 %}
-                                            bg-warning
-                                        {% else %}
-                                            bg-danger
-                                        {% endif %}"
-                                        style="width: {{ stat.attendance_percentage|floatformat:0 }}%;">
-                                    </div>
-                                    <span>{{ stat.attendance_percentage|floatformat:1 }}%</span>
-                                </div>
-                            </td>
-                            <td data-label="Отличники">{{ stat.excellent_students }}</td>
-                            <td data-label="Хорошисты">{{ stat.good_students }}</td>
-                            <td data-label="Троечники">{{ stat.satisfactory_students }}</td>
-                            <td data-label="Неуспевающие">{{ stat.poor_students }}</td>
+                            {% endfor %}
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 24px;">
-                                Нет данных для отображения. Выберите школу.
-                            </td>
-                        </tr>
+                        <tr><td colspan="{{ classes_in_school|length|add:1 }}" class="placeholder">Нет данных по предметам.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            {% else %}
-                <div class="placeholder"><p>Нет данных для отображения.</p></div>
+            </div>
+            {% endif %}
+
+            <!-- ТАБЛИЦА 3: Вид по УЧЕНИКАМ (РЕЙТИНГ) -->
+            {% if active_filter == 'student' %}
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>#</th><th>ФИО Ученика</th><th>Класс</th><th>Средний балл</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in student_ratings %}
+                    <tr>
+                        <td data-label="Номер">{{ forloop.counter }}</td>
+                        <td data-label="ФИО"><b>{{ student.get_full_name|default:student.username }}</b></td>
+                        <td data-label="Класс">{{ student.school_classes.first.name|default:"-" }}</td>
+                        <td data-label="Средний балл">{{ student.avg_grade|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="placeholder">В этой школе нет учеников с оценками.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             {% endif %}
         {% else %}
             <div class="placeholder"><i class="fa-solid fa-school"></i><p>Выберите школу для просмотра статистики успеваемости.</p></div>
         {% endif %}
-    </div>
+    </div><!-- === КОНТЕНТ ВКЛАДКИ "УСПЕВАЕМОСТЬ" === -->
+    
+   
 
     <!-- === КОНТЕНТ ВКЛАДКИ "РАСПИСАНИЕ ШКОЛЫ" === -->
     <div id="schedule-content" class="tab-content">
@@ -987,6 +1221,7 @@ a.class-details-link:hover {
                      <option value="{{ s_class.id }}" {% if s_class.id == selected_class_id %}selected{% endif %}>{{ s_class.name }}</option>
                 {% endfor %}
             </select>
+            
         </form>
 
         {% if selected_class_id %}
@@ -1178,38 +1413,51 @@ a.class-details-link:hover {
     </div>
 </div>
 
-<!-- ========================================================== -->
-<!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ДЕТАЛЕЙ ПО КЛАССУ (вставить в конце файла, перед ) === -->
-<!-- ========================================================== -->
+<!-- ЗАМЕНИТЕ СТАРОЕ МОДАЛЬНОЕ ОКНО НА ЭТО -->
 <div class="modal-overlay" id="student-details-modal-overlay" style="display: none;">
-    <div class="modal-container modal-lg"> <!-- Добавлен класс modal-lg для ширины -->
+    <div class="modal-container modal-lg">
         <button class="close-btn" id="close-student-details-modal-btn">&times;</button>
         <div class="modal-header">
             <h2 id="modal-class-name">Успеваемость класса</h2>
-            <p>Детальная информация по каждому ученику</p>
+            <p id="modal-subtitle">Детальная информация по каждому ученику</p>
         </div>
         
-        <div class="table-wrapper" style="max-height: 60vh; overflow-y: auto;">
-            <!-- Спиннер для индикации загрузки -->
-            <div id="modal-loader" style="text-align: center; padding: 40px; display: none;">
-                <i class="fas fa-spinner fa-spin fa-3x"></i>
-                <p>Загрузка данных...</p>
+        <!-- View 1: Список учеников класса (по умолчанию) -->
+        <div id="class-list-view">
+            <div class="table-wrapper" style="max-height: 60vh; overflow-y: auto;">
+                <div id="modal-loader" style="text-align: center; padding: 40px; display: none;">
+                    <i class="fas fa-spinner fa-spin fa-3x"></i>
+                    <p>Загрузка данных...</p>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ФИО Ученика</th>
+                            <th>Средний балл</th>
+                            <th>Посещаемость</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-details-tbody">
+                        <!-- Данные будут вставлены сюда с помощью JavaScript -->
+                    </tbody>
+                </table>
             </div>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ФИО Ученика</th>
-                        <th>Средний балл</th>
-                        <th>Посещаемость</th>
-                    </tr>
-                </thead>
-                <tbody id="student-details-tbody">
-                    <!-- Данные будут вставлены сюда с помощью JavaScript -->
-                </tbody>
-            </table>
         </div>
 
+        <!-- View 2: Детальная успеваемость одного ученика (скрыт) -->
+        <div id="student-performance-view" style="display: none; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+            <button type="button" id="back-to-class-list-btn" class="btn-secondary" style="margin-bottom: 16px;">
+                <i class="fas fa-arrow-left"></i> Назад к списку класса
+            </button>
+            
+            <div id="student-performance-loader" style="text-align: center; padding: 40px; display: none;">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+            </div>
+            <div id="student-performance-content">
+                <!-- Карточки с успеваемостью по предметам будут здесь -->
+            </div>
+        </div>
+        
         <div class="modal-footer">
             <button type="button" class="btn-secondary" id="cancel-student-details-btn">Закрыть</button>
         </div>
@@ -1386,15 +1634,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- БЛОК 3: ЛОГИКА ВКЛАДКИ "УСПЕВАЕМОСТЬ" (МОДАЛЬНОЕ ОКНО) ---
     const studentDetailsModal = document.getElementById('student-details-modal-overlay');
-    if(studentDetailsModal) {
+    if (studentDetailsModal) {
+        // === НАЧАЛО: НОВЫЕ ПЕРЕМЕННЫЕ ===
+        const classListView = document.getElementById('class-list-view');
+        const studentPerformanceView = document.getElementById('student-performance-view');
+        const studentPerformanceLoader = document.getElementById('student-performance-loader');
+        const studentPerformanceContent = document.getElementById('student-performance-content');
+        const backToClassListBtn = document.getElementById('back-to-class-list-btn');
+        // === КОНЕЦ: НОВЫЕ ПЕРЕМЕННЫЕ ===
+        
         const modalTbody = document.getElementById('student-details-tbody');
         const modalTitle = document.getElementById('modal-class-name');
+        const modalSubtitle = document.getElementById('modal-subtitle');
         const modalLoader = document.getElementById('modal-loader');
         
         const openModal = () => studentDetailsModal.style.display = 'flex';
         const closeModal = () => {
             studentDetailsModal.style.display = 'none';
-            modalTbody.innerHTML = ''; // Очищаем таблицу при закрытии
+            modalTbody.innerHTML = '';
+            // Возвращаем модальное окно в исходное состояние
+            studentPerformanceView.style.display = 'none';
+            classListView.style.display = 'block';
         };
 
         document.getElementById('close-student-details-modal-btn').addEventListener('click', closeModal);
@@ -1412,20 +1672,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalLoader.style.display = 'block';
                 modalTbody.style.display = 'none';
                 modalTitle.textContent = 'Загрузка...';
+                modalSubtitle.textContent = 'Пожалуйста, подождите';
 
                 try {
                     const response = await fetch(`/api/class/${classId}/performance/`);
                     if (!response.ok) throw new Error('Ошибка сети или сервера');
                     const data = await response.json();
                     
+                    studentDetailsModal.dataset.className = data.class_name; // Сохраняем имя класса
                     modalTitle.textContent = `Успеваемость класса: ${data.class_name}`;
-                    modalTbody.innerHTML = ''; // Очищаем на случай повторного открытия
+                    modalSubtitle.textContent = 'Детальная информация по каждому ученику';
+                    modalTbody.innerHTML = '';
                     
                     if (data.students && data.students.length > 0) {
                         data.students.forEach(student => {
                             const row = modalTbody.insertRow();
+                            // === ИЗМЕНЕНИЕ: Делаем имя ученика кликабельной ссылкой и добавляем data-атрибуты ===
                             row.innerHTML = `
-                                <td><strong>${student.full_name}</strong></td>
+                                <td><strong class="student-link" data-student-id="${student.id}" data-student-name="${student.full_name}">${student.full_name}</strong></td>
                                 <td style="text-align: right;">${student.avg_grade}</td>
                                 <td style="text-align: right;">${student.attendance_percentage}%</td>
                             `;
@@ -1443,6 +1707,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+
+        // === НАЧАЛО: НОВАЯ ЛОГИКА ДЛЯ ПРОСМОТРА ДЕТАЛЕЙ УЧЕНИКА ===
+        modalTbody.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('student-link')) {
+                const studentId = e.target.dataset.studentId;
+                const studentName = e.target.dataset.studentName;
+                
+                classListView.style.display = 'none';
+                studentPerformanceView.style.display = 'block';
+                studentPerformanceContent.innerHTML = '';
+                studentPerformanceLoader.style.display = 'block';
+                
+                modalTitle.textContent = studentName;
+                modalSubtitle.textContent = 'Успеваемость по предметам';
+
+                try {
+                    const response = await fetch(`/api/student/${studentId}/performance/`);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const data = await response.json();
+                    renderStudentPerformance(data);
+                } catch (error) {
+                    console.error('Failed to fetch student performance:', error);
+                    studentPerformanceContent.innerHTML = `<p style="color: red; text-align: center;">Не удалось загрузить данные об успеваемости.</p>`;
+                } finally {
+                    studentPerformanceLoader.style.display = 'none';
+                }
+            }
+        });
+
+        function renderStudentPerformance(data) {
+            if (!data.subjects || data.subjects.length === 0) {
+                studentPerformanceContent.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">У этого ученика еще нет оценок.</p>';
+                return;
+            }
+
+            let html = '';
+            data.subjects.forEach(subject => {
+                // === ИЗМЕНЕНИЕ: Убрали генерацию таблицы с оценками ===
+                // Теперь создаем только карточку с заголовком
+                html += `
+                    <div class="subject-performance-card">
+                        <div class="subject-header">
+                            <h4>${subject.subject_name}</h4>
+                            <span class="average-grade">Средний балл: <strong>${subject.average_grade}</strong></span>
+                        </div>
+                    </div>
+                `;
+            });
+            studentPerformanceContent.innerHTML = html;
+        }
+
+        backToClassListBtn.addEventListener('click', () => {
+            studentPerformanceView.style.display = 'none';
+            classListView.style.display = 'block';
+
+            const className = studentDetailsModal.dataset.className || '';
+            modalTitle.textContent = `Успеваемость класса: ${className}`;
+            modalSubtitle.textContent = 'Детальная информация по каждому ученику';
+        });
+        // === КОНЕЦ: НОВАЯ ЛОГИКА ===
     }
 
     

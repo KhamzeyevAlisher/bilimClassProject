@@ -1996,6 +1996,8 @@ def headteacher_view(request):
         context['schedule_form'] = ScheduleForm(school_id=selected_school_id, class_id=selected_class_id)
         context['schedule_by_day'] = dict(schedule_by_day)
         context['days_of_week'] = dict(Schedule.DAY_CHOICES)
+        del context['days_of_week'][6]
+        del context['days_of_week'][7]
         
     return render(request, 'bilimClassApp/headteacher.html', context)
 

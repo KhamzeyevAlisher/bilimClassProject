@@ -33,29 +33,31 @@
 .widget-header { margin-bottom: 24px; }
 .widget-header h2 { font-size: 20px; font-weight: 600; }
 .widget-header p { color: var(--text-secondary); }
-.grades-table-v2 { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.grades-table-v2 { width: 100%; border-collapse: collapse; margin-top: 16px; table-layout: fixed;}
 .grades-table-v2 th { text-align: left; font-size: 12px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
 .grades-table-v2 td { padding: 20px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 16px; font-weight: 600; }
 .grades-table-v2 tbody tr:last-child td { border-bottom: none; }
 .grades-table-v2 .subject-name { font-weight: 600; margin: 0; }
 .grades-table-v2 .teacher-name { font-size: 14px; font-weight: 400; color: var(--text-secondary); }
 .grades-table-v2 .average-grade { font-weight: 700; }
-
+ 
 .grades-list {
     display: flex;
     gap: 8px;
     align-items: center;
-
-    /* --- НОВЫЕ СВОЙСТВА --- */
-    overflow-x: auto;       /* Включаем горизонтальный скролл, ТОЛЬКО если он нужен */
-    flex-wrap: wrap;    /* Запрещаем оценкам переноситься на новую строку, заставляя их оставаться в одну линию */
-    
+    /* ИЗМЕНЕНО: Запрещаем перенос элементов на новую строку */
+    flex-wrap: nowrap;
+    /* ИЗМЕНЕНО: Включаем горизонтальный скролл */
+    overflow-x: scroll;
+    /* Скрываем саму полосу прокрутки для эстетики */
+    --msoverflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
-
-/* --- СТИЛИЗАЦИЯ САМОГО СКРОЛЛБАРА (необязательно, но красиво) --- */
+/* Скрытие скроллбара для Chrome, Safari и Opera */
 .grades-list::-webkit-scrollbar {
-    height: 0px; /* Высота скроллбара */
+    display: none;
 }
+
 
 .grades-list::-webkit-scrollbar-track {
     background: #f1f1f1; /* Цвет фона дорожки скролла */

@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tq@9&n(rnw8(-e#f-%fu!@l7)p+g_6f7zb-pm@(xn1dwiq*v6d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-# ALLOWED_HOSTS = ["http://127.0.0.1:8000/","http://sabaqsaqshy.kz", "sabaqsaqshy.kz", "www.sabaqsaqshy.kz", "http://www.sabaqsaqshy.kz"]
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["http://127.0.0.1:8000/","http://sabaqsaqshy.kz", "sabaqsaqshy.kz", "www.sabaqsaqshy.kz", "http://www.sabaqsaqshy.kz"]
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -129,3 +129,5 @@ LOGIN_REDIRECT_URL = 'dashboard' # Запасной URL, если логика �
 LOGOUT_REDIRECT_URL = '/' # Куда перенаправлять после выхода
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

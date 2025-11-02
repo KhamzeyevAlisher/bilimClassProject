@@ -139,10 +139,10 @@
     .grades-table-v2 .grades-list {
         display: flex;
         flex-direction: row;    /* ЯВНО указываем горизонтальное направление */
-        flex-wrap: wrap;      /* Запрещаем перенос */
+        flex-wrap: nowrap;      /* Запрещаем перенос */
         align-items: center;
         gap: 8px;
-        overflow-x: auto;       /* Добавляем скролл, если не помещается */
+        overflow-x: scroll;       /* Добавляем скролл, если не помещается */
         padding-bottom: 5px;
         
         /* Скрываем сам скроллбар */
@@ -151,6 +151,10 @@
     }
     .grades-table-v2 .grades-list::-webkit-scrollbar {
         display: none;
+    }
+
+    .day-tabs li {
+        padding: 8px 12px;
     }
 
 

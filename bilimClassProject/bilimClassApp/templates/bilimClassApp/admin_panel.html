@@ -1,20 +1,20 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabaq Saqshy</title>
     
-    <!-- Подключаем иконки Font Awesome -->
+    <!-- Font Awesome иконаларын қосу -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- ПОДКЛЮЧАЕМ ВСЕ СТИЛИ ЗДЕСЬ -->
+    <!-- БАРЛЫҚ СТИЛЬДЕРДІ ОСЫ ЖЕРГЕ ҚОСУ -->
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/admin_panel.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/school_structure.css' %}">
     <style>
-        /* Добавляем стиль для скрытия неактивных страниц и вкладок */
+    /* Белсенді емес беттер мен қойындыларды жасыру стилін қосу */
         .page-content, .content-tab-pane {
             display: none;
         }
@@ -119,7 +119,7 @@
    Версия с использованием CSS ::before для подписей
 ================================================================= */
 
-/* Скрываем мобильную навигацию по умолчанию */
+    /* Мобильді навигацияны әдепкі бойынша жасыру */
 .td-mobile-nav,
 .mobile-menu-header {
     display: none;
@@ -127,7 +127,7 @@
 
 @media (max-width: 1024px) {
 
-    /* --- 1. ОБЩИЕ ИЗМЕНЕНИЯ МАКЕТА --- */
+    /* --- 1. ЖАЛПЫ БАГАНАЛАРДЫҢ ӨЗГЕРІСТЕРІ --- */
     .container {
         padding: 16px;
     }
@@ -152,7 +152,7 @@
         padding: 16px;
     }
 
-    /* --- 2. МОБИЛЬНАЯ НАВИГАЦИЯ (САЙДБАР) --- */
+    /* --- 2. МОБИЛДІ НАВИГАЦИЯ (САЙДБАР) --- */
     .td-user-info { display: none; }
     .td-mobile-nav {
         display: flex;
@@ -227,7 +227,7 @@
         z-index: 1999;
     }
 
-    /* --- 3. АДАПТАЦИЯ ТАБЛИЦ (НОВЫЙ БЛОК) --- */
+    /* --- 3. КЕСТЕЛЕРДІҢ АДАПТАЦИЯСЫ (ЖАҢА БЛОК) --- */
 
     /* Общие стили для всех адаптивных таблиц */
     .users-table thead,
@@ -263,7 +263,7 @@
         margin-right: 16px;
     }
 
-    /* Делаем первую ячейку "заголовком" карточки */
+    /* Бірінші ұяшықты карточканың "тақырыбы" етіп жасау */
     .users-table td:first-child,
     .data-table td:first-child {
         font-weight: 600;
@@ -295,21 +295,21 @@
         display: none;
     }
 
-    /* --- Подписи для таблицы ПОЛЬЗОВАТЕЛЕЙ --- */
+    /* --- ПАЙДАЛАНУШЫЛАР КЕСТЕСІНЕ ЖАЗБАЛАР --- */
     #page-users .users-table td:nth-of-type(2)::before { content: 'Email'; }
     #page-users .users-table td:nth-of-type(3)::before { content: 'Телефон'; }
-    #page-users .users-table td:nth-of-type(4)::before { content: 'Роль'; }
-    #page-users .users-table td:nth-of-type(5)::before { content: 'Статус'; }
-    #page-users .users-table td:nth-of-type(6)::before { content: 'Последний вход'; }
-    #page-users .users-table td:nth-of-type(7)::before { content: 'Действия'; }
+    #page-users .users-table td:nth-of-type(4)::before { content: 'Рөлі'; }
+    #page-users .users-table td:nth-of-type(5)::before { content: 'Күйі'; }
+    #page-users .users-table td:nth-of-type(6)::before { content: 'Соңғы кіргені'; }
+    #page-users .users-table td:nth-of-type(7)::before { content: 'Әрекеттер'; }
     
-    /* --- Подписи для таблицы КЛАССОВ --- */
-    #tab-classes .data-table td:nth-of-type(2)::before { content: 'Учеников'; }
-    #tab-classes .data-table td:nth-of-type(3)::before { content: 'Руководитель'; }
-    #tab-classes .data-table td:nth-of-type(4)::before { content: 'Действия:'; }
+    /* --- СЫНЫПТАР КЕСТЕСІНЕ ЖАЗБАЛАР --- */
+    #tab-classes .data-table td:nth-of-type(2)::before { content: 'Оқушылар'; }
+    #tab-classes .data-table td:nth-of-type(3)::before { content: 'Жетекші'; }
+    #tab-classes .data-table td:nth-of-type(4)::before { content: 'Әрекеттер:'; }
 
-    /* --- Подписи для таблицы ПРЕДМЕТОВ --- */
-    #tab-subjects .data-table td:nth-of-type(2)::before { content: 'Действия:'; }
+    /* --- ПӘНДЕР КЕСТЕСІНЕ ЖАЗБАЛАР --- */
+    #tab-subjects .data-table td:nth-of-type(2)::before { content: 'Әрекеттер:'; }
 
     #tab-subjects .data-table td {
         gap: 20px;
@@ -320,15 +320,15 @@
     }
 
 
-    /* --- Подписи для таблицы НАЗНАЧЕНИЙ --- */
-    #page-assignments .data-table td:nth-of-type(2)::before { content: 'Класс'; }
-    #page-assignments .data-table td:nth-of-type(3)::before { content: 'Предмет'; }
-    #page-assignments .data-table td:nth-of-type(4)::before { content: 'Часы в неделю'; }
-    #page-assignments .data-table td:nth-of-type(5)::before { content: 'Действия'; }
+    /* --- ТАҚАЙЫНДАУЛАР КЕСТЕСІНЕ ЖАЗБАЛАР --- */
+    #page-assignments .data-table td:nth-of-type(2)::before { content: 'Сынып'; }
+    #page-assignments .data-table td:nth-of-type(3)::before { content: 'Пән'; }
+    #page-assignments .data-table td:nth-of-type(4)::before { content: 'Апталық сағаттар'; }
+    #page-assignments .data-table td:nth-of-type(5)::before { content: 'Әрекеттер'; }
     
-    /* --- Подписи для таблицы ВЫХОДНЫХ --- */
-    #page-settings .data-table td:nth-of-type(2)::before { content: 'Причина'; }
-    /* #page-settings .data-table td:nth-of-type(3)::before { content: 'Действия'; } */
+    /* --- ДЕМАЛЫС КҮНДЕРІ КЕСТЕСІНЕ ЖАЗБАЛАР --- */
+    #page-settings .data-table td:nth-of-type(2)::before { content: 'Себеп'; }
+    /* #page-settings .data-table td:nth-of-type(3)::before { content: 'Әрекеттер'; } */
     
 
 
@@ -374,7 +374,7 @@
                 <div class="logo-icon">🎓</div>
                 <div class="logo-text">
                     <h1>Sabaq Saqshy</h1>
-                    <span>Система управления учебным процессом</span>
+                    <span>Оқу процесін басқару жүйесі</span>
                 </div>
             </div>
             <div class="td-user-section">
@@ -382,8 +382,8 @@
                     <a href="{% url 'profile' %}" class="td-user-link">
                         <h3>{{ user.get_full_name }}</h3>
                     </a>
-                    <a href="{% url 'logout' %}" class="logout-link" style="font-size: 14px; color: #6B7280;" title="Выйти из аккаунта">
-                        Выйти
+                    <a href="{% url 'logout' %}" class="logout-link" style="font-size: 14px; color: #6B7280;" title="Шығу">
+                        Шығу
                     </a>
                 </div>
                 <a href="{% url 'profile' %}" class="td-user-link">
@@ -393,8 +393,8 @@
         </header>
 
         <div class="td-mobile-nav">
-            <h2 id="mobile-nav-title">Главная</h2>
-            <button id="mobile-menu-btn" aria-label="Открыть меню">
+            <h2 id="mobile-nav-title">Басты бет</h2>
+            <button id="mobile-menu-btn" aria-label="Мәзірді ашу">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -404,17 +404,17 @@
         <!-- ===================================================================== -->
         <nav class="main-nav">
             <div class="mobile-menu-header">
-                <h3>Меню</h3>
-                <button id="mobile-menu-close-btn" aria-label="Закрыть меню">
+                <h3>Мәзір</h3>
+                <button id="mobile-menu-close-btn" aria-label="Мәзірді жабу">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <ul>
                 <!-- data-target используется JS для переключения контента -->
-                <li><a href="#" data-target="users" class="active"><i class="fa-solid fa-users"></i> Пользователи</a></li>
-                <li><a href="#" data-target="structure"><i class="fa-solid fa-sitemap"></i> Структура школы</a></li>
-                <li><a href="#" data-target="assignments"><i class="fa-solid fa-user-tag"></i> Назначения</a></li>
-                <li><a href="#" data-target="settings"><i class="fa-solid fa-gear"></i> Настройки</a></li>
+                <li><a href="#" data-target="users" class="active"><i class="fa-solid fa-users"></i> Пайдаланушылар</a></li>
+                <li><a href="#" data-target="structure"><i class="fa-solid fa-sitemap"></i> Мектеп құрылымы</a></li>
+                <li><a href="#" data-target="assignments"><i class="fa-solid fa-user-tag"></i> Тағайындаулар</a></li>
+                <li><a href="#" data-target="settings"><i class="fa-solid fa-gear"></i> Параметрлер</a></li>
             </ul>
         </nav>
 
@@ -427,25 +427,25 @@
             <div id="page-users" class="page-content active">
                 <div class="page-header">
                     <div class="page-title">
-                        <h2>Управление пользователями</h2>
-                        <p>Создание, редактирование и управление учетными записями</p>
+                        <h2>Пайдаланушыларды басқару</h2>
+                        <p>Тіркелгілерді құру, өңдеу және басқару</p>
                     </div>
                     <button class="btn-primary" id="create-user-btn">
                         <i class="fa-solid fa-plus"></i>
-                        Создать пользователя
+                        Пайдаланушыны құру
                     </button>
                 </div>
         
                 <div class="content-card">
                     <form method="GET" action="{% url 'admin_panel' %}" class="filters-toolbar">
-                        <!-- Добавлен для получения токена в JS -->
+                        <!-- JS үшін токен алу үшін қосылған -->
                         {% csrf_token %}
                         <div class="search-group">
                             <i class="fa-solid fa-search"></i>
-                            <input type="text" name="q" placeholder="Поиск по имени или email..." value="{{ search_query }}">
+                            <input type="text" name="q" placeholder="Аты немесе email бойынша іздеу..." value="{{ search_query }}">
                         </div>
                         <select name="role" class="filter-select">
-                            <option value="">Все роли</option>
+                            <option value="">Барлық рөлдер</option>
                             {% for value, display_name in role_choices %}
                                 <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>
                                     {{ display_name }}
@@ -453,19 +453,19 @@
                             {% endfor %}
                         </select>
                         <select name="status" class="filter-select">
-                            <option value="">Все статусы</option>
-                            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активен</option>
-                            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Заблокирован</option>
+                            <option value="">Барлық статустар</option>
+                            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активті</option>
+                            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Блокталған</option>
                         </select>
-                        <button type="submit" class="btn-primary">Применить</button>
-                        <a href="{% url 'admin_panel' %}" class="btn-secondary">Сбросить</a>
+                        <button type="submit" class="btn-primary">Қолдану</button>
+                        <a href="{% url 'admin_panel' %}" class="btn-secondary">Қалпына келтіру</a>
                     </form>
         
                     <nav class="content-tabs">
                         <ul>
                             <li>
                                 <a href="#" class="active">
-                                    Пользователи
+                                    Пайдаланушылар
                                     <span class="count-badge">{{ users.count }}</span>
                                 </a>
                             </li>
@@ -476,18 +476,18 @@
                         <table class="users-table">
                             <thead>
                                 <tr>
-                                    <th>ФИО</th>
+                                    <th>Толық аты-жөні</th>
                                     <th>Email</th>
                                     <th>Телефон</th>
-                                    <th>Роль</th>
-                                    <th>Статус</th>
-                                    <th>Последний вход</th>
-                                    <th>Действия</th>
+                                    <th>Рөлі</th>
+                                    <th>Күйі</th>
+                                    <th>Соңғы кіру</th>
+                                    <th>Әрекеттер</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for user_obj in users %}
-                                <!-- ИЗМЕНЕНИЕ: Добавлен data-атрибут для легкого поиска строки -->
+                                <!-- ӨЗГЕРІС: Жолды оңай табу үшін data-атрибут қосылды -->
                                 <tr data-user-row-id="{{ user_obj.id }}">
                                     <td>{{ user_obj.get_full_name|default:user_obj.username }}</td>
                                     <td class="user-name-cell">
@@ -514,24 +514,24 @@
                                     </td>
                                     <td>
                                         {% if user_obj.is_active %}
-                                            <span class="status-badge status-active">Активен</span>
+                                            <span class="status-badge status-active">Активті</span>
                                         {% else %}
-                                            <span class="status-badge status-blocked">Заблокирован</span>
+                                            <span class="status-badge status-blocked">Блокталған</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ user_obj.last_login|date:"Y-m-d H:i"|default:"Никогда" }}</td>
+                                    <td>{{ user_obj.last_login|date:"Y-m-d H:i"|default:"Ешқашан" }}</td>
                                     <td class="action-icons">
-                                        <!-- ИЗМЕНЕНИЕ: Оборачиваем все иконки в теги <a> и добавляем классы/атрибуты -->
-                                        <a href="#" class="edit-btn" data-user-id="{{ user_obj.id }}" title="Редактировать"><i class="fa-solid fa-pencil"></i></a>
-                                        <a href="#" class="block-user-btn" data-user-id="{{ user_obj.id }}" title="{% if user_obj.is_active %}Заблокировать{% else %}Разблокировать{% endif %}">
+                                        <!-- ӨЗГЕРІС: Барлық иконкаларды <a> тегтерімен орап, кластар/атрибуттар қосылды -->
+                                        <a href="#" class="edit-btn" data-user-id="{{ user_obj.id }}" title="Өңдеу"><i class="fa-solid fa-pencil"></i></a>
+                                        <a href="#" class="block-user-btn" data-user-id="{{ user_obj.id }}" title="{% if user_obj.is_active %}Блоктау{% else %}Блоктан шығару{% endif %}">
                                             <i class="fa-solid fa-lock{% if not user_obj.is_active %}-open{% endif %}"></i>
                                         </a>
-                                        <a href="#" class="delete-user-btn" data-user-id="{{ user_obj.id }}" title="Удалить"><i class="fa-solid fa-trash-can"></i></a>
+                                        <a href="#" class="delete-user-btn" data-user-id="{{ user_obj.id }}" title="Жою"><i class="fa-solid fa-trash-can"></i></a>
                                     </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 24px;">Пользователи не найдены.</td>
+                                    <td colspan="7" style="text-align: center; padding: 24px;">Пайдаланушылар табылмады.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -540,36 +540,36 @@
                 </div>
             </div>
 
-            <!-- СТРАНИЦА "СТРУКТУРА ШКОЛЫ" -->
+            <!-- СТРАНИЦА "МЕКТЕП ҚҰРЫЛЫМЫ" -->
             <div id="page-structure" class="page-content">
                 <div class="page-header">
-                    <h2><i class="fa-solid fa-graduation-cap"></i> Управление структурой школы</h2>
-                    <p>Создание и редактирование классов и предметов</p>
+                    <h2><i class="fa-solid fa-graduation-cap"></i> Мектеп құрылымын басқару</h2>
+                    <p>Сыныптар мен пәндерді құру және өңдеу</p>
                 </div>
         
                 <div class="content-card">
                     <div class="card-header" id="structure-card-header">
                         <nav class="content-tabs" id="structure-tabs-nav">
-                            <!-- ИЗМЕНЕНИЕ: Добавлены data-атрибуты для JS -->
-                            <a href="#" data-tab="classes" class="active"><i class="fa-solid fa-people-roof"></i> Классы <span class="count-badge">{{ structure_school_classes.count }}</span></a>
-                            <a href="#" data-tab="subjects"><i class="fa-solid fa-book"></i> Предметы <span class="count-badge">{{ subjects.count }}</span></a>
+                            <!-- ӨЗГЕРІС: JS үшін data-атрибуттар қосылды -->
+                            <a href="#" data-tab="classes" class="active"><i class="fa-solid fa-people-roof"></i> Сыныптар <span class="count-badge">{{ structure_school_classes.count }}</span></a>
+                            <a href="#" data-tab="subjects"><i class="fa-solid fa-book"></i> Пәндер <span class="count-badge">{{ subjects.count }}</span></a>
                         </nav>
-                        <!-- ИЗМЕНЕНИЕ: Кнопки для создания вынесены в отдельный контейнер для удобства переключения -->
+                        <!-- ӨЗГЕРІС: Құру батырмалары ыңғайлы ауысым үшін бөлек контейнерге шығарылды -->
                         <div id="structure-action-buttons">
-                            <button class="btn-success" id="create-class-btn" style="display: flex;"><i class="fa-solid fa-plus"></i> Создать класс</button>
-                            <button class="btn-info btn-primary" id="create-subject-btn" style="display: none;"><i class="fa-solid fa-plus"></i> Создать предмет</button>
+                            <button class="btn-success" id="create-class-btn" style="display: flex;"><i class="fa-solid fa-plus"></i> Сынып құру</button>
+                            <button class="btn-info btn-primary" id="create-subject-btn" style="display: none;"><i class="fa-solid fa-plus"></i> Пән құру</button>
                         </div>
                     </div>
                     
-                    <!-- ИЗМЕНЕНИЕ: Контент для вкладок обернут в отдельные div -->
+                    <!-- ӨЗГЕРІС: Қойындылардың контенті бөлек div-терге оралған -->
                     <div id="tab-classes" class="content-tab-pane active">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Класс</th>
-                                    <th>Количество учеников</th>
-                                    <th>Классный руководитель</th>
-                                    <th style="text-align: end;">Действия</th>
+                                    <th>Сынып</th>
+                                    <th>Оқушылар саны</th>
+                                    <th>Сынып жетекшісі</th>
+                                    <th style="text-align: end;">Әрекеттер</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -577,14 +577,14 @@
                                 <tr data-class-row-id="{{ s_class.id }}">
                                     <td><strong>{{ s_class.name }}</strong></td>
                                     <td class="student-count-cell"><i class="fa-solid fa-user-group"></i> {{ s_class.student_count }}</td>
-                                    <td>{{ s_class.class_teacher.user.get_full_name|default:"Не назначен" }}</td>
+                                    <td>{{ s_class.class_teacher.user.get_full_name|default:"Тағайындалмаған" }}</td>
                                     <td class="action-icons" style="justify-content: end; gap:40px;">
                                         <a href="#" class="edit-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-pencil"></i></a>
                                         <a href="#" class="delete-class-btn" data-class-id="{{ s_class.id }}"><i class="fa-solid fa-trash-can"></i></a>
                                     </td>
                                 </tr>
                                 {% empty %}
-                                <tr><td colspan="4" style="text-align: center; padding: 24px;">Классы еще не созданы.</td></tr>
+                                <tr><td colspan="4" style="text-align: center; padding: 24px;">Сыныптар әлі құрылған жоқ.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -594,8 +594,8 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Название предмета</th>
-                                    <th style="text-align: end;">Действия</th>
+                                    <th>Пән атауы</th>
+                                    <th style="text-align: end;">Әрекеттер</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -608,7 +608,7 @@
                                     </td>
                                 </tr>
                                 {% empty %}
-                                <tr><td colspan="2" style="text-align: center; padding: 24px;">Предметы еще не созданы.</td></tr>
+                                <tr><td colspan="2" style="text-align: center; padding: 24px;">Пәндер әлі құрылған жоқ.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -618,17 +618,17 @@
             </div>
             
             <!-- ========================================================== -->
-            <!-- === ОБНОВЛЕННАЯ СТРАНИЦА "НАЗНАЧЕНИЯ" === -->
+            <!-- === ЖАҢА БЕТ "ТАҚАЙЫНДАУЛАР" === -->
             <!-- ========================================================== -->
             <div id="page-assignments" class="page-content">
                 <div class="page-header">
                     <div>
-                        <h2><i class="fa-solid fa-user-tag"></i> Назначение учителей</h2>
-                        <p>Распределение учителей по классам и предметам</p>
+                        <h2><i class="fa-solid fa-user-tag"></i> Мұғалімдерді тағайындау</h2>
+                        <p>Мұғалімдерді сыныптар мен пәндер бойынша бөлу</p>
                     </div>
                     <button class="btn-primary" id="create-assignment-btn">
                         <i class="fa-solid fa-plus"></i>
-                        Создать назначение
+                        Тағайындауды құру
                     </button>
                 </div>
                 <div class="content-card">
@@ -640,12 +640,12 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Учитель</th>
-                                <th>Класс</th>
-                                <th>Предмет</th>
-                                <th>Часов в неделю</th>
-                                <th style="text-align: end;">Действия</th>
-                            </tr>
+                                    <th>Мұғалім</th>
+                                    <th>Сынып</th>
+                                    <th>Пән</th>
+                                    <th>Апталық сағаттар</th>
+                                    <th style="text-align: end;">Әрекеттер</th>
+                                </tr>
                         </thead>
                         <tbody>
                             {% for assignment in all_assignments %}
@@ -654,12 +654,12 @@
                                 <td><i class="fa-solid fa-user-group"></i> {{ assignment.school_class.name }}</td>
                                 <td><i class="fa-solid fa-book"></i> {{ assignment.subject.name }}</td>
                                 <td>{{ assignment.hours_per_week|default:"-" }}</td>
-                                <td class="action-icons" style="justify-content: end;">
-                                    <a href="#" class="delete-assignment-btn" data-assignment-id="{{ assignment.id }}" title="Удалить назначение"><i class="fa-solid fa-trash-can"></i></a>
+                                    <td class="action-icons" style="justify-content: end;">
+                                    <a href="#" class="delete-assignment-btn" data-assignment-id="{{ assignment.id }}" title="Тағайындауды жою"><i class="fa-solid fa-trash-can"></i></a>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="5" style="text-align: center; padding: 24px;">Назначения еще не созданы.</td></tr>
+                            <tr><td colspan="5" style="text-align: center; padding: 24px;">Тағайындаулар әлі құрылған жоқ.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -667,17 +667,17 @@
             </div>
             
             <!-- ========================================================== -->
-            <!-- === НОВАЯ СТРАНИЦА "НАСТРОЙКИ" === -->
+            <!-- === ЖАҢА БЕТ "ПАРАМЕТРЛЕР" === -->
             <!-- ========================================================== -->
             <div id="page-settings" class="page-content">
                 <div class="page-header">
                     <div>
-                        <h2><i class="fa-solid fa-calendar-days"></i> Управление выходными</h2>
-                        <p>Добавьте праздничные или нерабочие дни в календарь</p>
+                        <h2><i class="fa-solid fa-calendar-days"></i> Демалыс күндерін басқару</h2>
+                        <p>Календарға мерекелік немесе жұмыссыз күндерді қосыңыз</p>
                     </div>
                     <button class="btn-primary" id="create-holiday-btn">
                         <i class="fa-solid fa-plus"></i>
-                        Добавить день
+                        Күн қосу
                     </button>
                 </div>
                 <div class="content-card">
@@ -685,8 +685,8 @@
                         <thead>
                             <tr>
                                 <th>Дата</th>
-                                <th>Название / Причина</th>
-                                <th style="text-align: end;">Действия</th>
+                                <th>Атауы / Себебі</th>
+                                <th style="text-align: end;">Әрекеттер</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -695,12 +695,12 @@
                                 <td><strong>{{ holiday.date|date:"d.m.Y" }}</strong></td>
                                 <td>{{ holiday.name }}</td>
                                 <td class="action-icons" style="justify-content: end; gap:40px;">
-                                    <a href="#" class="edit-holiday-btn" data-holiday-id="{{ holiday.id }}" title="Редактировать"><i class="fa-solid fa-pencil"></i></a>
-                                    <a href="#" class="delete-holiday-btn" data-holiday-id="{{ holiday.id }}" title="Удалить"><i class="fa-solid fa-trash-can"></i></a>
+                                    <a href="#" class="edit-holiday-btn" data-holiday-id="{{ holiday.id }}" title="Өңдеу"><i class="fa-solid fa-pencil"></i></a>
+                                    <a href="#" class="delete-holiday-btn" data-holiday-id="{{ holiday.id }}" title="Жою"><i class="fa-solid fa-trash-can"></i></a>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="3" style="text-align: center; padding: 24px;">Выходные дни еще не добавлены.</td></tr>
+                                <tr><td colspan="3" style="text-align: center; padding: 24px;">Демалыс күндері әлі қосылмаған.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -708,9 +708,9 @@
             </div>
 
             <!-- Другие страницы (заглушки) -->
-            <div id="page-home" class="page-content">
-                 <div class="content-card"><h2>Главная страница</h2><p>Этот контент находится в разработке.</p></div>
-            </div>
+          <div id="page-home" class="page-content">
+              <div class="content-card"><h2>Басты бет</h2><p>Бұл контент әзірленуде.</p></div>
+          </div>
 
         </main>
     </div>
@@ -722,8 +722,8 @@
         <div class="modal-container">
             <button class="close-btn" id="close-modal-btn">&times;</button>
             <div class="modal-header">
-                <h2 id="modal-title">Создать пользователя</h2>
-                <p>Заполните информацию о пользователе</p>
+                <h2 id="modal-title">Пайдаланушыны құру</h2>
+                <p>Пайдаланушы туралы ақпаратты толтырыңыз</p>
             </div>
             
             <form id="user-form" novalidate>
@@ -731,12 +731,12 @@
                 <input type="hidden" name="user_id" id="id_user_id">
                 
                 <div class="form-group">
-                    <label for="id_full_name">ФИО</label>
+                    <label for="id_full_name">Толық аты-жөні</label>
                     <input type="text" name="full_name" id="id_full_name" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="id_username">Логин (Username)</label>
+                    <label for="id_username">Пайдаланушы аты (Username)</label>
                     <input type="text" name="username" id="id_username" required>
                 </div>
                 
@@ -753,7 +753,7 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
-                        <label for="id_role">Роль</label>
+                        <label for="id_role">Рөлі</label>
                         <select name="role" id="id_role" required>
                             {% for value, display_name in role_choices %}
                                 <option value="{{ value }}">{{ display_name }}</option>
@@ -761,25 +761,25 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="id_is_active">Статус</label>
+                        <label for="id_is_active">Күйі</label>
                         <select name="is_active" id="id_is_active" required>
-                            <option value="True">Активен</option>
-                            <option value="False">Заблокирован</option>
+                            <option value="True">Активті</option>
+                            <option value="False">Блокталған</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group" id="class-field-wrapper" style="display: none;">
-                    <label for="id_school_class">Класс</label>
+                    <label for="id_school_class">Сынып</label>
                     <select name="school_class" id="id_school_class">
-                        <option value="">Выберите класс</option>
+                        <option value="">Сыныпты таңдаңыз</option>
                         {% for class in school_classes %}
                             <option value="{{ class.id }}">{{ class.name }} ({{ class.school.name }})</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="form-group" id="subject-field-wrapper" style="display: none;">
-                    <label for="id_subjects">Предметы</label>
+                    <label for="id_subjects">Пәндер</label>
                     <select name="subjects" id="id_subjects" multiple>
                         {% for subject in subjects %}
                             <option value="{{ subject.id }}">{{ subject.name }}</option>
@@ -788,22 +788,22 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancel-btn">Отмена</button>
-                    <button type="submit" class="btn-submit" id="submit-btn">Создать</button>
+                    <button type="button" class="btn-secondary" id="cancel-btn">Болдырмау</button>
+                    <button type="submit" class="btn-submit" id="submit-btn">Құру</button>
                 </div>
             </form>
         </div>
     </div>
     
     <!-- ===================================================================== -->
-    <!-- === МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ КЛАССА === -->
+    <!-- === СЫНЫПТЫ ӨҢДЕУ АБАЯСЫ (МОДАЛЬДЫҚ Терезе) === -->
     <!-- ===================================================================== -->
     <div class="modal-overlay" id="class-modal-overlay">
         <div class="modal-container">
             <button class="close-btn" id="close-class-modal-btn">&times;</button>
             <div class="modal-header">
-                <h2 id="class-modal-title">Редактировать класс</h2>
-                <p>Заполните информацию о классе</p>
+                <h2 id="class-modal-title">Сыныпты өңдеу</h2>
+                <p>Сынып туралы ақпаратты толтырыңыз</p>
             </div>
             
             <form id="class-form" novalidate>
@@ -811,9 +811,9 @@
                 <input type="hidden" name="class_id" id="id_class_id">
                 
                 <div class="form-group">
-                    <label for="id_school_for_class">Школа</label>
+                    <label for="id_school_for_class">Мектеп</label>
                     <select name="school" id="id_school_for_class" required>
-                        <option value="">-- Выберите школу --</option>
+                        <option value="">-- Мектепті таңдаңыз --</option>
                         {% for school in all_schools %}
                             <option value="{{ school.id }}">{{ school.name }}</option>
                         {% endfor %}
@@ -821,14 +821,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="id_class_name">Название класса</label>
-                    <input type="text" name="name" id="id_class_name" placeholder="Например, 10Б" required>
+                    <label for="id_class_name">Сынып атауы</label>
+                    <input type="text" name="name" id="id_class_name" placeholder="Мысалы, 10Б" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="id_class_teacher">Классный руководитель</label>
+                    <label for="id_class_teacher">Сынып жетекшісі</label>
                     <select name="class_teacher" id="id_class_teacher">
-                        <option value="">Не назначен</option>
+                        <option value="">Тағайындалмаған</option>
                         {% for teacher in all_teachers %}
                             <option value="{{ teacher.user.id }}">{{ teacher.user.get_full_name }}</option>
                         {% endfor %}
@@ -836,38 +836,38 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Количество учеников</label>
+                    <label>Оқушылар саны</label>
                     <p id="student-count-display" style="font-weight: bold; margin-top: 8px;">-</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancel-class-btn">Отмена</button>
-                    <button type="submit" class="btn-submit" id="submit-class-btn">Сохранить</button>
+                    <button type="button" class="btn-secondary" id="cancel-class-btn">Болдырмау</button>
+                    <button type="submit" class="btn-submit" id="submit-class-btn">Сақтау</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ========================================================== -->
-    <!-- === НОВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ПРЕДМЕТОВ === -->
+    <!-- === ПӘНДЕР ҮШІН ЖАҢА МОДАЛЬДЫҚ ТЕРЕЗЕ === -->
     <!-- ========================================================== -->
     <div class="modal-overlay" id="subject-modal-overlay">
         <div class="modal-container">
             <button class="close-btn" id="close-subject-modal-btn">&times;</button>
             <div class="modal-header">
-                <h2 id="subject-modal-title">Создать предмет</h2>
-                <p>Введите название учебного предмета</p>
+                <h2 id="subject-modal-title">Пән құру</h2>
+                <p>Пән атауын енгізіңіз</p>
             </div>
             <form id="subject-form" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="subject_id" id="id_subject_id">
                 <div class="form-group">
-                    <label for="id_subject_name">Название предмета</label>
-                    <input type="text" name="name" id="id_subject_name" placeholder="Например, Алгебра" required>
+                    <label for="id_subject_name">Пән атауы</label>
+                    <input type="text" name="name" id="id_subject_name" placeholder="Мысалы, Алгебра" required>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancel-subject-btn">Отмена</button>
-                    <button type="submit" class="btn-submit" id="submit-subject-btn">Создать</button>
+                    <button type="button" class="btn-secondary" id="cancel-subject-btn">Болдырмау</button>
+                    <button type="submit" class="btn-submit" id="submit-subject-btn">Құру</button>
                 </div>
             </form>
         </div>
@@ -881,15 +881,15 @@
         <div class="modal-container">
             <button class="close-btn" id="close-assignment-modal-btn">&times;</button>
             <div class="modal-header">
-                <h2 id="assignment-modal-title">Создать назначение</h2>
-                <p>Назначьте учителя на класс и предмет</p>
+                <h2 id="assignment-modal-title">Тағайындау құру</h2>
+                <p>Мұғалімді сынып пен пәнге тағайындаңыз</p>
             </div>
             <form id="assignment-form" novalidate>
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="id_assignment_teacher">Учитель</label>
+                    <label for="id_assignment_teacher">Мұғалім</label>
                     <select name="teacher" id="id_assignment_teacher" required>
-                        <option value="">Выберите учителя</option>
+                        <option value="">Мұғалімді таңдаңыз</option>
                         {% for teacher in all_teachers %}
                         <script>console.log("{{teacher.user.id}}")</script>
                         <option value="{{ teacher.user.id }}">{{ teacher.user.get_full_name }}</option>
@@ -897,30 +897,30 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="id_assignment_class">Класс</label>
+                    <label for="id_assignment_class">Сынып</label>
                     <select name="school_class" id="id_assignment_class" required>
-                        <option value="">Выберите класс</option>
+                        <option value="">Сыныпты таңдаңыз</option>
                         {% for s_class in school_classes %}
                         <option value="{{ s_class.id }}">{{ s_class.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="id_assignment_subject">Предмет</label>
+                    <label for="id_assignment_subject">Пән</label>
                     <select name="subject" id="id_assignment_subject" required>
-                        <option value="">Выберите предмет</option>
+                        <option value="">Пәнді таңдаңыз</option>
                         {% for subject in subjects %}
                         <option value="{{ subject.id }}">{{ subject.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                  <div class="form-group">
-                    <label for="id_assignment_hours">Часов в неделю (необязательно)</label>
-                    <input type="number" name="hours_per_week" id="id_assignment_hours" min="1" placeholder="Например, 3">
+                    <label for="id_assignment_hours">Аптасына сағаттар (міндетті емес)</label>
+                    <input type="number" name="hours_per_week" id="id_assignment_hours" min="1" placeholder="Мысалы, 3">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancel-assignment-btn">Отмена</button>
-                    <button type="submit" class="btn-submit" id="submit-assignment-btn">Создать</button>
+                    <button type="button" class="btn-secondary" id="cancel-assignment-btn">Болдырмау</button>
+                    <button type="submit" class="btn-submit" id="submit-assignment-btn">Құру</button>
                 </div>
             </form>
         </div>
@@ -933,23 +933,23 @@
         <div class="modal-container">
             <button class="close-btn" id="close-holiday-modal-btn">&times;</button>
             <div class="modal-header">
-                <h2 id="holiday-modal-title">Добавить выходной день</h2>
-                <p>Укажите дату и причину</p>
+                <h2 id="holiday-modal-title">Демалыс күнін қосу</h2>
+                <p>Күні мен себебін көрсетіңіз</p>
             </div>
             <form id="holiday-form" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="holiday_id" id="id_holiday_id">
                 <div class="form-group">
-                    <label for="id_holiday_date">Дата</label>
+                    <label for="id_holiday_date">Күні</label>
                     <input type="date" name="date" id="id_holiday_date" required>
                 </div>
                 <div class="form-group">
-                    <label for="id_holiday_name">Название / Причина</label>
-                    <input type="text" name="name" id="id_holiday_name" placeholder="Например, День Учителя" required>
+                    <label for="id_holiday_name">Атауы / Себебі</label>
+                    <input type="text" name="name" id="id_holiday_name" placeholder="Мысалы, Мұғалымдар күні" required>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancel-holiday-btn">Отмена</button>
-                    <button type="submit" class="btn-submit" id="submit-holiday-btn">Создать</button>
+                    <button type="button" class="btn-secondary" id="cancel-holiday-btn">Болдырмау</button>
+                    <button type="submit" class="btn-submit" id="submit-holiday-btn">Құру</button>
                 </div>
             </form>
         </div>
@@ -1071,8 +1071,8 @@
             document.getElementById('create-user-btn').addEventListener('click', () => {
                 form.reset();
                 form.querySelector('#id_user_id').value = '';
-                modalTitle.textContent = 'Создать пользователя';
-                submitBtn.textContent = 'Создать';
+                modalTitle.textContent = 'Пайдаланушыны құру';
+                submitBtn.textContent = 'Құру';
                 toggleConditionalFields();
                 openModal();
             });
@@ -1098,8 +1098,8 @@
                         if (data.school_class_id) form.querySelector('#id_school_class').value = data.school_class_id;
                         const subjectSelect = form.querySelector('#id_subjects');
                         Array.from(subjectSelect.options).forEach(opt => opt.selected = data.subject_ids.includes(parseInt(opt.value)));
-                        modalTitle.textContent = 'Редактировать пользователя';
-                        submitBtn.textContent = 'Сохранить';
+                        modalTitle.textContent = 'Пайдаланушыны өңдеу';
+                        submitBtn.textContent = 'Сақтау';
                         toggleConditionalFields();
                         openModal();
                     }
@@ -1116,7 +1116,7 @@
                 }
                 const response = await fetch("{% url 'api_manage_user' %}", { method: 'POST', body: formData, headers: {'X-CSRFToken': csrfToken}});
                 if (response.ok) location.reload();
-                else alert('Ошибка валидации');
+                else alert('Формадағы қате');
             });
 
             page.querySelectorAll('.block-user-btn').forEach(button => {
@@ -1130,15 +1130,15 @@
                         const statusBadge = row.querySelector('.status-badge');
                         const lockIcon = button.querySelector('i');
                         if (result.is_active) {
-                            statusBadge.textContent = 'Активен';
+                            statusBadge.textContent = 'Активті';
                             statusBadge.className = 'status-badge status-active';
                             lockIcon.className = 'fa-solid fa-lock';
-                            button.title = 'Заблокировать';
+                            button.title = 'Блоктау';
                         } else {
-                            statusBadge.textContent = 'Заблокирован';
+                            statusBadge.textContent = 'Блокталған';
                             statusBadge.className = 'status-badge status-blocked';
                             lockIcon.className = 'fa-solid fa-lock-open';
-                            button.title = 'Разблокировать';
+                            button.title = 'Блоктан шығару';
                         }
                     }
                 });
@@ -1147,11 +1147,11 @@
             page.querySelectorAll('.delete-user-btn').forEach(button => {
                 button.addEventListener('click', async e => {
                     e.preventDefault();
-                    if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+                    if (confirm('Осы пайдаланушыны жоюға сенімдісіз бе?')) {
                         const userId = button.dataset.userId;
                         const response = await fetch(`/api/user/${userId}/delete/`, { method: 'POST', headers: {'X-CSRFToken': csrfToken }});
                         if (response.ok) button.closest('tr').remove();
-                        else alert('Не удалось удалить пользователя.');
+                        else alert('Пайдаланушыны жою мүмкін болмады.');
                     }
                 });
             });
@@ -1162,7 +1162,7 @@
             const page = document.getElementById('page-structure');
             if (!page) return;
         
-            // --- Переменные для управления классами ---
+            // --- Сыныптарды басқаруға арналған айнымалылар ---
             const classModalOverlay = document.getElementById('class-modal-overlay');
             const classForm = document.getElementById('class-form');
             const classModalTitle = document.getElementById('class-modal-title');
@@ -1170,14 +1170,14 @@
             const studentCount = document.getElementById('student-count-display');
             const createClassBtn = document.getElementById('create-class-btn');
         
-            // --- НОВЫЕ переменные для управления предметами ---
+            // --- ПӘНДЕРДІ БАСҚАРУ ҮШІН ЖАҢА айнымалылар ---
             const subjectModalOverlay = document.getElementById('subject-modal-overlay');
             const subjectForm = document.getElementById('subject-form');
             const subjectModalTitle = document.getElementById('subject-modal-title');
             const subjectSubmitBtn = document.getElementById('submit-subject-btn');
             const createSubjectBtn = document.getElementById('create-subject-btn');
         
-            // --- Переменные для навигации по вкладкам ---
+            // --- Қойындылар бойынша навигацияға арналған айнымалылар ---
             const tabsNav = document.getElementById('structure-tabs-nav');
             const actionButtons = document.getElementById('structure-action-buttons');
             const tabPanes = page.querySelectorAll('.content-tab-pane');
@@ -1188,7 +1188,7 @@
             const openSubjectModal = () => subjectModalOverlay.style.display = 'flex';
             const closeSubjectModal = () => subjectModalOverlay.style.display = 'none';
         
-            // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК ---
+            // --- Қойындыларды ауыстыру логикасы ---
             tabsNav.querySelectorAll('a').forEach(tabLink => {
                 tabLink.addEventListener('click', e => {
                     e.preventDefault();
@@ -1199,9 +1199,9 @@
         
                     tabPanes.forEach(pane => pane.classList.toggle('active', pane.id === `tab-${targetTab}`));
         
-                    // --- ИЗМЕНЕНИЕ ---
-                    // Кнопка "Создать класс" теперь всегда видна и не затрагивается.
-                    // Управляем видимостью только кнопки "Создать предмет".
+                    // --- ӨЗГЕРІС ---
+                    // "Сынып құру" батырмасы енді әрқашан көрінеді және өзгермейді.
+                    // Тек "Пән құру" батырмасының көрінуін басқарамыз.
                     const createClassBtn = document.getElementById('create-class-btn');
                     const createSubjectBtn = document.getElementById('create-subject-btn');
                     createSubjectBtn.style.display = (targetTab === 'subjects') ? 'inline-flex' : 'none';
@@ -1214,12 +1214,12 @@
                 });
             });
         
-            // --- ЛОГИКА ДЛЯ КЛАССОВ ---
+                    // --- СЫНЫПТАР ҮШІН ЛОГИКА ---
             createClassBtn.addEventListener('click', () => {
                 classForm.reset();
                 classForm.querySelector('#id_class_id').value = '';
-                classModalTitle.textContent = 'Создать новый класс';
-                classSubmitBtn.textContent = 'Создать';
+                classModalTitle.textContent = 'Жаңа сынып құру';
+                classSubmitBtn.textContent = 'Құру';
                 studentCount.textContent = '0';
                 openClassModal();
             });
@@ -1239,11 +1239,11 @@
                         classForm.querySelector('#id_school_for_class').value = data.school_id;
                         classForm.querySelector('#id_class_teacher').value = data.class_teacher_id || '';
                         studentCount.textContent = data.student_count;
-                        classModalTitle.textContent = 'Редактировать класс';
-                        classSubmitBtn.textContent = 'Сохранить';
+                        classModalTitle.textContent = 'Сыныпты өңдеу';
+                        classSubmitBtn.textContent = 'Сақтау';
                         openClassModal();
                     } else {
-                        alert("Не удалось загрузить данные класса.");
+                        alert("Сынып деректерін жүктеу мүмкін болмады.");
                     }
                 });
             });
@@ -1254,32 +1254,32 @@
                     method: 'POST', body: new FormData(classForm), headers: {'X-CSRFToken': csrfToken}
                 });
                 if (response.ok) location.reload();
-                else alert('Ошибка валидации формы класса.');
+                else alert('Сынып формасының тексерісінде қате.');
             });
         
             page.querySelectorAll('.delete-class-btn').forEach(button => {
                 button.addEventListener('click', async e => {
                     e.preventDefault();
-                    if (confirm('Вы уверены, что хотите удалить этот класс?')) {
+                    if (confirm('Осы сыныпты жоюға сенімдісіз бе?')) {
                         const classId = button.dataset.classId;
                         const response = await fetch(`/api/class/${classId}/delete/`, { method: 'POST', headers: {'X-CSRFToken': csrfToken}});
-                        if (response.ok) {
-                             button.closest('tr').remove();
-                             // Можно добавить обновление счетчика, но проще перезагрузить
-                             location.reload(); 
-                        } else {
-                             alert('Не удалось удалить класс.');
-                        }
+                    if (response.ok) {
+                        button.closest('tr').remove();
+                        // Можно добавить обновление счетчика, но проще перезагрузить
+                        location.reload(); 
+                    } else {
+                        alert('Сыныпты жою мүмкін болмады.');
+                    }
                     }
                 });
             });
         
-            // === НОВАЯ ЛОГИКА ДЛЯ ПРЕДМЕТОВ ===
+            // === ПӘНДЕР ҮШІН ЖАҢА ЛОГИКА ===
             createSubjectBtn.addEventListener('click', () => {
                 subjectForm.reset();
                 subjectForm.querySelector('#id_subject_id').value = '';
-                subjectModalTitle.textContent = 'Создать предмет';
-                subjectSubmitBtn.textContent = 'Создать';
+                subjectModalTitle.textContent = 'Пән құру';
+                subjectSubmitBtn.textContent = 'Құру';
                 openSubjectModal();
             });
         
@@ -1294,7 +1294,7 @@
                 if (response.ok) {
                     location.reload();
                 } else {
-                    alert('Ошибка валидации. Проверьте, что название предмета уникально.');
+                    alert('Тексеру қатесі. Пән атауы бірегей екеніне көз жеткізіңіз.');
                 }
             });
         
@@ -1307,11 +1307,11 @@
                         const data = await response.json();
                         subjectForm.querySelector('#id_subject_id').value = data.id;
                         subjectForm.querySelector('#id_subject_name').value = data.name;
-                        subjectModalTitle.textContent = 'Редактировать предмет';
-                        subjectSubmitBtn.textContent = 'Сохранить';
+                        subjectModalTitle.textContent = 'Пәнді өңдеу';
+                        subjectSubmitBtn.textContent = 'Сақтау';
                         openSubjectModal();
                     } else {
-                        alert('Не удалось загрузить данные предмета.');
+                        alert('Пән деректерін жүктеу мүмкін болмады.');
                     }
                 });
             });
@@ -1319,7 +1319,7 @@
             page.querySelectorAll('.delete-subject-btn').forEach(button => {
                 button.addEventListener('click', async e => {
                     e.preventDefault();
-                    if (confirm('Вы уверены, что хотите удалить этот предмет?')) {
+                    if (confirm('Осы пәнді жоюға сенімдісіз бе?')) {
                         const subjectId = button.dataset.subjectId;
                         const response = await fetch(`/api/subject/${subjectId}/delete/`, {
                             method: 'POST', headers: {'X-CSRFToken': csrfToken}
@@ -1329,7 +1329,7 @@
                             // Можно добавить обновление счетчика, но проще перезагрузить
                             location.reload();
                         } else {
-                            alert('Не удалось удалить предмет. Возможно, он используется в расписании или назначениях.');
+                            alert('Пәнді жою мүмкін болмады. Ол кестеде немесе тағайындауларда қолданылып тұр болуы мүмкін.');
                         }
                     }
                 });
@@ -1370,14 +1370,14 @@
                     location.reload();
                 } else {
                     const result = await response.json();
-                    alert(`Ошибка: ${result.message || JSON.stringify(result)}`);
+                    alert(`Қате: ${result.message || JSON.stringify(result)}`);
                 }
             });
 
             deleteButtons.forEach(button => {
                 button.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    if (confirm('Вы уверены, что хотите удалить это назначение?')) {
+                    if (confirm('Осы тағайындауды жоюға сенімдісіз бе?')) {
                         const assignmentId = button.dataset.assignmentId;
                         const response = await fetch(`/api/assignment/${assignmentId}/delete/`, {
                             method: 'POST',
@@ -1386,14 +1386,14 @@
                         if (response.ok) {
                             button.closest('tr').remove();
                         } else {
-                            alert('Не удалось удалить назначение.');
+                            alert('Тағайындауды жою мүмкін болмады.');
                         }
                     }
                 });
             });
         };
 
-        // === НОВАЯ ФУНКЦИЯ ДЛЯ УПРАВЛЕНИЯ ВЫХОДНЫМИ ===
+    // === ДЕМАЛЫС КҮНДЕРІН БАСҚАРУ ҮШІН ЖАҢА ФУНКЦИЯ ===
         const initHolidayManagementScripts = () => {
             const page = document.getElementById('page-settings');
             if (!page) return;
@@ -1409,8 +1409,8 @@
             document.getElementById('create-holiday-btn').addEventListener('click', () => {
                 form.reset();
                 form.querySelector('#id_holiday_id').value = '';
-                modalTitle.textContent = 'Добавить выходной день';
-                submitBtn.textContent = 'Создать';
+                modalTitle.textContent = 'Демалыс күнін қосу';
+                submitBtn.textContent = 'Құру';
                 openModal();
             });
 
@@ -1425,7 +1425,7 @@
                 if (response.ok) {
                     location.reload();
                 } else {
-                    alert('Ошибка валидации. Проверьте, что все поля заполнены.');
+                    alert('Тексеру қатесі. Барлық өрістер толтырылғанын тексеріңіз.');
                 }
             });
 
@@ -1439,8 +1439,8 @@
                         form.querySelector('#id_holiday_id').value = data.id;
                         form.querySelector('#id_holiday_date').value = data.date;
                         form.querySelector('#id_holiday_name').value = data.name;
-                        modalTitle.textContent = 'Редактировать выходной день';
-                        submitBtn.textContent = 'Сохранить';
+                        modalTitle.textContent = 'Демалыс күнін өңдеу';
+                        submitBtn.textContent = 'Сақтау';
                         openModal();
                     }
                 });
@@ -1449,7 +1449,7 @@
             page.querySelectorAll('.delete-holiday-btn').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    if (confirm('Вы уверены, что хотите удалить этот день?')) {
+                    if (confirm('Осы күнді жоюға сенімдісіз бе?')) {
                         const holidayId = button.dataset.holidayId;
                         const response = await fetch(`/api/holiday/${holidayId}/delete/`, {
                             method: 'POST', headers: {'X-CSRFToken': csrfToken}
@@ -1457,7 +1457,7 @@
                         if (response.ok) {
                             button.closest('tr').remove();
                         } else {
-                            alert('Не удалось удалить запись.');
+                            alert('Жазбаны жою мүмкін болмады.');
                         }
                     }
                 });
@@ -1495,10 +1495,10 @@
     });
     </script>
     <script>
-    /* Вставьте этот код в тег <script> в конце вашего HTML */
-    /* ЗАМЕНИТЕ ВАШ СУЩЕСТВУЮЩИЙ СКРИПТ НА ЭТОТ */
+    /* Бұл кодты HTML соңындағы <script> тегіне қойыңыз */
+    /* ОСЫ СКРИПТТІ ҚОЛДАНЫҢЫЗ */
     document.addEventListener('DOMContentLoaded', function() {
-        // --- 2. ЛОГИКА ДЛЯ МОБИЛЬНОГО МЕНЮ ---
+    // --- 2. МОБИЛЬДІ МЕНЮ ЛОГИКАСЫ ---
         const menuButton = document.getElementById('mobile-menu-btn');
         const closeButton = document.getElementById('mobile-menu-close-btn');
         const navMenu = document.querySelector('.main-nav');
@@ -1506,22 +1506,22 @@
         const navLinks = navMenu.querySelectorAll('a');
 
         if (menuButton) {
-            // Функция для закрытия меню
+            // Мәзірді жабу функциясы
             const closeMenu = () => {
                 navMenu.classList.remove('is-open');
                 document.body.classList.remove('menu-open');
             };
 
-            // Открытие меню по клику на бургер
+            // Бургерге басқанда мәзір ашу
             menuButton.addEventListener('click', function() {
                 navMenu.classList.add('is-open');
                 document.body.classList.add('menu-open');
             });
 
-            // Закрытие меню по клику на крестик
+            // Қайтару белгісіне басқанда мәзірді жабу
             closeButton.addEventListener('click', closeMenu);
 
-            // При клике на ссылку в мобильном меню, мы обновляем заголовок и закрываем его
+            // Мобильді мәзірдегі сілтемеге басқанда тақырыпты жаңартып, мәзірді жабамыз
             navLinks.forEach(link => {
                 link.addEventListener('click', function() {
                     mobileNavTitle.textContent = this.textContent.trim();
@@ -1530,7 +1530,7 @@
                 });
             });
             
-            // Закрытие меню при клике вне его (на оверлей)
+            // Мәзірден тыс жерге басқанда (оверлей) мәзірді жабу
             document.addEventListener('click', function(event) {
                 if (navMenu.classList.contains('is-open') && !navMenu.contains(event.target) && !menuButton.contains(event.target)) {
                     closeMenu();

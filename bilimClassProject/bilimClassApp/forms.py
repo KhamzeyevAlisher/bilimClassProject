@@ -444,20 +444,20 @@ class UserNameChangeForm(forms.ModelForm):
         model = User # Работаем с основной моделью User
         fields = ('first_name', 'last_name')
         labels = {
-            'first_name': 'Ваше имя',
-            'last_name': 'Ваша фамилия',
+            'first_name': 'Атыңыз',
+            'last_name': 'Фамилияныз',
         }
 
 class EmailChangeForm(forms.Form):
     # required=True гарантирует, что поле не будет пустым
     email = forms.EmailField(
-        label="Новый email", 
+        label="Жаңа email", 
         required=True,
         widget=forms.EmailInput(attrs={'autocomplete': 'email', 'placeholder': 'Введите новый email'})
     )
     # strip=False важно для паролей, чтобы не обрезались пробелы
     password = forms.CharField(
-        label="Текущий пароль для подтверждения", 
+        label="Растау үшін ағымдағы құпия сөз", 
         required=True, 
         strip=False, 
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'})

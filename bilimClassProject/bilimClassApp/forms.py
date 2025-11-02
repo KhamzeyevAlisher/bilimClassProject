@@ -8,7 +8,7 @@ from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSub
 
 class ProfileForm(forms.ModelForm):
     
-    birth_date = forms.DateField(label='Дата рождения',required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    birth_date = forms.DateField(label='Туылған күні',required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     class Meta:
         model = Profile
         fields = ('bio', 'location', 'birth_date', 'phone_number','iin',)
@@ -106,7 +106,7 @@ class HomeworkForm(forms.ModelForm):
         fields = ['title', 'school_class', 'subject', 'due_date', 'description', 'attached_file']
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Например, "Анализ произведения" '}),
-            'description': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Опишите, что нужно сделать ученикам...'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'placeholder': ''}),
         }
         labels = {
             'title': "Название задания",
@@ -134,8 +134,8 @@ class HomeworkForm(forms.ModelForm):
             self.fields['subject'].queryset = teacher.subjects.all().order_by('name')
             
             # Добавляем пустой элемент "---------" для обоих полей
-            self.fields['school_class'].empty_label = "Выберите класс"
-            self.fields['subject'].empty_label = "Выберите предмет"
+            self.fields['school_class'].empty_label = "Тандаңыз"
+            self.fields['subject'].empty_label = "Тандаңыз"
 
 class HomeworkSubmissionForm(forms.ModelForm):
     class Meta:

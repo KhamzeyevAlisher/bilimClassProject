@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1097,12 +1097,19 @@ input[name="attached_file"]::file-selector-button:hover {
     color: #7F1D1D;
 }
 
+#homework-form .form-grid {
+    grid-template-columns: 2fr; /* Одна колонка для мобильных устройств */
+}
+
+#lesson-plan-form .form-grid {
+    grid-template-columns: 2fr; /* Одна колонка для мобильных устройств */
+}
 /* ===================================================================
    10. АДАПТИВНЫЕ СТИЛИ (MEDIA QUERIES)
 =================================================================== */
 
 /* --- Планшеты и небольшие ноутбуки (до 1000px) --- */
-@media (max-width: 1000px) {
+/* @media (max-width: 1000px) {
     .lp-table thead {
         display: none;
     }
@@ -1125,7 +1132,7 @@ input[name="attached_file"]::file-selector-button:hover {
         font-weight: 600;
         margin-right: 12px;
     }
-}
+} */
 
 
 /* --- Мобильные устройства (до 768px) --- */
@@ -1511,7 +1518,7 @@ input[name="attached_file"]::file-selector-button:hover {
             <div class="td-logo-icon">🎓</div>
             <div>
                 <h1>Sabaq Saqshy</h1>
-                <p>Система управления учебным процессом</p>
+                <p>Оқу үдерісін басқару жүйесі</p>
             </div>
         </div>
         <div class="td-user-section">
@@ -1519,7 +1526,7 @@ input[name="attached_file"]::file-selector-button:hover {
                 <a href="{% url 'profile' %}" class="td-user-link">
                     <h3>{{ teacher.user.get_full_name }}</h3>
                 </a>
-                <p>Учитель</p>
+                <p>Мұғалім</p>
             </div>
             <a href="{% url 'profile' %}" class="td-user-link">
                 <div class="td-user-avatar">{{ teacher.user.first_name|first }}{{ teacher.user.last_name|first }}</div>
@@ -1529,8 +1536,8 @@ input[name="attached_file"]::file-selector-button:hover {
 
     <!-- === НАЧАЛО: НОВЫЙ БЛОК ДЛЯ МОБИЛЬНОЙ НАВИГАЦИИ === -->
     <div class="td-mobile-nav">
-        <h2 id="mobile-nav-title">Главная</h2>
-        <button id="mobile-menu-btn" aria-label="Открыть меню">
+    <h2 id="mobile-nav-title">Басты бет</h2>
+    <button id="mobile-menu-btn" aria-label="Мәзірді ашу">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -1540,17 +1547,17 @@ input[name="attached_file"]::file-selector-button:hover {
         
         <nav class="td-main-nav">
             <div class="mobile-menu-header">
-                <h3>Меню</h3>
-                <button id="mobile-menu-close-btn" aria-label="Закрыть меню">
+                <h3>Мәзір</h3>
+                <button id="mobile-menu-close-btn" aria-label="Мәзірді жабу">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <ul>
-                <li><a class="active" data-tab="dashboard"><i class="fas fa-home"></i> Главная</a></li>
-                <li><a data-tab="lesson-plans"><i class="fas fa-file-alt"></i> Поурочные планы</a></li>
-                <li><a data-tab="schedule"><i class="far fa-calendar-alt"></i> Расписание</a></li>
+                <li><a class="active" data-tab="dashboard"><i class="fas fa-home"></i> Басты бет</a></li>
+                <li><a data-tab="lesson-plans"><i class="fas fa-file-alt"></i> Сабақ жоспарлары</a></li>
+                <li><a data-tab="schedule"><i class="far fa-calendar-alt"></i> Сабақ кестесі</a></li>
                 <li><a data-tab="journal"><i class="fas fa-book"></i> Журнал</a></li>
-                <li><a data-tab="homework"><i class="fas fa-pencil-alt"></i> Домашние задания</a></li>
+                <li><a data-tab="homework"><i class="fas fa-pencil-alt"></i> Үй тапсырмалары</a></li>
             </ul>
         </nav>
 
@@ -1563,7 +1570,7 @@ input[name="attached_file"]::file-selector-button:hover {
                 <section class="td-stats-cards">
                     <div class="td-stat-card">
                         <div class="stat-info">
-                            <p>Уроков сегодня</p>
+                            <p>Бүгінгі сабақтар</p>
                             <h2>{{ lessons_today_count|default:0 }}</h2>
                         </div>
                         <div class="stat-icon blue">
@@ -1572,7 +1579,7 @@ input[name="attached_file"]::file-selector-button:hover {
                     </div>
                     <div class="td-stat-card">
                         <div class="stat-info">
-                            <p>Планов на проверке</p>
+                            <p>Тексерудегі жоспарлар</p>
                             <h2>{{ plans_to_check_count|default:0 }}</h2>
                         </div>
                         <div class="stat-icon orange">
@@ -1590,7 +1597,7 @@ input[name="attached_file"]::file-selector-button:hover {
                     </div>
                     <div class="td-stat-card">
                         <div class="stat-info">
-                            <p>Непроверенных работ</p>
+                            <p>Тексерілмеген жұмыстар</p>
                             <h2>{{ unchecked_works_count|default:0 }}</h2>
                         </div>
                         <div class="stat-icon red">
@@ -1601,17 +1608,17 @@ input[name="attached_file"]::file-selector-button:hover {
                 <!-- === КОНЕЦ: ИЗМЕНЕННЫЙ БЛОК СТАТИСТИКИ === -->
 
                 <section class="td-card">
-                    <div class="td-card-header"><i class="far fa-clock"></i><h3>Расписание на сегодня</h3></div>
+                    <div class="td-card-header"><i class="far fa-clock"></i><h3>Бүгінгі сабақ кестесі</h3></div>
                     <p class="td-card-subtitle">{{ today|date:"l, j F Y" }}</p>
                     <div class="td-schedule-list">
                         {% for lesson in schedule_today %}
                         <div class="td-lesson-item">
                             <div class="td-lesson-time"><p>{{ lesson.start_time|time:"H:i" }}</p><span>{{ lesson.end_time|time:"H:i" }}</span></div>
-                            <div class="td-lesson-info"><h4>{{ lesson.subject.name }}</h4><p>Класс {{ lesson.school_class.name }} • Кабинет {{ lesson.classroom }}</p></div>
-                            <span class="td-lesson-status">Предстоит</span>
+                            <div class="td-lesson-info"><h4>{{ lesson.subject.name }}</h4><p>Сынып {{ lesson.school_class.name }} • Кабинет {{ lesson.classroom }}</p></div>
+                            <span class="td-lesson-status">Алда</span>
                         </div>
                         {% empty %}
-                        <p style="text-align: center; padding: 20px; color: var(--text-secondary);">На сегодня уроков по расписанию нет.</p>
+                        <p style="text-align: center; padding: 20px; color: var(--text-secondary);">Бүгінге жоспарланған сабақтар жоқ.</p>
                         {% endfor %}
                     </div>
                 </section>
@@ -1620,21 +1627,21 @@ input[name="attached_file"]::file-selector-button:hover {
             <!-- Контент для вкладки "Расписание" -->
             <div id="schedule-content" class="tab-content">
                 <section class="td-card">
-                    <div class="td-card-header"><h3>Расписание уроков</h3></div>
-                    <p class="td-card-subtitle">Расписание на текущую неделю для учителя: {{ teacher.user.get_full_name }}</p>
+                    <div class="td-card-header"><h3>Сабақ кестесі</h3></div>
+                    <p class="td-card-subtitle">Ағымдағы аптаға арналған мұғалімнің сабақ кестесі: {{ teacher.user.get_full_name }}</p>
 
                     <div class="schedule-stats-grid">
                         <div class="schedule-stat-item">
                             <div class="icon-bg blue"><i class="fas fa-calendar-alt"></i></div>
-                            <div><h3>{{ lessons_in_week_count }}</h3><p>Уроков в неделю</p></div>
+                            <div><h3>{{ lessons_in_week_count }}</h3><p>Аптадағы сабақ саны</p></div>
                         </div>
                         <div class="schedule-stat-item">
                             <div class="icon-bg purple"><i class="fas fa-users"></i></div>
-                            <div><h3>{{ unique_classes_count }}</h3><p>Классов в неделю</p></div>
+                            <div><h3>{{ unique_classes_count }}</h3><p>Аптадағы сынып саны</p></div>
                         </div>
                         <div class="schedule-stat-item">
                             <div class="icon-bg green"><i class="fas fa-clock"></i></div>
-                            <div><h3>{{ hours_in_week }}</h3><p>Часов в неделю</p></div>
+                            <div><h3>{{ hours_in_week }}</h3><p>Аптадағы сағат саны</p></div>
                         </div>
                     </div>
 
@@ -1650,11 +1657,11 @@ input[name="attached_file"]::file-selector-button:hover {
                                         <div class="lesson-card">
                                             <p class="time"><i class="far fa-clock"></i> {{ lesson.start_time|time:"H:i" }}</p>
                                             <p class="subject">{{ lesson.subject.name }}</p>
-                                            <p class="details"><i class="fas fa-chalkboard-teacher"></i> Класс: {{ lesson.school_class.name }}</p>
+                                            <p class="details"><i class="fas fa-chalkboard-teacher"></i> Сынып: {{ lesson.school_class.name }}</p>
                                             <p class="details"><i class="fas fa-map-marker-alt"></i> Каб: {{ lesson.classroom }}</p>
                                         </div>
                                     {% empty %}
-                                        <p style="font-size: 13px; text-align: center; color: var(--text-secondary); padding-top: 20px;">Нет уроков</p>
+                                        <p style="font-size: 13px; text-align: center; color: var(--text-secondary); padding-top: 20px;">Сабақ жоқ</p>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -1668,21 +1675,21 @@ input[name="attached_file"]::file-selector-button:hover {
                 <main class="lp-widget">
                     <div class="widget-header">
                         <div class="widget-title">
-                            <h2>Поурочные планы</h2>
-                            <p>Управление планами уроков</p>
+                            <h2>Сабақ жоспарлары</h2>
+                            <p>Сабақ жоспарларын басқару</p>
                         </div>
-                        <button class="btn-create" id="create-plan-btn"><i class="fas fa-plus"></i> Создать</button>
+                        <button class="btn-create" id="create-plan-btn"><i class="fas fa-plus"></i> Жасау</button>
                     </div>
 
                     <table class="lp-table">
                         <thead>
                             <tr>
-                                <th>Название</th>
-                                <th>Класс</th>
-                                <th>Предмет</th>
-                                <th>Дата</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
+                                <th>Атауы</th>
+                                <th>Сынып</th>
+                                <th>Пән</th>
+                                <th>Күні</th>
+                                <th>Мәртебесі</th>
+                                <th>Әрекеттер</th>
                             </tr>
                         </thead>
                         <tbody id="lesson-plans-tbody">
@@ -1698,15 +1705,15 @@ input[name="attached_file"]::file-selector-button:hover {
                                     </span>
                                 </td>
                                 <td class="lp-actions">
-                                    <button class="view-plan-btn" data-plan-id="{{ plan.pk }}" title="Просмотр"><i class="far fa-eye"></i></button>
-                                    <button class="edit-plan-btn" data-plan-id="{{ plan.pk }}" title="Редактировать"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="delete-plan-btn" data-plan-id="{{ plan.pk }}" title="Удалить"><i class="fas fa-trash"></i></button>
+                                    <button class="view-plan-btn" data-plan-id="{{ plan.pk }}" title="Қарау"><i class="far fa-eye"></i></button>
+                                    <button class="edit-plan-btn" data-plan-id="{{ plan.pk }}" title="Өңдеу"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="delete-plan-btn" data-plan-id="{{ plan.pk }}" title="Жою"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr id="no-plans-row">
                                 <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">
-                                    Вы еще не создали ни одного поурочного плана.
+                                    Сіз әлі бірде-бір сабақ жоспарын жасамадыңыз.
                                 </td>
                             </tr>
                             {% endfor %}
@@ -1721,24 +1728,24 @@ input[name="attached_file"]::file-selector-button:hover {
                 <div class="journal-widget">
                     <div class="journal-header">
                         <div class="journal-title">
-                            <h2>Электронный журнал</h2>
-                            <p>Оценки и посещаемость учащихся</p>
+                            <h2>Электронды журнал</h2>
+                            <p>Оқушылардың бағалары мен сабаққа қатысуы</p>
                         </div>
                         <form method="get" id="filter-form" style="display: flex; gap: 16px;">
                             <select name="school_id" onchange="this.form.submit()" class="class-selector">
-                                <option  value="">Выберите школу</option>
+                                <option  value="">Мектепті таңдаңыз</option>
                                 {% for school in all_schools %}
                                     <option  value="{{ school.pk }}" {% if school.pk == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
                                 {% endfor %}
                             </select>
                             <select name="class_id" onchange="this.form.submit()" class="class-selector">
-                                <option value="">Выберите класс</option>
+                                <option value="">Сыныпты таңдаңыз</option>
                                 {% for class in teacher_classes %}
                                     <option value="{{ class.pk }}" {% if class.pk == selected_class_id %}selected{% endif %}>{{ class.name }}</option>
                                 {% endfor %}
                             </select>
                             <select name="subject_id" onchange="this.form.submit()" class="class-selector">
-                                <option value="">Выберите предмет</option>
+                                <option value="">Пәнді таңдаңыз</option>
                                 {% for subject in teacher_subjects %}
                                     <option value="{{ subject.pk }}" {% if subject.pk == selected_subject_id %}selected{% endif %}>{{ subject.name }}</option>
                                 {% endfor %}
@@ -1747,8 +1754,8 @@ input[name="attached_file"]::file-selector-button:hover {
                     </div>
 
                     <div class="journal-tabs">
-                        <button class="tab-btn active" data-content-type="grades">Оценки</button>
-                        <button class="tab-btn" data-content-type="attendance">Посещаемость</button>
+                        <button class="tab-btn active" data-content-type="grades">Бағалар</button>
+                        <button class="tab-btn" data-content-type="attendance">Сабаққа қатысу</button>
                     </div>
 
                     <div id="journal-content-container">
@@ -1756,7 +1763,7 @@ input[name="attached_file"]::file-selector-button:hover {
                             {% include "partials/_attendance_table.html" %}
                         {% else %}
                             <p style="text-align: center; color: var(--text-secondary); padding: 20px;">
-                                Пожалуйста, выберите школу, класс и предмет для отображения журнала.
+                                Журналды көрсету үшін мектепті, сыныпты және пәнді таңдаңыз.
                             </p>
                         {% endif %}
                     </div>
@@ -1768,10 +1775,10 @@ input[name="attached_file"]::file-selector-button:hover {
                  <main class="homework-widget">
                     <div class="widget-header">
                         <div class="widget-title">
-                            <h2>Домашние задания</h2>
-                            <p>Создание и проверка домашних заданий</p>
+                            <h2>Үй тапсырмалары</h2>
+                            <p>Үй тапсырмаларын жасау және тексеру</p>
                         </div>
-                        <button class="btn-create"><i class="fas fa-plus"></i> Создать задание</button>
+                        <button class="btn-create"><i class="fas fa-plus"></i> Тапсырма жасау</button>
                     </div>
 
                     <div class="homework-list" id="homework-list-container">
@@ -1791,16 +1798,16 @@ input[name="attached_file"]::file-selector-button:hover {
                             <p class="hw-description">{{ hw.description|truncatewords:20 }}</p>
                             <div class="hw-card-footer">
                                 <div class="hw-stats">
-                                    <span>Сдано: {{ hw.submission_count }}</span> &nbsp;&nbsp;
-                                    <span>Проверено: {{ hw.checked_count }} из {{ hw.submission_count }}</span>
+                                    <span>Тапсырылды: {{ hw.submission_count }}</span> &nbsp;&nbsp;
+                                    <span>Тексерілді: {{ hw.checked_count }} -дан {{ hw.submission_count }}</span>
                                 </div>
                                 <button class="btn-view-submissions" data-hw-pk="{{ hw.pk }}" data-hw-title="{{ hw.title }}" data-hw-info="{{ hw.school_class.name }} • {{ hw.subject.name }}">
-                                    <i class="far fa-eye"></i> Просмотреть работы
+                                    <i class="far fa-eye"></i> Жұмыстарды қарау
                                 </button>
                             </div>
                         </div>
                         {% empty %}
-                        <p id="no-homeworks-message" style="text-align:center; color: var(--text-secondary); padding: 20px;">Вы еще не создали ни одного домашнего задания.</p>
+                        <p id="no-homeworks-message" style="text-align:center; color: var(--text-secondary); padding: 20px;">Сіз әлі бірде-бір үй тапсырмасын жасамадыңыз.</p>
                         {% endfor %}
                     </div>
                 </main>
@@ -1819,11 +1826,11 @@ input[name="attached_file"]::file-selector-button:hover {
         </button>
     </div>
     <ul>
-        <li><a class="active" data-tab="dashboard"><i class="fas fa-home"></i> Главная</a></li>
-        <li><a data-tab="lesson-plans"><i class="fas fa-file-alt"></i> Поурочные планы</a></li>
-        <li><a data-tab="schedule"><i class="far fa-calendar-alt"></i> Расписание</a></li>
-        <li><a data-tab="journal"><i class="fas fa-book"></i> Журнал</a></li>
-        <li><a data-tab="homework"><i class="fas fa-pencil-alt"></i> Домашние задания</a></li>
+    <li><a class="active" data-tab="dashboard"><i class="fas fa-home"></i> Басты бет</a></li>
+    <li><a data-tab="lesson-plans"><i class="fas fa-file-alt"></i> Сабақ жоспарлары</a></li>
+    <li><a data-tab="schedule"><i class="far fa-calendar-alt"></i> Сабақ кестесі</a></li>
+    <li><a data-tab="journal"><i class="fas fa-book"></i> Журнал</a></li>
+    <li><a data-tab="homework"><i class="fas fa-pencil-alt"></i> Үй тапсырмалары</a></li>
     </ul>
 </nav> -->
 
@@ -1834,10 +1841,10 @@ input[name="attached_file"]::file-selector-button:hover {
         <h3 id="modal-student-name"></h3>
         <p id="modal-date"></p>
         <form id="grade-form">
-            <input type="number" id="grade-input" min="0" max="100" placeholder="Оценка (0-100)">
-            <textarea id="comment-input" placeholder="Комментарий к оценке..."></textarea>
+            <input type="number" id="grade-input" min="0" max="100" placeholder="Баға (0-100)">
+            <textarea id="comment-input" placeholder="Бағаға түсініктеме..."></textarea>
             <div style="display:flex; width:100%; justify-content: space-around;">
-                <button type="submit">Сохранить</button>
+                <button type="submit">Сақтау</button>
                 <!-- <button type="button" id="delete-grade-btn" class="btn-delete" title="Удалить оценку">
                     <i class="fas fa-trash-alt"></i>
                 </button> -->
@@ -1851,25 +1858,25 @@ input[name="attached_file"]::file-selector-button:hover {
     <div class="modal-container">
         <button class="close-btn" id="close-homework-modal">&times;</button>
         <div class="modal-header">
-            <h2>Создать домашнее задание</h2>
-            <p>Заполните информацию о домашнем задании</p>
+            <h2>Үй тапсырмасын жасау</h2>
+            <p>Үй тапсырмасы туралы ақпаратты толтырыңыз</p>
         </div>
         <form id="homework-form" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group full-width" style="margin-top: 24px;">
-                <label for="{{ homework_form.title.id_for_label }}">Название задания</label>
+                <label for="{{ homework_form.title.id_for_label }}">Тапсырма атауы</label>
                 {{ homework_form.title }}
             </div>
             <div class="form-grid">
-                <div class="form-group"><label for="{{ homework_form.school_class.id_for_label }}">Класс</label>{{ homework_form.school_class }}</div>
-                <div class="form-group"><label for="{{ homework_form.subject.id_for_label }}">Предмет</label>{{ homework_form.subject }}</div>
-                <div class="form-group"><label for="{{ homework_form.due_date.id_for_label }}">Срок сдачи</label>{{ homework_form.due_date }}</div>
+                <div class="form-group"><label for="{{ homework_form.school_class.id_for_label }}">Сынып</label>{{ homework_form.school_class }}</div>
+                <div class="form-group"><label for="{{ homework_form.subject.id_for_label }}">Пән</label>{{ homework_form.subject }}</div>
+                <div class="form-group"><label for="{{ homework_form.due_date.id_for_label }}">Тапсыру мерзімі</label>{{ homework_form.due_date }}</div>
             </div>
-            <div class="form-group full-width"><label for="{{ homework_form.description.id_for_label }}">Описание задания</label>{{ homework_form.description }}</div>
-            <div class="form-group full-width"><label for="{{ homework_form.attached_file.id_for_label }}">Прикрепить файл (необязательно)</label>{{ homework_form.attached_file }}</div>
+            <div class="form-group full-width"><label for="{{ homework_form.description.id_for_label }}">Тапсырма сипаттамасы</label>{{ homework_form.description }}</div>
+            <div class="form-group full-width"><label for="{{ homework_form.attached_file.id_for_label }}">Файл тіркеу (міндетті емес)</label>{{ homework_form.attached_file }}</div>
             <div class="modal-footer full-width">
-                <button type="button" class="btn-secondary" id="cancel-homework-btn">Отмена</button>
-                <button type="submit" class="btn-submit">Создать</button>
+                <button type="button" class="btn-secondary" id="cancel-homework-btn">Болдырмау</button>
+                <button type="submit" class="btn-submit">Жасау</button>
             </div>
         </form>
     </div>
@@ -1882,7 +1889,7 @@ input[name="attached_file"]::file-selector-button:hover {
             <table class="submissions-table">
                 <thead>
                     <!-- ИЗМЕНЕНА ЭТА СТРОКА -->
-                    <tr><th>Ученик</th><th>Файл</th><th>Статус</th><th>Дата сдачи</th><th>Оценка</th><th>Действие</th></tr>
+                    <tr><th>Оқушы</th><th>Файл</th><th>Мәртебесі</th><th>Тапсыру күні</th><th>Баға</th><th>Әрекет</th></tr>
                 </thead>
                 <tbody id="submissions-tbody"></tbody>
             </table>
@@ -1902,16 +1909,16 @@ input[name="attached_file"]::file-selector-button:hover {
         <form id="grading-form">
             {% csrf_token %}
             <div class="form-group">
-                <label for="grade-input">Оценка (0-100)</label>
-                <input type="number" id="grade-input" name="grade" min="0" max="100" placeholder="Например, 85">
+                <label for="grade-input">Баға (0-100)</label>
+                <input type="number" id="grade-input" name="grade" min="0" max="100" placeholder="Мысалы, 85">
             </div>
             <div class="form-group">
-                <label for="comment-textarea">Комментарий</label>
-                <textarea id="comment-textarea" name="comment" placeholder="Отличная работа!"></textarea>
+                <label for="comment-textarea">Түсініктеме</label>
+                <textarea id="comment-textarea" name="comment" placeholder="Керемет жұмыс!"></textarea>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary close-btn" id="cancel-grading-btn"></button>
-                <button type="submit" class="btn-gradient">Сохранить рецензию</button>
+                <button type="submit" class="btn-gradient">Пікірді сақтау</button>
             </div>
         </form>
     </div>
@@ -1923,8 +1930,8 @@ input[name="attached_file"]::file-selector-button:hover {
     <div class="modal-container">
         <!-- <button class="close-btn"></button> -->
         <div class="modal-header">
-            <h2 id="plan-modal-title">Создать план урока</h2>
-            <p>Заполните информацию о поурочном плане</p>
+            <h2 id="plan-modal-title">Сабақ жоспарын жасау</h2>
+            <p>Сабақ жоспары туралы ақпаратты толтырыңыз</p>
         </div>
         <!-- === ИЗМЕНЕНИЕ 1: Добавлен enctype для загрузки файлов === -->
         <form id="lesson-plan-form" novalidate enctype="multipart/form-data">
@@ -1949,7 +1956,7 @@ input[name="attached_file"]::file-selector-button:hover {
 
             <div class="modal-footer full-width">
                 <button type="button" class="btn-secondary close-btn"></button>
-                <button type="submit" class="btn-submit">Сохранить</button>
+                <button type="submit" class="btn-submit">Сақтау</button>
             </div>
         </form>
     </div>
@@ -1963,16 +1970,16 @@ input[name="attached_file"]::file-selector-button:hover {
             <p><span id="view-plan-class"></span> • <span id="view-plan-subject"></span> • <span id="view-plan-date"></span></p>
         </div>
         <dl class="lp-view-details">
-            <dt>Тема урока</dt><dd id="view-plan-topic"></dd>
-            <dt>Цели и задачи</dt><dd id="view-plan-goals"></dd>
+            <dt>Сабақ тақырыбы</dt><dd id="view-plan-topic"></dd>
+            <dt>Мақсаттар мен міндеттер</dt><dd id="view-plan-goals"></dd>
             
             <!-- === ИЗМЕНЕНИЕ 3: Блок для отображения ссылки на файл === -->
-            <dt>Учебные материалы</dt>
+            <dt>Оқу материалдары</dt>
             <dd id="view-plan-materials">
                 <a href="#" id="view-plan-materials-link" target="_blank" class="file-link" style="display: none;">
                     <i class="fas fa-paperclip"></i> <span></span>
                 </a>
-                <span id="no-materials-file" style="color: var(--text-secondary);">Нет файла</span>
+                <span id="no-materials-file" style="color: var(--text-secondary);">Файл жоқ</span>
             </dd>
             <!-- === КОНЕЦ ИЗМЕНЕНИЯ 3 === -->
 
@@ -2031,11 +2038,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const url = (contentType === 'attendance') ? `{% url 'journal_attendance_content' %}?${params}` : `{% url 'teacher_journal_grades_content' %}?${params}`;
             
             try {
-                journalContentContainer.innerHTML = '<p style="text-align: center; padding: 20px;">Загрузка...</p>';
+                journalContentContainer.innerHTML = '<p style="text-align: center; padding: 20px;">Жүктелуде...</p>';
                 const response = await fetch(url);
                 journalContentContainer.innerHTML = await response.text();
             } catch (error) {
-                journalContentContainer.innerHTML = '<p style="color: red; text-align: center;">Ошибка загрузки</p>';
+                journalContentContainer.innerHTML = '<p style="color: red; text-align: center;">Жүктеу қатесі</p>';
             }
         });
 
@@ -2052,8 +2059,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function handleGradeCellClick(cell) {
             activeGradeCell = cell;
-            modal.querySelector('#modal-student-name').textContent = `Оценка для: ${cell.closest('tr').cells[0].textContent.trim()}`;
-            modal.querySelector('#modal-date').textContent = `Дата: ${cell.dataset.date}`;
+            modal.querySelector('#modal-student-name').textContent = `Бағаланатын оқушы: ${cell.closest('tr').cells[0].textContent.trim()}`;
+            modal.querySelector('#modal-date').textContent = `Күні: ${cell.dataset.date}`;
             modal.querySelector('#grade-input').value = cell.textContent.trim().replace(/[^0-9]/g, '');
             modal.querySelector('#comment-input').value = cell.dataset.comment || '';
             modal.style.display = 'block';
@@ -2112,7 +2119,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateGradeCell(activeGradeCell, result.grade, result.has_comment);
                 activeGradeCell.dataset.comment = payload.comment;
                 modal.style.display = 'none';
-            } else { alert('Ошибка сохранения оценки!'); }
+            } else { alert('Бағаны сақтау кезінде қате!'); }
         });
 
         modal.querySelector('.close-btn').addEventListener('click', () => modal.style.display = 'none');
@@ -2171,16 +2178,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const cancelModalBtn = document.getElementById('cancel-homework-btn');
 
             const openModalForCreate = () => {
-                modalTitle.textContent = 'Создать домашнее задание';
-                submitButton.textContent = 'Создать';
+                modalTitle.textContent = 'Үй тапсырмасын жасау';
+                submitButton.textContent = 'Жасау';
                 homeworkForm.reset();
                 homeworkForm.setAttribute('action', "{% url 'api_create_homework' %}");
                 homeworkModal.style.display = 'flex';
             };
 
             const openModalForEdit = async (homeworkId) => {
-                modalTitle.textContent = 'Редактировать задание';
-                submitButton.textContent = 'Сохранить';
+                modalTitle.textContent = 'Тапсырманы өңдеу';
+                submitButton.textContent = 'Сақтау';
                 homeworkForm.reset();
                 homeworkForm.setAttribute('action', `/api/homework/${homeworkId}/update/`);
                 try {
@@ -2196,7 +2203,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     homeworkForm.querySelector('#id_due_date').value = data.due_date;
                     homeworkModal.style.display = 'flex';
                 } catch (error) {
-                    alert('Не удалось загрузить данные задания: ' + error.message);
+                    alert('Тапсырма деректерін жүктеу мүмкін болмады: ' + error.message);
                 }
             };
 
@@ -2217,14 +2224,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     const result = await response.json();
                     if (response.ok) {
-                        alert(result.message || 'Успешно сохранено!');
+                        alert(result.message || 'Сәтті сақталды!');
                         window.location.reload(); 
                     } else {
                         const errorMessages = Object.values(result.errors).map(err => err[0]).join('\n');
-                        alert("Ошибка валидации:\n" + errorMessages);
+                        alert('Валидация қатесі:\n' + errorMessages);
                     }
                 } catch (error) {
-                    alert('Произошла сетевая ошибка.');
+                    alert('Желілік қате орын алды.');
                 }
             });
             
@@ -2242,7 +2249,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const openSubmissionsModal = async (hwId, hwTitle, hwInfo) => {
                 submissionsModal.querySelector('#submissions-modal-title').textContent = hwTitle;
                 submissionsModal.querySelector('#submissions-modal-info').textContent = hwInfo;
-                submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Загрузка...</td></tr>';
+                submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Жүктелуде...</td></tr>';
                 submissionsModal.style.display = 'flex';
 
                 try {
@@ -2252,23 +2259,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     submissionsTbody.innerHTML = '';
                     if (data.submissions.length === 0) {
-                        submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Работы еще не сданы.</td></tr>';
+                        submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Жұмыстар әлі тапсырылмаған.</td></tr>';
                         return;
                     }
 
                     data.submissions.forEach(sub => {
                         let fileHtml = '<td>-</td>';
                         if (sub.file_url) {
-                            fileHtml = `<td><a href="${sub.file_url}" class="file-link" target="_blank" title="Открыть файл"><i class="fas fa-paperclip"></i> Посмотреть</a></td>`;
+                            fileHtml = `<td><a href="${sub.file_url}" class="file-link" target="_blank" title="Файлды ашу"><i class="fas fa-paperclip"></i> Қарау</a></td>`;
                         }
                         
                         let statusHtml;
-                        if (sub.status === 'Проверено') statusHtml = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Проверено</span>`;
-                        else if (sub.status === 'Сдано') statusHtml = `<span class="status-tag status-submitted"><i class="fas fa-check"></i> Сдано</span>`;
-                        else statusHtml = `<span class="status-tag status-awaiting"><i class="far fa-clock"></i> Ожидается</span>`;
+                        if (sub.status === 'Проверено') statusHtml = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Тексерілді</span>`;
+                        else if (sub.status === 'Сдано') statusHtml = `<span class="status-tag status-submitted"><i class="fas fa-check"></i> Тапсырылды</span>`;
+                        else statusHtml = `<span class="status-tag status-awaiting"><i class="far fa-clock"></i> Күтілуде</span>`;
                         
                         const gradeHtml = sub.grade !== null ? `<td><span class="grade-circle">${sub.grade}</span></td>` : '<td>-</td>';
-                        const actionButton = sub.status !== 'Ожидается' ? `<button class="btn-view-submissions" style="padding: 6px 10px; font-size: 12px;">${sub.status === 'Проверено' ? 'Изменить' : 'Проверить'}</button>` : '-';
+                        const actionButton = sub.status !== 'Ожидается' ? `<button class="btn-view-submissions" style="padding: 6px 10px; font-size: 12px;">${sub.status === 'Проверено' ? 'Өзгерту' : 'Тексеру'}</button>` : '-';
                         const actionHtml = `<td data-submission-pk="${sub.submission_id}" data-student-name="${sub.full_name}" data-grade="${sub.grade || ''}" data-comment="${sub.teacher_comment || ''}">${actionButton}</td>`;
 
                         const row = `<tr id="sub-row-${sub.submission_id}"><td>${sub.full_name}</td>${fileHtml}<td>${statusHtml}</td><td>${sub.submitted_at || '-'}</td>${gradeHtml}${actionHtml}</tr>`;
@@ -2334,15 +2341,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         const gradeCell = currentSubmissionRow.cells[4];
                         const actionCell = currentSubmissionRow.cells[5];
                         
-                        statusCell.innerHTML = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Проверено</span>`;
+                        statusCell.innerHTML = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Тексерілді</span>`;
                         gradeCell.innerHTML = result.new_grade ? `<span class="grade-circle">${result.new_grade}</span>` : '-';
                         actionCell.dataset.grade = result.new_grade || "";
                         actionCell.dataset.comment = comment;
-                        actionCell.querySelector('button').textContent = 'Изменить';
+                        actionCell.querySelector('button').textContent = 'Өзгерту';
                     }
                     closeGradingModal();
                 } catch (error) {
-                    alert(`Ошибка: ${error.message}`);
+                    alert(`Қате: ${error.message}`);
                 }
             });
 
@@ -2383,9 +2390,11 @@ document.addEventListener('DOMContentLoaded', function() {
             planForm.reset();
             planIdInput.value = '';
             currentFileDiv.innerHTML = ''; // Очищаем информацию о текущем файле
-            planModalTitle.textContent = 'Создать план урока';
-            planForm.querySelector('button[type="submit"]').textContent = 'Создать';
+            planModalTitle.textContent = 'Сабақ жоспарын жасау';
+            planForm.querySelector('button[type="submit"]').textContent = 'Жасау';
             openModal(formModal);
+
+            translateLessonPlanStatuses();
         });
 
         // 2. Обработка кликов по кнопкам в таблице (просмотр, редактирование, удаление)
@@ -2403,8 +2412,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('view-plan-title').textContent = data.name;
                     // API должен возвращать имена, а не ID, для лучшего отображения.
                     // Для примера оставим так, но лучше доработать API.
-                    document.getElementById('view-plan-class').textContent = `Класс ID: ${data.school_class}`;
-                    document.getElementById('view-plan-subject').textContent = `Предмет ID: ${data.subject}`;
+                    document.getElementById('view-plan-class').textContent = `Сынып ID: ${data.school_class}`;
+                    document.getElementById('view-plan-subject').textContent = `Пән ID: ${data.subject}`;
                     document.getElementById('view-plan-date').textContent = data.date;
                     document.getElementById('view-plan-topic').textContent = data.topic || '-';
                     document.getElementById('view-plan-goals').textContent = data.goals_and_objectives || '-';
@@ -2422,8 +2431,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     openModal(viewModal);
                 } else {
-                    alert('Не удалось загрузить данные плана.');
+                    alert('Жоспар деректерін жүктеу мүмкін болмады.');
                 }
+
+                translateLessonPlanStatuses();
             }
 
             if (editBtn) {
@@ -2433,8 +2444,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const { data } = await response.json();
                     planForm.reset();
                     planIdInput.value = data.id;
-                    planModalTitle.textContent = 'Редактировать план урока';
-                    planForm.querySelector('button[type="submit"]').textContent = 'Сохранить';
+                    planModalTitle.textContent = 'Сабақ жоспарын өңдеу';
+                    planForm.querySelector('button[type="submit"]').textContent = 'Сақтау';
 
                     // Заполняем поля формы
                     planForm.querySelector('[name="name"]').value = data.name;
@@ -2445,19 +2456,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     planForm.querySelector('[name="goals_and_objectives"]').value = data.goals_and_objectives;
                     
                     if (data.learning_materials_url) {
-                        currentFileDiv.innerHTML = `Текущий файл: <a href="${data.learning_materials_url}" target="_blank">${data.learning_materials_name}</a>`;
+                        currentFileDiv.innerHTML = `Ағымдағы файл: <a href="${data.learning_materials_url}" target="_blank">${data.learning_materials_name}</a>`;
                     } else {
                         currentFileDiv.innerHTML = '';
                     }
 
                     openModal(formModal);
                 } else {
-                    alert('Не удалось загрузить данные плана для редактирования.');
+                    alert('Өңдеу үшін жоспар деректерін жүктеу мүмкін болмады.');
                 }
             }
 
             if (deleteBtn) {
-                if (confirm('Вы уверены, что хотите удалить этот план?')) {
+                if (confirm('Бұл жоспарды жойғыңыз келетініне сенімдісіз бе?')) {
                     const planId = deleteBtn.dataset.planId;
                     // === ИСПРАВЛЕНИЕ 2: Получаем CSRF-токен перед отправкой ===
                     const csrfToken = planForm.querySelector('input[name="csrfmiddlewaretoken"]').value;
@@ -2469,10 +2480,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (response.ok) {
                         document.getElementById(`plan-row-${planId}`).remove();
                     } else {
-                        alert('Не удалось удалить план.');
+                        alert('Жоспарды жою мүмкін болмады.');
                     }
                 }
             }
+
+            translateLessonPlanStatuses();
         });
 
         // 3. Отправка формы (создание/редактирование)
@@ -2493,8 +2506,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.reload(); // Перезагружаем страницу для обновления таблицы
             } else {
                 const result = await response.json();
-                alert('Ошибка сохранения: ' + JSON.stringify(result.errors || result.message));
+                alert('Сақтау қатесі: ' + JSON.stringify(result.errors || result.message));
             }
+
+            translateLessonPlanStatuses();
         });
     }
     
@@ -2660,6 +2675,132 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    function translateLessonPlanFormToKazakh() {
+        // Аударуға арналған сөздік (орысша -> қазақша)
+        const translations = {
+            'Название урока:': 'Сабақтың атауы:',
+            'Дата проведения:': 'Өткізу күні:',
+            'Класс:': 'Сынып:',
+            'Предмет:': 'Пән:',
+            'Тема урока:': 'Сабақтың тақырыбы:',
+            'Цели и задачи урока:': 'Сабақтың мақсаттары мен міндеттері:',
+            'Учебные материалы (файл):': 'Оқу материалдары (файл):',
+            'Создать': 'Жасау' // Түйменің бастапқы мәтіні
+            // Қажет болса, осы жерге жаңа аудармаларды қосуға болады
+        };
+
+        // Форма контейнерін ID арқылы табамыз
+        const formContainer = document.getElementById('lesson-plan-form');
+
+        // Егер форма табылмаса, қате туралы хабарлап, жұмысты тоқтатамыз
+        if (!formContainer) {
+            console.error('Аударма үшін "lesson-plan-form" ID-сы бар форма табылмады.');
+            return;
+        }
+
+        // 1. Барлық <label> элементтерін аудару
+        const labels = formContainer.querySelectorAll('label');
+        labels.forEach(label => {
+            const originalText = label.textContent.trim(); // Таза мәтінді аламыз
+            if (translations[originalText]) {
+                label.textContent = translations[originalText]; // Сөздіктен аударманы қоямыз
+            }
+        });
+
+        // 2. Жіберу (submit) түймесін аудару
+        // Кодта сіздің түймеңіз қазірдің өзінде "Жасау" деп тұр, бірақ бұл код оны "Создать" болса да аударады.
+        const submitButton = formContainer.querySelector('.btn-submit');
+        if (submitButton) {
+            const originalText = submitButton.textContent.trim();
+            if (translations[originalText]) {
+                submitButton.textContent = translations[originalText];
+            }
+        }
+        
+        // 3. Таңдау тізіміндегі "---------" мәтінін аудару
+        // Бұл мәтін пайдаланушыға ыңғайлы болу үшін "Таңдаңыз..." деп өзгертіледі
+        const placeholderElements = formContainer.querySelectorAll('.custom-select-trigger, .custom-option');
+        placeholderElements.forEach(element => {
+            if (element.textContent.trim() === '---------') {
+                element.textContent = 'Таңдаңыз...';
+            }
+        });
+    }
+
+    function translateLessonPlanStatuses() {
+        // Аударуға арналған сөздік
+        const statusTranslations = {
+            'Утвержден': 'Бекітілді',
+            'Отклонен': 'Қабылданбады',
+            'На рассмотрении': 'Қаралуда'
+        };
+
+        // Кестенің негізгі бөлігін (tbody) табамыз
+        const tableBody = document.getElementById('lesson-plans-tbody');
+
+        // Егер кесте табылмаса, жұмысты тоқтатамыз
+        if (!tableBody) {
+            console.warn('Мәртебелерді аудару үшін "#lesson-plans-tbody" элементі табылмады.');
+            return;
+        }
+
+        // Кестенің ішіндегі .lp-status класы бар барлық элементтерді табамыз
+        const statusSpans = tableBody.querySelectorAll('.lp-status');
+
+        // Әрбір табылған элементті циклмен аралап шығамыз
+        statusSpans.forEach(span => {
+            // Элементтің ішіндегі мәтінді алып, бос орындардан тазартамыз
+            const originalText = span.textContent.trim();
+
+            // Егер сөздікте осындай мәтінге сәйкес аударма болса...
+            if (statusTranslations[originalText]) {
+                // ...элементтің мәтінін қазақша аудармасымен алмастырамыз
+                span.textContent = statusTranslations[originalText];
+            }
+        });
+    }
+
+    function translateScheduleDaysToKazakh() {
+        // Апта күндеріне арналған аударма сөздігі
+        const dayTranslations = {
+            'Понедельник': 'Дүйсенбі',
+            'Вторник': 'Сейсенбі',
+            'Среда': 'Сәрсенбі',
+            'Четверг': 'Бейсенбі',
+            'Пятница': 'Жұма',
+            'Суббота': 'Сенбі',
+            'Воскресенье': 'Жексенбі'
+        };
+
+        // Кесте контейнерін табамыз
+        const scheduleContainer = document.querySelector('.schedule-week-grid');
+
+        if (!scheduleContainer) {
+            // Егер бетте мұндай контейнер болмаса, консольге ескерту шығарамыз
+            console.warn('Апта күндерін аудару үшін ".schedule-week-grid" контейнері табылмады.');
+            return;
+        }
+
+        // Контейнер ішіндегі барлық '.day-header h4' элементтерін табамыз
+        const dayHeaders = scheduleContainer.querySelectorAll('.day-header h4');
+
+        // Әрбір табылған тақырыпты (h4) циклмен аралап шығамыз
+        dayHeaders.forEach(header => {
+            // Элементтің орысша мәтінін аламыз
+            const originalDay = header.textContent.trim();
+
+            // Егер сөздікте осындай күнге аударма болса...
+            if (dayTranslations[originalDay]) {
+                // ...элементтің мәтінін қазақша баламасымен алмастырамыз
+                header.textContent = dayTranslations[originalDay];
+            }
+        });
+    }
+
+    translateLessonPlanFormToKazakh();
+    translateLessonPlanStatuses();
+    translateScheduleDaysToKazakh();
 });
 </script>
 

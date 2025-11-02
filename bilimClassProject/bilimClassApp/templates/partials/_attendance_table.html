@@ -2,11 +2,11 @@
 <table class="journal-table" id="attendance-table">
     <thead>
         <tr>
-            <th>Ученик</th>
+            <th>Оқушы</th>
             {% for date in date_range %}
                 <th>{{ date|date:"d.m" }}</th>
             {% endfor %}
-            <th>Пропуски</th>
+            <th>Қалу саны</th>
         </tr>
     </thead>
     <tbody data-subject-id="{{ selected_subject_id }}" data-class-id="{{ selected_class_id }}">

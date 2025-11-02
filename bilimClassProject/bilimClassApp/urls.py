@@ -2,6 +2,7 @@
 
 from django.urls import path, include
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.custom_login_view, name='login'),
@@ -82,4 +83,22 @@ urlpatterns = [
     path('profile/change-name/', views.change_name, name='change_name'),
     path('profile/change-email/', views.change_email, name='change_email'),
     path('api/student/<int:student_id>/performance/', views.get_student_performance_details_api, name='api_get_student_performance_details'),
+    path('reset_password/', 
+         auth_views.PasswordResetView.as_view(template_name="registration/password_reset_form.html"), 
+         name="password_reset"),
+
+    # 2. Страница с сообщением об отправке письма
+    path('reset_password_sent/', 
+         auth_views.PasswordResetDoneView.as_view(template_name="registration/password_reset_done.html"), 
+         name="password_reset_done"),
+
+    # 3. Страница для ввода нового пароля (пользователь переходит по ссылке из письма)
+    path('reset/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(template_name="registration/password_reset_confirm.html"), 
+         name="password_reset_confirm"),
+
+    # 4. Страница с сообщением об успешной смене пароля
+    path('reset_password_complete/', 
+         auth_views.PasswordResetCompleteView.as_view(template_name="registration/password_reset_complete.html"), 
+         name="password_reset_complete"),
 ]

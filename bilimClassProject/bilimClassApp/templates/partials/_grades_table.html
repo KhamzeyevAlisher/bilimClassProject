@@ -1,11 +1,11 @@
 <table class="journal-table" id="grades-table">
     <thead>
         <tr>
-            <th>Ученик</th>
+            <th>Оқушы</th>
             {% for date in date_range %}
                 <th>{{ date|date:"d.m" }}</th>
             {% endfor %}
-            <th>Ср. балл</th>
+            <th>Ор. балл</th>
         </tr>
     </thead>
     <tbody data-subject-id="{{ selected_subject_id }}" data-class-id="{{ selected_class_id }}">

@@ -60,14 +60,14 @@ class Profile(models.Model):
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    bio = models.TextField(max_length=500, blank=True, verbose_name="О себе")
-    location = models.CharField(max_length=30, blank=True, verbose_name="Местоположение")
-    birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")
+    bio = models.TextField(max_length=500, blank=True, verbose_name="Өмірбаян")
+    location = models.CharField(max_length=30, blank=True, verbose_name="Мекенжайы")
+    birth_date = models.DateField(null=True, blank=True, verbose_name="Туылған күні")
     
     phone_number = models.CharField(
         max_length=20,
         blank=True, 
-        verbose_name="Номер телефона"
+        verbose_name="Телефон нөмірі"
     )
 
     iin = models.CharField(

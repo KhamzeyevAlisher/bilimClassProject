@@ -950,6 +950,7 @@ def teacher_journal_view(request):
         context['journal_data'] = journal_data
     
     return render(request, 'bilimClassApp/teacher_journal.html', context)
+
 @login_required
 def set_grade_api(request):
     if request.method != 'POST':
@@ -966,31 +967,59 @@ def set_grade_api(request):
     class_id = data.get('class_id')
     date_str = data.get('date')
     grade_val = data.get('grade')
-    comment_val = data.get('comment', '') # Получаем комментарий, по умолчанию - пустая строка
+    comment_val = data.get('comment', '')
 
     if not all([student_id, subject_id, class_id, date_str]):
         return JsonResponse({'status': 'error', 'message': 'Missing required data'}, status=400)
 
-    assessment, created = Assessment.objects.update_or_create(
-        student_id=student_id,
-        subject_id=subject_id,
-        school_class_id=class_id,
-        date=date_str,
-        # Добавляем comment в defaults
-        defaults={
-            'teacher': teacher, 
-            'grade': grade_val if grade_val else None, 
-            'was_absent': False,
-            'comment': comment_val
-        }
-    )
+    # --- НАЧАЛО КЛЮЧЕВЫХ ИЗМЕНЕНИЙ ---
 
-    return JsonResponse({
-        'status': 'success',
-        'message': 'Оценка сохранена',
-        'grade': assessment.grade,
-        'has_comment': bool(assessment.comment) # Возвращаем флаг, есть ли комментарий
-    })
+    # Проверяем, есть ли значение в grade_val (и это не пустая строка)
+    # str(grade_val).strip() обрабатывает и None, и пустые строки " ", ""
+    if grade_val and str(grade_val).strip():
+        # --- СЦЕНАРИЙ 1: Оценка есть. Создаем или обновляем. ---
+        try:
+            # Убедимся, что оценка - это число
+            grade_as_int = int(grade_val)
+        except (ValueError, TypeError):
+            return JsonResponse({'status': 'error', 'message': 'Оценка должна быть числом.'}, status=400)
+
+        assessment, created = Assessment.objects.update_or_create(
+            student_id=student_id,
+            subject_id=subject_id,
+            school_class_id=class_id,
+            date=date_str,
+            defaults={
+                'teacher': teacher, 
+                'grade': grade_as_int, 
+                'was_absent': False,
+                'comment': comment_val
+            }
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Оценка сохранена',
+            'grade': assessment.grade,
+            'has_comment': bool(assessment.comment)
+        })
+    else:
+        # --- СЦЕНАРИЙ 2: Оценка пустая. Удаляем запись. ---
+        # Ищем существующую оценку по тем же параметрам
+        Assessment.objects.filter(
+            student_id=student_id,
+            subject_id=subject_id,
+            school_class_id=class_id,
+            date=date_str,
+        ).delete()
+
+        # Возвращаем успешный ответ, сообщая фронтенду, что оценки больше нет
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Оценка удалена',
+            'grade': None,  # Отправляем null, чтобы фронтенд очистил ячейку
+            'has_comment': False
+        })
 
 @login_required
 def get_attendance_content(request):

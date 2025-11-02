@@ -1051,6 +1051,52 @@ input[name="attached_file"]::file-selector-button:hover {
     font-weight: 600;
 }
 
+/* Стили для контейнера кнопок в модальном окне */
+#grade-form .form-actions {
+    display: flex;
+    justify-content: flex-end; /* Выравнивание кнопок по правому краю */
+    align-items: center;
+    gap: 12px; /* Расстояние между кнопками */
+    margin-top: 16px; /* Отступ сверху */
+}
+
+/* Базовые стили для основной кнопки, если их нет */
+#grade-form .btn-submit {
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#grade-form .btn-submit:hover {
+    background-color: #4338CA;
+}
+
+/* Стили для новой кнопки удаления */
+#grade-form .btn-delete {
+    background-color: #FEE2E2; /* Светло-красный фон */
+    border: none;
+    color: #991B1B; /* Темно-красный цвет иконки */
+    width: 42px;  /* Ширина кнопки */
+    height: 42px; /* Высота кнопки */
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+#grade-form .btn-delete:hover {
+    background-color: #FECACA;
+    color: #7F1D1D;
+}
+
 /* ===================================================================
    10. АДАПТИВНЫЕ СТИЛИ (MEDIA QUERIES)
 =================================================================== */
@@ -1790,7 +1836,12 @@ input[name="attached_file"]::file-selector-button:hover {
         <form id="grade-form">
             <input type="number" id="grade-input" min="0" max="100" placeholder="Оценка (0-100)">
             <textarea id="comment-input" placeholder="Комментарий к оценке..."></textarea>
-            <button type="submit">Сохранить</button>
+            <div style="display:flex; width:100%; justify-content: space-around;">
+                <button type="submit">Сохранить</button>
+                <!-- <button type="button" id="delete-grade-btn" class="btn-delete" title="Удалить оценку">
+                    <i class="fas fa-trash-alt"></i>
+                </button> -->
+            </div>
         </form>
     </div>
 </div>

@@ -130,4 +130,4 @@ LOGOUT_REDIRECT_URL = '/' # Куда перенаправлять после в�
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'   

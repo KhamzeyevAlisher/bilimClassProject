@@ -65,7 +65,7 @@
 }
 
 .grades-list::-webkit-scrollbar-thumb {
-    background: #ccc; /* Цвет самого ползунка */
+    background: #ccc; /* cscsЦвет самого ползунка */
     border-radius: 10px;
 }
 

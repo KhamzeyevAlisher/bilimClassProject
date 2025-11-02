@@ -1,8 +1,8 @@
 {% extends "bilimClassApp/base_dashboard.html" %}
 {% load static %}
-{% load custom_filters %} {# Загрузка кастомного фильтра #}
+{% load custom_filters %} {# Таңдамалы фильтрді жүктеу #}
 
-{% block title %}Расписание школы{% endblock %}
+{% block title %}Мектеп кестесі{% endblock %}
 
 {% block head_extra %}
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/schedule_head_school.css' %}">
@@ -15,12 +15,12 @@
         .filters-toolbar { display: flex; gap: 16px; margin-bottom: 24px; }
         .filter-select { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-main); }
         
-        /* Скрываем контент вкладок по умолчанию */
+    /* Вкладтар контентін әдепкі бойынша жасыру */
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Стили для УСПЕВАЕМОСТИ */
+    /* Үлгерім (Үйрену нәтижелері) үшін стильдер */
         :root {
             --accent-purple-light: #F5F3FF; --accent-purple-dark: #5B21B6; --accent-green-light: #F0FDF4;
             --accent-green-dark: #166534; --accent-blue-light: #EFF6FF; --accent-blue-dark: #1E40AF;
@@ -52,7 +52,7 @@
             width: 20%;
         }
 
-        /* Стили для РАСПИСАНИЯ */
+    /* КЕСТЕГЕ АРНАЛҒАН СТИЛЬДЕР */
         .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
         .day-column { background-color: var(--bg-main); border-radius: 12px; padding: 16px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -1138,16 +1138,16 @@ a.class-details-link:hover {
     <div id="performance-content" class="tab-content active">
         <div class="page-header">
             <div class="page-title">
-                <h2><i class="fa-solid fa-chart-line"></i> Успеваемость по школе</h2>
-                <p>Сводная ведомость успеваемости по классам, предметам и ученикам</p>
+                <h2><i class="fa-solid fa-chart-line"></i> Мектеп бойынша үлгерім</h2>
+                <p>Сыныптар, пәндер және оқушылар бойынша жинақталған үлгерім</p>
             </div>
         </div>
         <form method="GET" class="filters-toolbar">
             <input type="hidden" name="tab" value="performance">
             
             <!-- Фильтр по школе (остается как был) -->
-            <select name="school_id" class="filter-select" onchange="this.form.submit()">
-                <option value="">-- Выберите школу --</option>
+                <select name="school_id" class="filter-select" onchange="this.form.submit()">
+                <option value="">-- Мектепті таңдаңыз --</option>
                 {% for school in all_schools %}
                     <option value="{{ school.id }}" {% if school.id == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
                 {% endfor %}
@@ -1157,17 +1157,17 @@ a.class-details-link:hover {
             {% if selected_school_id %}
             <div style="display: flex; gap: 16px; flex-grow: 1;">
                 <!-- Основной фильтр -->
-                <select name="filter_by" class="filter-select" onchange="this.form.submit()">
-                    <option value="class" {% if active_filter == 'class' %}selected{% endif %}>По классам</option>
-                    <option value="subject" {% if active_filter == 'subject' %}selected{% endif %}>По предметам</option>
-                    <option value="student" {% if active_filter == 'student' %}selected{% endif %}>По ученикам</option>
+                    <select name="filter_by" class="filter-select" onchange="this.form.submit()">
+                    <option value="class" {% if active_filter == 'class' %}selected{% endif %}>Сыныптар бойынша</option>
+                    <option value="subject" {% if active_filter == 'subject' %}selected{% endif %}>Пәндер бойынша</option>
+                    <option value="student" {% if active_filter == 'student' %}selected{% endif %}>Оқушылар бойынша</option>
                 </select>
 
                 <!-- Дополнительный фильтр СОРТИРОВКИ (показывается только для вида "По классам") -->
                 {% if active_filter == 'class' %}
                 <select name="sort_by" class="filter-select" onchange="this.form.submit()">
-                    <option value="avg_grade" {% if active_sort == 'avg_grade' %}selected{% endif %}>Сортировать по среднему баллу</option>
-                    <option value="attendance" {% if active_sort == 'attendance' %}selected{% endif %}>Сортировать по посещаемости</option>
+                    <option value="avg_grade" {% if active_sort == 'avg_grade' %}selected{% endif %}>Орташа баға бойынша сұрыптау</option>
+                    <option value="attendance" {% if active_sort == 'attendance' %}selected{% endif %}>Қатысу көрсеткіші бойынша сұрыптау</option>
                 </select>
                 {% endif %}
             </div>
@@ -1180,21 +1180,21 @@ a.class-details-link:hover {
             <div class="summary-cards">
                 <div class="summary-card card-grade">
                     <div>
-                        <div class="label">Средний балл</div>
+                        <div class="label">Орташа баға</div>
                         <div class="value">{{ performance_data.overall_avg_grade|floatformat:2|default:"-" }}</div>
                     </div>
                     <div class="icon"><i class="fa-solid fa-award"></i></div>
                 </div>
                 <div class="summary-card card-attendance">
                     <div>
-                        <div class="label">Средняя посещаемость</div>
+                        <div class="label">Орташа қатысу</div>
                         <div class="value">{{ performance_data.overall_attendance|floatformat:0 }}%</div>
                     </div>
                     <div class="icon"><i class="fa-solid fa-user-check"></i></div>
                 </div>
                 <div class="summary-card card-students">
                     <div>
-                        <div class="label">Всего учеников</div>
+                        <div class="label">Жалпы оқушылар</div>
                         <div class="value">{{ performance_data.total_students }}</div>
                     </div>
                     <div class="icon"><i class="fa-solid fa-users"></i></div>
@@ -1208,25 +1208,25 @@ a.class-details-link:hover {
             <table class="performance-table">
                 <thead>
                     <tr>
-                        <th>Класс</th><th>Учеников</th><th>Средний балл</th><th>Посещаемость</th><th>Отличники</th><th>Хорошисты</th><th>Троечники</th><th>Неуспевающие</th>
+                        <th>Сынып</th><th>Оқушылар саны</th><th>Орташа баға</th><th>Қатысу</th><th>Өте жақсы оқушылар</th><th>Жақсы оқушылар</th><th>Қанағаттанарлық</th><th>Үлгермейтіндер</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for stat in class_performance_data %}
                     <tr>
-                        <td data-label="Класс"><b><a href="#" class="class-details-link" data-class-id="{{ stat.class_obj.id }}">{{ stat.class_obj.name }}</a></b></td>
-                        <td data-label="Учеников">{{ stat.student_count }}</td>
-                        <td data-label="Средний балл">{{ stat.avg_grade|floatformat:2 }}</td>
-                        <td data-label="Посещаемость">
+                        <td data-label="Сынып"><b><a href="#" class="class-details-link" data-class-id="{{ stat.class_obj.id }}">{{ stat.class_obj.name }}</a></b></td>
+                        <td data-label="Оқушылар саны">{{ stat.student_count }}</td>
+                        <td data-label="Орташа баға">{{ stat.avg_grade|floatformat:2 }}</td>
+                        <td data-label="Қатысу">
                             <div class="progress-bar-container">
                                 <div class="progress-bar {% if stat.attendance_percentage > 90 %}bg-success{% elif stat.attendance_percentage > 70 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ stat.attendance_percentage|floatformat:0 }}%;"></div>
                                 <span>{{ stat.attendance_percentage|floatformat:1 }}%</span>
                             </div>
                         </td>
-                        <td data-label="Отличники">{{ stat.excellent_students }}</td>
-                        <td data-label="Хорошисты">{{ stat.good_students }}</td>
-                        <td data-label="Троечники">{{ stat.satisfactory_students }}</td>
-                        <td data-label="Неуспевающие">{{ stat.poor_students }}</td>
+                        <td data-label="Өте жақсы оқушылар">{{ stat.excellent_students }}</td>
+                        <td data-label="Жақсы оқушылар">{{ stat.good_students }}</td>
+                        <td data-label="Қанағаттанарлық">{{ stat.satisfactory_students }}</td>
+                        <td data-label="Үлгермейтіндер">{{ stat.poor_students }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -1239,7 +1239,7 @@ a.class-details-link:hover {
                 <table class="performance-table">
                     <thead>
                         <tr>
-                            <th>Предмет</th>
+                            <th>Пән</th>
                             {% for class in classes_in_school %}<th style="text-align: center;">{{ class.name }}</th>{% endfor %}
                         </tr>
                     </thead>
@@ -1254,7 +1254,7 @@ a.class-details-link:hover {
                             {% endfor %}
                         </tr>
                         {% empty %}
-                        <tr><td colspan="{{ classes_in_school|length|add:1 }}" class="placeholder">Нет данных по предметам.</td></tr>
+                        <tr><td colspan="{{ classes_in_school|length|add:1 }}" class="placeholder">Пән бойынша деректер жоқ.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -1266,25 +1266,25 @@ a.class-details-link:hover {
             <table class="performance-table">
                 <thead>
                     <tr>
-                        <th>#</th><th>ФИО Ученика</th><th>Класс</th><th>Средний балл</th>
+                        <th>#</th><th>Оқушының аты-жөні</th><th>Сынып</th><th>Орташа баға</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for student in student_ratings %}
                     <tr>
                         <td data-label="Номер">{{ forloop.counter }}</td>
-                        <td data-label="ФИО"><b>{{ student.get_full_name|default:student.username }}</b></td>
-                        <td data-label="Класс">{{ student.school_classes.first.name|default:"-" }}</td>
-                        <td data-label="Средний балл">{{ student.avg_grade|floatformat:2 }}</td>
+                        <td data-label="Аты-жөні"><b>{{ student.get_full_name|default:student.username }}</b></td>
+                        <td data-label="Сынып">{{ student.school_classes.first.name|default:"-" }}</td>
+                        <td data-label="Орташа баға">{{ student.avg_grade|floatformat:2 }}</td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4" class="placeholder">В этой школе нет учеников с оценками.</td></tr>
+                    <tr><td colspan="4" class="placeholder">Бұл мектепте баға қойылған оқушылар жоқ.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% endif %}
         {% else %}
-            <div class="placeholder"><i class="fa-solid fa-school"></i><p>Выберите школу для просмотра статистики успеваемости.</p></div>
+            <div class="placeholder"><i class="fa-solid fa-school"></i><p>Үлгерім статистикасын көру үшін мектеп таңдаңыз.</p></div>
         {% endif %}
     </div><!-- === КОНТЕНТ ВКЛАДКИ "УСПЕВАЕМОСТЬ" === -->
     
@@ -1294,20 +1294,20 @@ a.class-details-link:hover {
     <div id="schedule-content" class="tab-content">
         <div class="page-header">
             <div class="page-title">
-                <h2><i class="fa-solid fa-calendar-days"></i> Управление расписанием школы</h2>
-                <p>Создание и редактирование расписания для всех классов</p>
+                <h2><i class="fa-solid fa-calendar-days"></i> Мектеп кестесін басқару</h2>
+                <p>Барлық сыныптар үшін кестені жасау және өңдеу</p>
             </div>
         </div>
         <form method="GET" id="schedule-filter-form" class="filters-toolbar">
             <input type="hidden" name="tab" value="schedule">
             <select name="school_id" id="school-select" class="filter-select">
-                <option value="">-- Выберите школу --</option>
+                <option value="">-- Мектепті таңдаңыз --</option>
                 {% for school in all_schools %}
                     <option value="{{ school.id }}" {% if school.id == selected_school_id %}selected{% endif %}>{{ school.name }}</option>
                 {% endfor %}
             </select>
             <select name="class_id" id="class-select" class="filter-select" {% if not selected_school_id %}disabled{% endif %}>
-                <option value="">-- Сначала выберите школу --</option>
+                <option value="">-- Ең алдымен мектепті таңдаңыз --</option>
                 {% for s_class in classes_in_school %}
                      <option value="{{ s_class.id }}" {% if s_class.id == selected_class_id %}selected{% endif %}>{{ s_class.name }}</option>
                 {% endfor %}
@@ -1332,7 +1332,7 @@ a.class-details-link:hover {
                                         <div class="lesson-details">
                                             <p class="lesson-teacher">
                                                 <i class="fa-solid fa-chalkboard-user"></i>
-                                                {{ lesson.teacher.user.get_full_name|default:"Не назначен" }}
+                                                {{ lesson.teacher.user.get_full_name|default:"Белгіленбеген" }}
                                             </p>
                                             <p class="lesson-classroom">
                                                 <i class="fa-solid fa-location-dot"></i>
@@ -1342,22 +1342,22 @@ a.class-details-link:hover {
                                         
                                         <!-- Кнопки управления, которые будут работать с вашим JS -->
                                         <div class="lesson-actions">
-                                            <button class="edit-lesson-btn" title="Редактировать"><i class="fa-solid fa-pencil"></i></button>
-                                            <button class="delete-lesson-btn" title="Удалить"><i class="fa-solid fa-trash-can"></i></button>
+                                            <button class="edit-lesson-btn" title="Өзгерту"><i class="fa-solid fa-pencil"></i></button>
+                                            <button class="delete-lesson-btn" title="Жою"><i class="fa-solid fa-trash-can"></i></button>
                                         </div>
                                     </div>
                                 </div>
                             {% empty %}
-                                <p class="no-lessons">Нет уроков</p>
+                                <p class="no-lessons">Сабақ жоқ</p>
                             {% endfor %}
                         </div>
                     </div>
                 {% endfor %}
             </div>
         {% elif selected_school_id %}
-             <div class="placeholder"><i class="fa-regular fa-calendar-check"></i><p>Теперь выберите класс, чтобы увидеть расписание.</p></div>
+             <div class="placeholder"><i class="fa-regular fa-calendar-check"></i><p>Кестені көру үшін сыныпты таңдаңыз.</p></div>
         {% else %}
-             <div class="placeholder"><i class="fa-solid fa-school"></i><p>Выберите школу для управления расписанием.</p></div>
+             <div class="placeholder"><i class="fa-solid fa-school"></i><p>Кестені басқару үшін мектеп таңдаңыз.</p></div>
         {% endif %}
     </div>
 
@@ -1365,8 +1365,8 @@ a.class-details-link:hover {
     <div id="plan-approval-content" class="tab-content">
         <div class="page-header">
             <div class="page-title">
-                <h2><i class="fa-solid fa-check-to-slot"></i> Утверждение учебных планов</h2>
-                <p>Просмотр и утверждение поурочных планов, поданных учителями</p>
+                <h2><i class="fa-solid fa-check-to-slot"></i> Оқу жоспарларын бекіту</h2>
+                <p>Мұғалімдер жіберген сабақ жоспарларын қарау және бекіту</p>
             </div>
         </div>
 
@@ -1375,18 +1375,18 @@ a.class-details-link:hover {
             <input type="hidden" name="status" value="{{ current_status|default:'pending' }}">
             <div class="filters-toolbar">
                 <div class="filter-group">
-                    <label for="subject-filter"><i class="fa-solid fa-filter" style="color: var(--text-secondary);"></i> Предмет</label>
+                    <label for="subject-filter"><i class="fa-solid fa-filter" style="color: var(--text-secondary);"></i> Пән</label>
                     <select id="subject-filter" name="subject_id" class="filter-select" onchange="this.form.submit()">
-                        <option value="">Все предметы</option>
+                        <option value="">Барлық пәндер</option>
                         {% for subject in subjects_for_filter %}
                         <option value="{{ subject.pk }}" {% if subject.pk == selected_subject_id %}selected{% endif %}>{{ subject.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                  <div class="filter-group">
-                    <label for="teacher-filter">Учитель</label>
+                    <label for="teacher-filter">Мұғалім</label>
                     <select id="teacher-filter" name="teacher_id" class="filter-select" onchange="this.form.submit()">
-                        <option value="">Все учителя</option>
+                        <option value="">Барлық мұғалімдер</option>
                         {% for teacher in teachers_for_filter %}
                         <option value="{{ teacher.pk }}" {% if teacher.pk == selected_teacher_id %}selected{% endif %}>{{ teacher.user.get_full_name }}</option>
                         {% endfor %}
@@ -1397,43 +1397,43 @@ a.class-details-link:hover {
 
         <div class="status-tabs">
             <a href="?tab=plan-approval&status=pending" class="status-tab-link {% if current_status == 'pending' %}active{% endif %}">
-                На рассмотрении <span class="count-badge">{{ status_counts.pending }}</span>
+                Қаралып жатыр <span class="count-badge">{{ status_counts.pending }}</span>
             </a>
             <a href="?tab=plan-approval&status=approved" class="status-tab-link {% if current_status == 'approved' %}active{% endif %}">
-                Утвержденные <span class="count-badge">{{ status_counts.approved }}</span>
+                Бекітілген <span class="count-badge">{{ status_counts.approved }}</span>
             </a>
             <a href="?tab=plan-approval&status=rejected" class="status-tab-link {% if current_status == 'rejected' %}active{% endif %}">
-                Отклоненные <span class="count-badge">{{ status_counts.rejected }}</span>
+                Қайтарылған <span class="count-badge">{{ status_counts.rejected }}</span>
             </a>
         </div>
 
         <table class="plans-table">
             <thead>
                 <tr>
-                    <th>Название</th>
-                    <th>Учитель</th>
-                    <th>Класс</th>
-                    <th>Предмет</th>
-                    <th>Дата урока</th>
-                    <th>Подан</th>
-                    <th>Действия</th>
+                    <th>Атауы</th>
+                    <th>Мұғалім</th>
+                    <th>Сынып</th>
+                    <th>Пән</th>
+                    <th>Сабақ күні</th>
+                    <th>Жіберілген</th>
+                    <th>Әрекеттер</th>
                 </tr>
             </thead>
             <tbody id="plans-table-body">
                 {% for plan in lesson_plans %}
                 <tr id="plan-row-{{ plan.pk }}">
-                    <td data-label="Название"><b>{{ plan.name }}</b></td>
-                    <td data-label="Учитель">{{ plan.teacher.user.get_full_name }}</td>
-                    <td data-label="Класс">{{ plan.school_class.name }}</td>
-                    <td data-label="Предмет">{{ plan.subject.name }}</td>
-                    <td data-label="Дата урока">{{ plan.date|date:"Y-m-d" }}</td>
-                    <td data-label="Подан">{{ plan.created_at|date:"Y-m-d H:i" }}</td>
-                    <td data-label="Действия" class="actions-cell">
+                    <td data-label="Атауы"><b>{{ plan.name }}</b></td>
+                    <td data-label="Мұғалім">{{ plan.teacher.user.get_full_name }}</td>
+                    <td data-label="Сынып">{{ plan.school_class.name }}</td>
+                    <td data-label="Пән">{{ plan.subject.name }}</td>
+                    <td data-label="Сабақ күні">{{ plan.date|date:"Y-m-d" }}</td>
+                    <td data-label="Жіберілген">{{ plan.created_at|date:"Y-m-d H:i" }}</td>
+                    <td data-label="Әрекеттер" class="actions-cell">
                         <div class="btn-group">
-                            <button class="action-btn view" data-plan-id="{{ plan.pk }}" title="Просмотреть"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn view" data-plan-id="{{ plan.pk }}" title="Көру"><i class="fa-solid fa-eye"></i></button>
                             {% if current_status == 'pending' %}
-                            <button class="action-btn approve" data-plan-id="{{ plan.pk }}" title="Утвердить"><i class="fa-solid fa-circle-check"></i></button>
-                            <button class="action-btn reject" data-plan-id="{{ plan.pk }}" title="Отклонить"><i class="fa-solid fa-circle-xmark"></i></button>
+                            <button class="action-btn approve" data-plan-id="{{ plan.pk }}" title="Бекіту"><i class="fa-solid fa-circle-check"></i></button>
+                            <button class="action-btn reject" data-plan-id="{{ plan.pk }}" title="Қайтару"><i class="fa-solid fa-circle-xmark"></i></button>
                             {% endif %}
                         </div>
                     </td>
@@ -1441,7 +1441,7 @@ a.class-details-link:hover {
                 {% empty %}
                 <tr>
                     <td colspan="7" style="text-align:center; padding: 40px; color: var(--text-secondary);">
-                        Нет планов, соответствующих выбранным фильтрам.
+                        Таңдалған сүзгілерге сәйкес жоспарлар жоқ.
                     </td>
                 </tr>
                 {% endfor %}
@@ -1460,8 +1460,8 @@ a.class-details-link:hover {
     <div class="modal-container">
         <button class="modal-close-btn" id="close-lesson-modal-btn">&times;</button>
         <div class="modal-header">
-            <h2 id="lesson-modal-title">Добавить урок</h2>
-            <p id="lesson-modal-subtitle">Заполните информацию об уроке</p>
+            <h2 id="lesson-modal-title">Сабақ қосу</h2>
+            <p id="lesson-modal-subtitle">Сабақ туралы ақпаратты толтырыңыз</p>
         </div>
         
         <form id="lesson-form" class="modal-form" novalidate>
@@ -1497,8 +1497,8 @@ a.class-details-link:hover {
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" id="cancel-lesson-btn">Отмена</button>
-                <button type="submit" class="btn-primary" id="submit-lesson-btn">Добавить</button>
+                <button type="button" class="btn-secondary" id="cancel-lesson-btn">Болдырмау</button>
+                <button type="submit" class="btn-primary" id="submit-lesson-btn">Қосу</button>
             </div>
         </form>
     </div>
@@ -1509,23 +1509,23 @@ a.class-details-link:hover {
     <div class="modal-container modal-lg">
         <button class="close-btn" id="close-student-details-modal-btn">&times;</button>
         <div class="modal-header">
-            <h2 id="modal-class-name">Успеваемость класса</h2>
-            <p id="modal-subtitle">Детальная информация по каждому ученику</p>
+            <h2 id="modal-class-name">Сыныптың үлгерімі</h2>
+            <p id="modal-subtitle">Әр оқушы бойынша толық ақпарат</p>
         </div>
         
         <!-- View 1: Список учеников класса (по умолчанию) -->
         <div id="class-list-view">
             <div class="table-wrapper" style="max-height: 60vh; overflow-y: auto;">
-                <div id="modal-loader" style="text-align: center; padding: 40px; display: none;">
+                    <div id="modal-loader" style="text-align: center; padding: 40px; display: none;">
                     <i class="fas fa-spinner fa-spin fa-3x"></i>
-                    <p>Загрузка данных...</p>
+                    <p>Деректер жүктелуде...</p>
                 </div>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>ФИО Ученика</th>
-                            <th>Средний балл</th>
-                            <th>Посещаемость</th>
+                            <th>Оқушының аты-жөні</th>
+                            <th>Орташа баға</th>
+                            <th>Қатысу</th>
                         </tr>
                     </thead>
                     <tbody id="student-details-tbody">
@@ -1538,10 +1538,10 @@ a.class-details-link:hover {
         <!-- View 2: Детальная успеваемость одного ученика (скрыт) -->
         <div id="student-performance-view" style="display: none; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
             <button type="button" id="back-to-class-list-btn" class="btn-secondary" style="margin-bottom: 16px;">
-                <i class="fas fa-arrow-left"></i> Назад к списку класса
+                <i class="fas fa-arrow-left"></i> Сынып тізіміне оралу
             </button>
             
-            <div id="student-performance-loader" style="text-align: center; padding: 40px; display: none;">
+                <div id="student-performance-loader" style="text-align: center; padding: 40px; display: none;">
                 <i class="fas fa-spinner fa-spin fa-2x"></i>
             </div>
             <div id="student-performance-content">
@@ -1549,8 +1549,8 @@ a.class-details-link:hover {
             </div>
         </div>
         
-        <div class="modal-footer">
-            <button type="button" class="btn-secondary" id="cancel-student-details-btn">Закрыть</button>
+                <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancel-student-details-btn">Жабу</button>
         </div>
     </div>
 </div>
@@ -1560,7 +1560,7 @@ a.class-details-link:hover {
     <div class="modal-container">
         <button class="close-btn">&times;</button>
         <div class="modal-header">
-            <h6 id="view-plan-title">Просмотр поурочного плана<h6>
+            <h6 id="view-plan-title">Сабақ жоспарын қарау<h6>
             <p>
                 <span id="view-plan-class"></span> • 
                 <span id="view-plan-subject"></span> • 
@@ -1568,23 +1568,23 @@ a.class-details-link:hover {
             </p>
         </div>
         <dl class="lp-view-details">
-            <dt>Тема урока</dt>
+            <dt>Сабақ тақырыбы</dt>
             <dd id="view-plan-topic"></dd>
             
-            <dt>Цели и задачи</dt>
+            <dt>Мақсаттар мен міндеттер</dt>
             <dd id="view-plan-goals"></dd>
             
-            <dt>Учебные материалы</dt>
+            <dt>Оқу материалдары</dt>
             <dd id="view-plan-materials">
                 <a href="#" id="view-plan-materials-link" target="_blank" class="file-link" style="display: none;">
                     <i class="fa-solid fa-paperclip"></i> 
                     <span></span>
                 </a>
-                <span id="no-materials-file" style="color: var(--text-secondary);">Файл не прикреплен</span>
+                <span id="no-materials-file" style="color: var(--text-secondary);">Файл тіркелмеген</span>
             </dd>
         </dl>
         <div class="modal-footer">
-            <button type="button" class="btn-secondary close-btn">Закрыть</button>
+            <button type="button" class="btn-secondary close-btn">Жабу</button>
         </div>
     </div>
 </div>
@@ -1728,7 +1728,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const approveBtn = e.target.closest('.action-btn.approve');
             const rejectBtn = e.target.closest('.action-btn.reject');
             
-            // --- НОВАЯ ЛОГИКА: Обработка клика по кнопке "Просмотреть" ---
+            // --- ЖАҢА ЛОГИКА: "Көру" батырмасын басқандағы өңдеу ---
             if (viewBtn) {
                 const planId = viewBtn.dataset.planId;
                 try {
@@ -1744,8 +1744,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     planViewClass.textContent = planRow.cells[2].textContent; // Берем из таблицы для простоты
                     planViewSubject.textContent = planRow.cells[3].textContent; // Берем из таблицы
                     planViewDate.textContent = data.date;
-                    planViewTopic.textContent = data.topic || 'Не указана';
-                    planViewGoals.textContent = data.goals_and_objectives || 'Не указаны';
+                    planViewTopic.textContent = data.topic || 'Көрсетілмеген';
+                    planViewGoals.textContent = data.goals_and_objectives || 'Көрсетілмеген';
                     
                     // Обрабатываем ссылку на прикрепленный файл
                     if (data.learning_materials_url) {
@@ -1760,8 +1760,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     planViewModal.style.display = 'flex'; // Показываем модальное окно
                 } catch (error) {
-                    console.error('Ошибка загрузки плана:', error);
-                    alert('Не удалось загрузить детали плана.');
+                    console.error('Жоспарды жүктеу қатесі:', error);
+                    alert('Жоспар мәліметтерін жүктеу мүмкін болмады.');
                 }
                 return; // Завершаем выполнение, чтобы не сработал другой код
             }
@@ -1795,11 +1795,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(() => location.reload(), 400); 
                     }
                 } else {
-                    alert('Ошибка: ' + (result.message || 'Не удалось выполнить действие'));
+                    alert('Қате: ' + (result.message || 'Әрекетті орындау мүмкін болмады'));
                 }
             } catch (error) {
-                console.error('Ошибка при отправке запроса:', error);
-                alert('Произошла сетевая ошибка.');
+                console.error('Сұрау жіберу қатесі:', error);
+                alert('Желі қатесі орын алды.');
             }
         });
     }
@@ -1844,8 +1844,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 openModal();
                 modalLoader.style.display = 'block';
                 modalTbody.style.display = 'none';
-                modalTitle.textContent = 'Загрузка...';
-                modalSubtitle.textContent = 'Пожалуйста, подождите';
+                modalTitle.textContent = 'Жүктелуде...';
+                modalSubtitle.textContent = 'Өтінеміз, күте тұрыңыз';
 
                 try {
                     const response = await fetch(`/api/class/${classId}/performance/`);
@@ -1853,8 +1853,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await response.json();
                     
                     studentDetailsModal.dataset.className = data.class_name; // Сохраняем имя класса
-                    modalTitle.textContent = `Успеваемость класса: ${data.class_name}`;
-                    modalSubtitle.textContent = 'Детальная информация по каждому ученику';
+                    modalTitle.textContent = `Сыныптың үлгерімі: ${data.class_name}`;
+                    modalSubtitle.textContent = 'Әр оқушы бойынша толық ақпарат';
                     modalTbody.innerHTML = '';
                     
                     if (data.students && data.students.length > 0) {
@@ -1868,12 +1868,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             `;
                         });
                     } else {
-                        modalTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 24px;">В этом классе нет учеников.</td></tr>';
+                        modalTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 24px;">Бұл сыныпта оқушылар жоқ.</td></tr>';
                     }
 
                 } catch (error) {
-                    console.error("Ошибка при загрузке данных о классе:", error);
-                    modalTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 24px; color: red;">Не удалось загрузить данные.</td></tr>';
+                    console.error("Сынып деректерін жүктеу қатесі:", error);
+                    modalTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 24px; color: red;">Деректерді жүктеу мүмкін болмады.</td></tr>';
                 } finally {
                     modalLoader.style.display = 'none';
                     modalTbody.style.display = '';
@@ -1893,7 +1893,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 studentPerformanceLoader.style.display = 'block';
                 
                 modalTitle.textContent = studentName;
-                modalSubtitle.textContent = 'Успеваемость по предметам';
+                modalSubtitle.textContent = 'Пәндер бойынша үлгерім';
 
                 try {
                     const response = await fetch(`/api/student/${studentId}/performance/`);
@@ -1901,8 +1901,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await response.json();
                     renderStudentPerformance(data);
                 } catch (error) {
-                    console.error('Failed to fetch student performance:', error);
-                    studentPerformanceContent.innerHTML = `<p style="color: red; text-align: center;">Не удалось загрузить данные об успеваемости.</p>`;
+                    console.error('Оқушы үлгерімін жүктеу қатесі:', error);
+                    studentPerformanceContent.innerHTML = `<p style="color: red; text-align: center;">Үлгерім деректерін жүктеу мүмкін болмады.</p>`;
                 } finally {
                     studentPerformanceLoader.style.display = 'none';
                 }
@@ -1911,7 +1911,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function renderStudentPerformance(data) {
             if (!data.subjects || data.subjects.length === 0) {
-                studentPerformanceContent.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">У этого ученика еще нет оценок.</p>';
+                studentPerformanceContent.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Осы оқушыда әлі бағалар жоқ.</p>';
                 return;
             }
 
@@ -1923,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="subject-performance-card">
                         <div class="subject-header">
                             <h4>${subject.subject_name}</h4>
-                            <span class="average-grade">Средний балл: <strong>${subject.average_grade}</strong></span>
+                            <span class="average-grade">Орташа баға: <strong>${subject.average_grade}</strong></span>
                         </div>
                     </div>
                 `;
@@ -1936,8 +1936,8 @@ document.addEventListener('DOMContentLoaded', function() {
             classListView.style.display = 'block';
 
             const className = studentDetailsModal.dataset.className || '';
-            modalTitle.textContent = `Успеваемость класса: ${className}`;
-            modalSubtitle.textContent = 'Детальная информация по каждому ученику';
+            modalTitle.textContent = `Сыныптың үлгерімі: ${className}`;
+            modalSubtitle.textContent = 'Әр оқушы бойынша толық ақпарат';
         });
         // === КОНЕЦ: НОВАЯ ЛОГИКА ===
     }
@@ -1996,10 +1996,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     lessonForm.reset();
                     scheduleIdInput.value = '';
                     dayOfWeekInput.value = addBtn.dataset.dayId;
-                    modalTitle.textContent = 'Добавить урок';
+                        modalTitle.textContent = 'Сабақ қосу';
                     const selectedClassText = classSelect.options[classSelect.selectedIndex].text;
                     modalSubtitle.textContent = `${addBtn.dataset.dayName}, ${selectedClassText}`;
-                    submitBtn.textContent = 'Добавить';
+                        submitBtn.textContent = 'Қосу';
                     openLessonModal();
                     return; // Завершаем выполнение
                 }
@@ -2023,20 +2023,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('id_teacher').value = data.teacher;
                         document.getElementById('id_classroom').value = data.classroom;
                         
-                        modalTitle.textContent = 'Редактировать урок';
-                        modalSubtitle.textContent = 'Измените данные урока';
-                        submitBtn.textContent = 'Сохранить';
+                        modalTitle.textContent = 'Сабақты өзгерту';
+                        modalSubtitle.textContent = 'Сабақ мәліметтерін өзгертіңіз';
+                        submitBtn.textContent = 'Сақтау';
                         openLessonModal();
                     } catch (error) {
                         console.error(error);
-                        alert('Не удалось загрузить данные урока.');
+                        alert('Сабақ деректерін жүктеу мүмкін болмады.');
                     }
                     return;
                 }
 
                 // --- Действие: УДАЛИТЬ урок ---
                 if (deleteBtn) {
-                    if (confirm('Вы уверены, что хотите удалить этот урок?')) {
+                    if (confirm('Осы сабақты жоюға сенімдісіз бе?')) {
                         const lessonCard = deleteBtn.closest('.lesson-card');
                         const lessonId = lessonCard.dataset.lessonId;
                         
@@ -2045,14 +2045,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                 method: 'POST',
                                 headers: {'X-CSRFToken': csrfToken}
                             });
-                            if (response.ok) {
-                                lessonCard.remove(); // Удаляем элемент со страницы
+                                if (response.ok) {
+                                lessonCard.remove(); // Парақтан элементті алып тастау
                             } else {
-                                alert('Не удалось удалить урок.');
+                                alert('Сабақты жою мүмкін болмады.');
                             }
-                        } catch (error) {
+                            } catch (error) {
                             console.error(error);
-                            alert('Произошла ошибка при удалении.');
+                            alert('Жою кезінде қате орын алды.');
                         }
                     }
                 }
@@ -2072,7 +2072,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     const result = await response.json();
                     const errorMessages = Object.values(result.errors).map(err => `- ${err[0]}`).join('\n');
-                    alert('Ошибка валидации:\n' + errorMessages);
+                    alert('Тексеру қатесі:\n' + errorMessages);
                 }
             });
         }

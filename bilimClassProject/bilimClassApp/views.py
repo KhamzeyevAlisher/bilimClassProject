@@ -2027,6 +2027,13 @@ def headteacher_view(request):
         context['days_of_week'] = dict(Schedule.DAY_CHOICES)
         del context['days_of_week'][6]
         del context['days_of_week'][7]
+        context["days_of_week"] = {
+            1:"Дүйсенбі",
+            2:"Сейсенбі",
+            3:"Сәрсенбі",
+            4:"Бейсенбі",
+            5:"Жұма",
+        }
         
     return render(request, 'bilimClassApp/headteacher.html', context)
 

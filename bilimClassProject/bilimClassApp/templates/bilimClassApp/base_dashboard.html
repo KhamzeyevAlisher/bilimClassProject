@@ -20,7 +20,7 @@
                 <div class="logo-icon">🎓</div>
                 <div class="logo-text">
                     <h1>Sabaq Saqshy</h1>
-                    <span>Система управления учебным процессом</span>
+                    <span>Оқыту процесін басқару жүйесі</span>
                 </div>
             </div>
             {% if  user.profile.role == 'headteacher' %}
@@ -30,7 +30,7 @@
                         <h3>{{ user.get_full_name }}</h3>
                     </a>
                     <a href="{% url 'logout' %}" class="logout-link" style="font-size: 14px; color: #6B7280;" title="Выйти из аккаунта">
-                        Выйти
+                        Шығу
                     </a>
                 </div>
                 <a href="{% url 'profile' %}" class="td-user-link">
@@ -94,32 +94,32 @@
                                 <a href="{% url 'headteacher' %}" 
                                 data-page="headteacher" data-tab="performance"
                                 {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab != 'plan-approval' and request.GET.tab != 'schedule' %}class="active"{% endif %}>
-                                <i class="fa-solid fa-house"></i> Успеваемость
+                                <i class="fa-solid fa-house"></i> Оқу үлгерімі
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'headteacher' %}?tab=plan-approval"
                                 data-page="headteacher" data-tab="plan-approval"
                                 {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'plan-approval' %}class="active"{% endif %}>
-                                <i class="fa-solid fa-check-to-slot"></i> Утверждение планов
+                                <i class="fa-solid fa-check-to-slot"></i> Жоспарларды мақұлдау
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'headteacher' %}?tab=schedule"
                                 data-page="headteacher" data-tab="schedule"
                                 {% if request.resolver_match.url_name == 'headteacher' and request.GET.tab == 'schedule' %}class="active"{% endif %}>
-                                <i class="fa-solid fa-calendar-days"></i> Расписание школы
+                                <i class="fa-solid fa-calendar-days"></i> Мектеп кестесі
                                 </a>
                             </li>
                             {# === КОНЕЦ ИЗМЕНЕНИЯ === #}
                         {% endif %}
 
                         <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}><i class="fa-solid fa-user-gear"></i> Профиль</a></li>
-                        <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a></li>
+                        <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i>Шығу</a></li>
 
                     {% else %}
                         {# Если пользователь не вошел в систему, можно показать ссылку на вход #}
-                        <li><a href="{% url 'login' %}">Войти</a></li>
+                        <li><a href="{% url 'login' %}">Кіру</a></li>
                     {% endif %}
                     {# === КОНЕЦ ИСПРАВЛЕНИЯ === #}
                 </ul>

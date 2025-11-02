@@ -351,10 +351,10 @@ class ScheduleForm(forms.ModelForm):
         
         super().__init__(*args, **kwargs)
         
-        self.fields['subject'].label = "Предмет"
-        self.fields['teacher'].label = "Учитель"
-        self.fields['start_time'].label = "Время начала"
-        self.fields['end_time'].label = "Время окончания"
+        self.fields['subject'].label = "Пән"
+        self.fields['teacher'].label = "Мұғалім"
+        self.fields['start_time'].label = "Басталуы"
+        self.fields['end_time'].label = "Аяқталуы"
         self.fields['classroom'].label = "Кабинет"
 
         # ЛОГИКА ФИЛЬТРАЦИИ

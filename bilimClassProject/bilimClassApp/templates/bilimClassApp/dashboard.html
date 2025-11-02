@@ -1,12 +1,12 @@
 <!-- bilimClassApp/templates/bilimClassApp/dashboard.html (ИСПРАВЛЕННАЯ ВЕРСИЯ) -->
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabaq Saqshy</title>
-    <!-- ИСПРАВЛЕНО: Убран лишний style.css, который вызывал конфликты -->
+    <!-- ТҮЗЕТІЛДІ: Қақтығыс тудыратын артық style.css алынып тасталды -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'bilimClassApp/css/student_dashboard.css' %}">
@@ -19,7 +19,7 @@
     </style>
 
     <style>
-        /* --- Стили для планшетов (до 992px) --- */
+    /* --- Планшеттерге арналған стильдер (992px дейін) --- */
 @media (max-width: 992px) {
     .container, .dashboard-container {
         padding: 16px; /* Уменьшаем боковые отступы */
@@ -31,7 +31,7 @@
 }
 
 
-/* --- Основные мобильные стили (до 768px) --- */
+    /* --- Негізгі мобильді стильдер (768px дейін) --- */
 @media (max-width: 768px) {
 
     .schedule-section {
@@ -122,9 +122,9 @@
         color: var(--text-secondary);
         margin-bottom: 6px;
     }
-    .grades-table-v2 td:nth-of-type(1)::before { content: "Предмет"; }
-    .grades-table-v2 td:nth-of-type(2)::before { content: "Оценки"; }
-    .grades-table-v2 td:nth-of-type(3)::before { content: "Средний балл"; }
+    .grades-table-v2 td:nth-of-type(1)::before { content: "Пән"; }
+    .grades-table-v2 td:nth-of-type(2)::before { content: "Бағалар"; }
+    .grades-table-v2 td:nth-of-type(3)::before { content: "Орташа баға"; }
 
     .grades-table-v2 .average-grade {
         font-size: 20px;
@@ -294,7 +294,7 @@
                 <div class="logo-icon">🎓</div>
                 <div>
                     <h1>Sabaq Saqshy</h1>
-                    <span>{{ user_role }}</span>
+                    <!-- <span>{{ user_role }}</span> -->
                 </div>
             </div>
            <div class="td-user-section">
@@ -302,7 +302,7 @@
                     <a href="{% url 'profile' %}" class="td-user-link">
                         <h3>{{ user.get_full_name }}</h3>
                     </a>
-                    <p>Ученик</p>
+                    <p>Оқушы</p>
                 </div>
                 <a href="{% url 'profile' %}" class="td-user-link">
                     <div class="td-user-avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
@@ -313,26 +313,26 @@
         <!-- Основной контент -->
         <main class="dashboard-main">
             <div class="welcome-section">
-                <h1>Добро пожаловать, {{ request.user.first_name }}!</h1>
-                <p>Личный кабинет {{ user_role|lower }}а</p>
+                <h1>Қош келдіңіз, {{ request.user.first_name }}!</h1>
+                <!-- <p>Жеке кабинет — {{ user_role|lower }}</p> -->
             </div>
 
             <!-- Табы навигации -->
             <nav class="main-tabs">
                 <ul>
-                    <li data-tab="schedule" class="{% if active_tab == 'schedule' or not active_tab %}active{% endif %}"><a href="#">Расписание</a></li>
-                    <li data-tab="dnevnik" class="{% if active_tab == 'dnevnik' %}active{% endif %}"><a href="#">Дневник</a></li>
-                    <li data-tab="homework" class="{% if active_tab == 'homework' %}active{% endif %}"><a href="#">Домашние задания</a></li>
+                    <li data-tab="schedule" class="{% if active_tab == 'schedule' or not active_tab %}active{% endif %}"><a href="#">Кесте</a></li>
+                    <li data-tab="dnevnik" class="{% if active_tab == 'dnevnik' %}active{% endif %}"><a href="#">Журнал</a></li>
+                    <li data-tab="homework" class="{% if active_tab == 'homework' %}active{% endif %}"><a href="#">Үй тапсырмалары</a></li>
                 </ul>
             </nav>
 
             <!-- ВКЛАДКА: РАСПИСАНИЕ -->
             <div id="tab-content-schedule" class="tab-pane {% if active_tab == 'schedule' or not active_tab %}active{% endif %}">
                  <section class="schedule-section">
-                    <h3>Расписание уроков</h3>
-                    <p>Ваше расписание на неделю</p>
+                    <h3>Сабақ кестесі</h3>
+                    <p>Сіздің апталық кестеңіз</p>
                     <nav class="day-tabs">
-                        <ul><li data-day="1" class="active">ПН</li><li data-day="2">ВТ</li><li data-day="3">СР</li><li data-day="4">ЧТ</li><li data-day="5">ПТ</li></ul>
+                        <ul><li data-day="1" class="active">ДҮЙ</li><li data-day="2">СЕЙ</li><li data-day="3">СӘР</li><li data-day="4">БЕЙ</li><li data-day="5">ЖҰМ</li></ul>
                     </nav>
                     <div class="schedule-content">
                         {% for day, lessons in schedule_by_day.items %}
@@ -352,7 +352,7 @@
                                         <div class="lesson-start-time">{{ lesson.start_time|time:"H:i" }}</div>
                                     </div>
                                 {% empty %}
-                                    <p class="no-lessons">В этот день уроков нет.</p>
+                                    <p class="no-lessons">Осы күні сабақтар жоқ.</p>
                                 {% endfor %}
                             </div>
                         {% endfor %}
@@ -365,15 +365,18 @@
                 <div class="stats-cards-grid-v2">
                     <div class="stat-card-v2">
                         <div class="stat-icon-v2 icon-green"><i class="fas fa-chart-line"></i></div>
-                        <div class="stat-info-v2"><p>Средний балл</p><span>{{ average_grade|floatformat:2 }}</span></div><small>общий</small>
+                        <div class="stat-info-v2"><p>Орташа баға</p><span>{{ average_grade|floatformat:2 }}</span></div> 
+                        <!-- <small>жалпы</small> -->
                     </div>
                     <div class="stat-card-v2">
                         <div class="stat-icon-v2 icon-blue"><i class="fas fa-book-open"></i></div>
-                        <div class="stat-info-v2"><p>Всего оценок</p><span>{{ total_grades_count }}</span></div><small>за период</small>
+                        <div class="stat-info-v2"><p>Барлығы бағалар</p><span>{{ total_grades_count }}</span></div>
+                        <!-- <small>кезең бойынша</small> -->
                     </div>
                     <div class="stat-card-v2">
                         <div class="stat-icon-v2 icon-red"><i class="fas fa-user-clock"></i></div>
-                        <div class="stat-info-v2"><p>Посещаемость</p><span>{{ attendance_percentage|floatformat:1 }}%</span></div><small>{{ total_absences }} пропусков</small>
+                        <div class="stat-info-v2"><p>Қатысу</p><span>{{ attendance_percentage|floatformat:1 }}%</span></div>
+                        <!-- <small>{{ total_absences }} қатыспаулар</small> -->
                     </div>
                 </div>
 
@@ -381,19 +384,19 @@
                     <div class="widget-header"><h2>Оценки по предметам</h2><p>Ваша успеваемость за текущий период</p></div> -->
                 <div class="grades-by-subject-widget-v2">
                     <div class="widget-header">
-                        <h2>Оценки по предметам</h2>
-                        <p>Ваша успеваемость за текущий период</p>
+                        <h2>Пәндер бойынша бағалар</h2>
+                        <p>Ағымдағы кезеңдегі оқу нәтижелері</p>
                     </div>
 
                     <!-- ===== НАЧАЛО НОВОГО БЛОКА С ФИЛЬТРАМИ ===== -->
                     <div class="dnevnik-filters">
-                        <a href="?tab=dnevnik&period=week" class="{% if active_period == 'week' %}active{% endif %}">За неделю</a>
-                        <a href="?tab=dnevnik&period=month" class="{% if active_period == 'month' %}active{% endif %}">За месяц</a>
-                        <a href="?tab=dnevnik&period=all" class="{% if active_period == 'all' %}active{% endif %}">За всё время</a>
+                        <a href="?tab=dnevnik&period=week" class="{% if active_period == 'week' %}active{% endif %}">Апта бойынша</a>
+                        <a href="?tab=dnevnik&period=month" class="{% if active_period == 'month' %}active{% endif %}">Ай бойынша</a>
+                        <a href="?tab=dnevnik&period=all" class="{% if active_period == 'all' %}active{% endif %}">Барлық уақыт бойынша</a>
                     </div>
                     <!-- жж -->
                     <table class="grades-table-v2">
-                        <thead><tr><th>Предмет</th><th>Оценки</th><th style="text-align: right;">Средний балл</th></tr></thead>
+                        <thead><tr><th>Пән</th><th>Бағалар</th><th style="text-align: right;">Орташа баға</th></tr></thead>
                         <tbody>
                             {% for subject_data in grades_by_subject %}
                             <tr>
@@ -419,7 +422,7 @@
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="3" style="text-align: center; padding: 30px; color: var(--text-secondary);">Оценок за этот период пока нет.</td></tr>
+                            <tr><td colspan="3" style="text-align: center; padding: 30px; color: var(--text-secondary);">Осы кезеңге бағалар әлі жоқ.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -429,33 +432,33 @@
             <!-- ВКЛАДКА: ДОМАШНИЕ ЗАДАНИЯ -->
             <div id="tab-content-homework" class="tab-pane {% if active_tab == 'homework' %}active{% endif %}">
                 <div class="homework-widget">
-                    <div class="widget-header"><h2>Домашние задания</h2><p>Все задания по предметам</p></div>
+                    <div class="widget-header"><h2>Үй тапсырмалары</h2><p>Пәндер бойынша барлық тапсырмалар</p></div>
                     <div class="stats-grid">
-                        <div class="stat-card stat-card-pending"><div class="stat-icon">🕒</div><div><div class="stat-value">{{ not_submitted_list.count }}</div><p class="stat-label">Не сдано</p></div></div>
-                        <div class="stat-card stat-card-review"><div class="stat-icon">📄</div><div><div class="stat-value">{{ in_review_list.count }}</div><p class="stat-label">На проверке</p></div></div>
-                        <div class="stat-card stat-card-checked"><div class="stat-icon">✓</div><div><div class="stat-value">{{ checked_list.count }}</div><p class="stat-label">Проверено</p></div></div>
+                        <div class="stat-card stat-card-pending"><div class="stat-icon">🕒</div><div><div class="stat-value">{{ not_submitted_list.count }}</div><p class="stat-label">Тапсырылмаған</p></div></div>
+                        <div class="stat-card stat-card-review"><div class="stat-icon">📄</div><div><div class="stat-value">{{ in_review_list.count }}</div><p class="stat-label">Тексеруде</p></div></div>
+                        <div class="stat-card stat-card-checked"><div class="stat-icon">✓</div><div><div class="stat-value">{{ checked_list.count }}</div><p class="stat-label">Тексерілді</p></div></div>
                     </div>
                     <div class="homework-tabs">
-                        <button class="tab-btn active" data-tab="not_submitted">Не сдано ({{ not_submitted_list.count }})</button>
-                        <button class="tab-btn" data-tab="in_review">На проверке ({{ in_review_list.count }})</button>
-                        <button class="tab-btn" data-tab="checked">Проверено ({{ checked_list.count }})</button>
+                        <button class="tab-btn active" data-tab="not_submitted">Тапсырылмаған ({{ not_submitted_list.count }})</button>
+                        <button class="tab-btn" data-tab="in_review">Тексеруде ({{ in_review_list.count }})</button>
+                        <button class="tab-btn" data-tab="checked">Тексерілді ({{ checked_list.count }})</button>
                     </div>
                     <div class="homework-list" id="homework-list-container">
                         <div id="tab-content-not_submitted" class="tab-pane active">
                             {% for hw in not_submitted_list %}
                             <div class="homework-card">
-                                <div class="hw-card-header"><h3>{{ hw.title }}</h3><span class="hw-status-tag tag-pending">Не сдано</span></div>
+                                <div class="hw-card-header"><h3>{{ hw.title }}</h3><span class="hw-status-tag tag-pending">Тапсырылмаған</span></div>
                                 <p class="hw-meta">{{ hw.subject.name }} • {{ hw.teacher.user.get_full_name }}</p>
                                 <p class="hw-description">{{ hw.description }}</p>
                                 {% if hw.attached_file %}
                                     <a href="{{ hw.attached_file.url }}" class="hw-attachment" target="_blank">
                                         <i class="fas fa-paperclip"></i>
-                                        <span>Прикрепленный файл</span>
+                                        <span>Қосылған файл</span>
                                     </a>
                                 {% endif %}
                                 <div class="hw-footer">
-                                    <div class="hw-deadline"><i class="far fa-clock"></i> Срок сдачи: {{ hw.due_date|date:"d.m.Y H:i" }}</div>
-                                    <button class="btn-submit open-submission-modal" data-hw-pk="{{ hw.pk }}" data-hw-title="{{ hw.title }}" data-hw-subject="{{ hw.subject.name }}" data-hw-description="{{ hw.description }}">Сдать работу</button>
+                                    <div class="hw-deadline"><i class="far fa-clock"></i> Тапсыру мерзімі: {{ hw.due_date|date:"d.m.Y H:i" }}</div>
+                                    <button class="btn-submit open-submission-modal" data-hw-pk="{{ hw.pk }}" data-hw-title="{{ hw.title }}" data-hw-subject="{{ hw.subject.name }}" data-hw-description="{{ hw.description }}">Жұмысты тапсыру</button>
                                 </div>
                             </div>
                             {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет заданий, которые нужно сдать.</p> {% endfor %}
@@ -463,27 +466,27 @@
                         <div id="tab-content-in_review" class="tab-pane">
                             {% for submission in in_review_list %}
                             <div class="homework-card">
-                                <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-review">На проверке</span></div>
+                                <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-review">Тексеруде</span></div>
                                 <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
                                 <div class="hw-footer">
                                     <div class="hw-deadline"><i class="far fa-calendar-check"></i> Сдано: {{ submission.submitted_at|date:"d.m.Y" }}</div>
-                                    <button class="btn-submit btn-submitted" disabled>Отправлено</button>
+                                        <button class="btn-submit btn-submitted" disabled>Жіберілді</button>
                                 </div>
                             </div>
-                            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет работ на проверке.</p> {% endfor %}
+                                {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Тексеруде тапсырма жоқ.</p> {% endfor %}
                         </div>
                         <div id="tab-content-checked" class="tab-pane">
                             {% for submission in checked_list %}
                             <div class="homework-card">
-                                 <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-checked">Оценка: {{ submission.grade }}</span></div>
+                                 <div class="hw-card-header"><h3>{{ submission.homework.title }}</h3><span class="hw-status-tag tag-checked">Баға: {{ submission.grade }}</span></div>
                                 <p class="hw-meta">{{ submission.homework.subject.name }} • {{ submission.homework.teacher.user.get_full_name }}</p>
-                                <p class="hw-description"><strong>Комментарий учителя:</strong> {{ submission.teacher_comment|default:"-" }}</p>
+                                <p class="hw-description"><strong>Мұғалімнің пікірі:</strong> {{ submission.teacher_comment|default:"-" }}</p>
                                 <div class="hw-footer">
-                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Проверено: {{ submission.checked_at|date:"d.m.Y" }}</div>
-                                    <button class="btn-submit btn-checked" disabled>Проверено</button>
+                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Тексерілді: {{ submission.checked_at|date:"d.m.Y" }}</div>
+                                    <button class="btn-submit btn-checked" disabled>Тексерілді</button>
                                 </div>
                             </div>
-                            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Нет проверенных работ.</p> {% endfor %}
+                            {% empty %} <p style="text-align:center; padding: 20px; color: var(--text-secondary);">Тексерілген тапсырмалар жоқ.</p> {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -491,7 +494,7 @@
 
             <!-- ВКЛАДКА: ПРОФИЛЬ -->
             <div id="tab-content-profile" class="tab-pane {% if active_tab == 'profile' %}active{% endif %}">
-                <p>Раздел "Профиль" находится в разработке.</p>
+                <p>"Профиль" бөлімі әзірленуде.</p>
             </div>
         </main>
     </div>
@@ -501,28 +504,28 @@
         <div class="modal-container">
             <button class="close-btn" id="close-submission-modal">&times;</button>
             <div class="modal-header">
-                <h2 id="modal-hw-title">Сдать домашнее задание</h2>
-                <p id="modal-hw-subject">Предмет • Название задания</p>
+                <h2 id="modal-hw-title">Үй тапсырмасын тапсыру</h2>
+                <p id="modal-hw-subject">Пән • Тапсырма атауы</p>
             </div>
             <form id="submission-form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="task-description" id="modal-hw-description"></div>
                 <div class="form-group">
-                    <label for="submission_file_input">Прикрепить файлы</label>
+                    <label for="submission_file_input">Файлдарды тіркеу</label>
                     <div class="file-drop-area" id="file-drop-area">
                         <i class="fas fa-upload"></i>
-                        <p id="file-drop-text">Нажмите или перетащите файлы сюда</p>
-                        <span id="file-drop-hint">PDF, DOC, DOCX, изображения (макс. 10 МБ)</span>
+                        <p id="file-drop-text">Мұнда файлды шертіңіз немесе сүйреңіз</p>
+                        <span id="file-drop-hint">PDF, DOC, DOCX, суреттер (макс. 10 МБ)</span>
                         <input type="file" id="submission_file_input" name="submission_file" style="display: none;" multiple>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="submission_text">Комментарий (необязательно)</label>
-                    <textarea id="submission_text" name="submission_text" placeholder="Добавьте комментарий к работе..."></textarea>
+                    <label for="submission_text">Пікір (міндетті емес)</label>
+                    <textarea id="submission_text" name="submission_text" placeholder="Жұмысқа пікір қосыңыз..."></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancel-submission-btn">Отмена</button>
-                    <button type="submit" class="btn-submit">Отправить работу</button>
+                    <button type="button" class="btn-secondary" id="cancel-submission-btn">Болдырмау</button>
+                    <button type="submit" class="btn-submit">Жіберу</button>
                 </div>
             </form>
         </div>
@@ -532,20 +535,20 @@
     <div class="modal-overlay" id="grade-details-modal-overlay">
         <div class="grade-modal-container">
             <div class="grade-modal-header">
-                <h2>Детали оценки</h2>
+                <h2>Баға туралы мәлімет</h2>
                 <button class="close-btn" id="close-grade-modal">&times;</button>
             </div>
             <div class="grade-modal-body">
-                <div class="grade-modal-info-item"><span>Дата</span><p id="modal-grade-date">--.--.----</p></div>
-                <div class="grade-modal-info-item"><span>Оценка</span><p id="modal-grade-value">--</p></div>
-                <div class="grade-modal-comment-item"><span>Комментарий учителя</span><p id="modal-grade-comment">Здесь будет текст комментария...</p></div>
+                <div class="grade-modal-info-item"><span>Күні</span><p id="modal-grade-date">--.--.----</p></div>
+                <div class="grade-modal-info-item"><span>Баға</span><p id="modal-grade-value">--</p></div>
+                <div class="grade-modal-comment-item"><span>Мұғалімнің пікірі</span><p id="modal-grade-comment">Мұнда пікір көрсетіледі...</p></div>
             </div>
         </div>
     </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ДЛЯ ПЕРЕКЛЮЧЕНИЯ ТАБОВ ---
+    // --- ТАБТАРДЫ АУЫСТЫРУ ҮШІН УНИВЕРСАЛДЫ ФУНКЦИЯ ---
     function setupTabs(tabButtonsSelector, tabPanesSelector, activeClass = 'active') {
         const tabs = document.querySelectorAll(tabButtonsSelector);
         const panes = document.querySelectorAll(tabPanesSelector);
@@ -583,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const { hwPk, hwTitle, hwSubject, hwDescription } = openBtn.dataset;
                 submissionModal.querySelector('#modal-hw-title').textContent = hwTitle;
                 submissionModal.querySelector('#modal-hw-subject').textContent = hwSubject;
-                submissionModal.querySelector('#modal-hw-description').innerHTML = `<p><strong>Задание:</strong> ${hwDescription}</p>`;
+                submissionModal.querySelector('#modal-hw-description').innerHTML = `<p><strong>Тапсырма:</strong> ${hwDescription}</p>`;
                 submissionForm.action = `/api/homework/${hwPk}/submit/`;
                 submissionModal.classList.add('visible');
             }
@@ -592,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const closeSubmissionModal = () => {
             submissionModal.classList.remove('visible');
             submissionForm.reset();
-            fileDropText.textContent = 'Нажмите или перетащите файлы сюда';
+            fileDropText.textContent = 'Мұнда файлды шертіңіз немесе сүйреңіз';
             fileInput.value = '';
         };
         submissionModal.querySelector('#close-submission-modal').addEventListener('click', closeSubmissionModal);
@@ -604,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(this);
             const submitButton = this.querySelector('button[type="submit"]');
             submitButton.disabled = true;
-            submitButton.textContent = 'Отправка...';
+            submitButton.textContent = 'Жіберілуде...';
             try {
                 const response = await fetch(this.action, {
                     method: 'POST',
@@ -613,26 +616,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    alert(result.message || 'Работа успешно отправлена!');
+                    alert(result.message || 'Жұмыс сәтті жіберілді!');
                     window.location.reload();
                 } else {
-                    alert(`Ошибка: ${result.message || 'Не удалось отправить работу.'}`);
+                    alert(`Қате: ${result.message || 'Жұмысты жіберу мүмкін болмады.'}`);
                 }
             } catch(error) {
                 console.error("Fetch Error:", error);
-                alert('Произошла сетевая или серверная ошибка. Попробуйте позже.');
+                alert('Желіде немесе серверде қате орын алды. Кейінірек қайталап көріңіз.');
             } finally {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Отправить работу';
+                submitButton.textContent = 'Жіберу';
             }
         });
 
         fileDropArea.addEventListener('click', () => fileInput.click());
         const handleFiles = (files) => {
             if (files.length > 0) {
-                 fileDropText.textContent = files.length > 1 ? `Выбрано файлов: ${files.length}` : files[0].name;
+                 fileDropText.textContent = files.length > 1 ? `Таңдалған файлдар: ${files.length}` : files[0].name;
             } else {
-                fileDropText.textContent = 'Нажмите или перетащите файлы сюда';
+                fileDropText.textContent = 'Мұнда файлды шертіңіз немесе сүйреңіз';
             }
         };
         fileInput.addEventListener('change', () => handleFiles(fileInput.files));
@@ -671,11 +674,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalGradeDate.textContent = date;
                 modalGradeValue.textContent = gradeValue;
                 
-                // ИЗМЕНЕНИЕ 2: Если комментарий пустой, выводим текст-заглушку.
+                // ЕСКЕРТУ: Егер пікір жоқ болса, орынбасар мәтінді көрсетеміз.
                 if (comment) {
                     modalGradeComment.textContent = comment;
                 } else {
-                    modalGradeComment.textContent = "Комментарий от учителя отсутствует.";
+                    modalGradeComment.textContent = "Мұғалімнің пікірі жоқ.";
                 }
                 
                 // 2. Показываем модальное окно
@@ -683,7 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Навешиваем события для закрытия окна (код остался без изменений)
+    // Терезені жабу үшін оқиғаларды тіркеу (код өзгеріссіз қалды)
         closeGradeModalBtn.addEventListener('click', closeGradeModal);
         gradeModalOverlay.addEventListener('click', (event) => {
             if (event.target === gradeModalOverlay) {

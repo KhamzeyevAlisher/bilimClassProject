@@ -599,7 +599,7 @@
         /* СТИЛИ ДЛЯ ПОУРОЧНЫХ ПЛАНОВ */
         .lp-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
         
-        /* СТИЛИ ДЛЯ ДОМАШНИХ ЗАДАНИЙ */
+        /* СТИЛИ ДЛЯ ДОМАШНИХ ЗАДАНИЙ vdvdvdv*/
         .homework-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
         .widget-header { display: flex; justify-content: space-between; align-items: center;  }
         .widget-title h2 { font-size: 20px; font-weight: 600; }

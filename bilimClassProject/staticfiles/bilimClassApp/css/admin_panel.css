@@ -24,7 +24,7 @@
     cursor: pointer;
     transition: background-color 0.2s;
 }
-.btn-primary:hover { background-color: #4338CA; }
+.btn-primary:hover { background-color: #4338CA;  }
 
 .content-card {
     background-color: var(--bg-widget);

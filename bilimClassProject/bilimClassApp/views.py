@@ -29,7 +29,6 @@ def _get_redirect_for_user(user):
     if hasattr(user, 'profile') and user.profile.role:
         role = user.profile.role
 
-        print(user.profile.role)
         
         if role == 'admin':
             return redirect('admin_panel')

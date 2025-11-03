@@ -489,6 +489,7 @@ a.class-details-link:hover {
 
 .custom-options {
     position: absolute;
+    max-height: 150px;
     top: calc(100% + 2px); /* Располагаем чуть ниже триггера */
     left: 0;
     right: 0;
@@ -500,12 +501,14 @@ a.class-details-link:hover {
     margin: 0;
     max-height: 220px;
     overflow-y: auto;
+    overflow-x: auto;
     display: none;
     z-index: 1200;
 }
 
 .custom-options.open {
     display: block;
+    max-height: 150px;
 }
 
 .custom-option {
@@ -912,10 +915,14 @@ a.class-details-link:hover {
     }
     
     /* Улучшенный прогресс-бар */
-    .performance-table td[data-label="Посещаемость"] .progress-bar-container {
+    .performance-table .progress-bar-container {
         width: 10%; /* Делаем его шире и заметнее */
         min-width: 90px;
     }
+
+    /* .performance-table td[data-label="Посещаемость"]::before {
+        content: "";
+    } */
 
     .filter-group label {
         display: none;

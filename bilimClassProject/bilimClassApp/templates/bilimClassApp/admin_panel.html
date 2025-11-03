@@ -77,6 +77,7 @@
 
 .custom-options {
     position: absolute;
+    max-height: 150px;
     top: calc(100% + 2px); /* Располагаем чуть ниже триггера */
     left: 0;
     right: 0;
@@ -87,13 +88,20 @@
     padding: 8px 6px;
     margin: 0;
     max-height: 220px;
-    overflow-y: auto;
+    overflow-y: scroll;
     display: none;
     z-index: 1200;
 }
 
+
+
 .custom-options.open {
     display: block;
+    max-height: 150px;
+}
+
+#user-modal-overlay .custom-options.open {
+    max-height: 100px;
 }
 
 .custom-option {

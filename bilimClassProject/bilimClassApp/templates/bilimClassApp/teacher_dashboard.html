@@ -830,7 +830,10 @@ body.td-body {
     z-index: 1200;
 }
 
-.custom-options.open { display: block; }
+.custom-options.open {
+    display: block;
+    max-height: 150px;
+}
 
 .custom-option {
     padding: 10px 12px;
@@ -1488,11 +1491,11 @@ input[name="attached_file"]::file-selector-button:hover {
     }
 
     #lesson-plan-form .form-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-columns: 1fr !important;
     }
 
     #homework-modal .form-grid {
-        grid-template-columns: repeat(1, 1fr) !important;
+        grid-template-columns: 1fr !important;
     }
 }
 

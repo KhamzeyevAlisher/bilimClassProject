@@ -56,7 +56,7 @@
         .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
         .day-column { background-color: var(--bg-main); border-radius: 12px; padding: 16px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .lesson-card { background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .lesson-card { background: white; border-radius: 8px; padding: 22px 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .performance-table .progress-bar-container {
             width: 100%;
             min-width: 100px;
@@ -468,6 +468,10 @@ a.class-details-link:hover {
     text-align: left;
     margin: 10px 0; /* Добавим отступ как у других полей формы */
     transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#performance-content .custom-select-trigger {
+    max-width: 300px;
 }
 
 .custom-select-trigger:hover {
@@ -1333,25 +1337,23 @@ a.class-details-link:hover {
                         <div class="lessons-list">
                             {% for lesson in schedule_by_day|get_item:day_id %}
                                 <div class="lesson-card" data-lesson-id="{{ lesson.id }}">
-                                    <div class="lesson-card" data-lesson-id="{{ lesson.id }}">
-                                        <div class="lesson-time">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</div>
-                                        <div class="lesson-subject">{{ lesson.subject.name }}</div>
-                                        <div class="lesson-details">
-                                            <p class="lesson-teacher">
-                                                <i class="fa-solid fa-chalkboard-user"></i>
-                                                {{ lesson.teacher.user.get_full_name|default:"Белгіленбеген" }}
-                                            </p>
-                                            <p class="lesson-classroom">
-                                                <i class="fa-solid fa-location-dot"></i>
-                                                Каб. {{ lesson.classroom|default:"-" }}
-                                            </p>
-                                        </div>
-                                        
-                                        <!-- Кнопки управления, которые будут работать с вашим JS -->
-                                        <div class="lesson-actions">
-                                            <button class="edit-lesson-btn" title="Өзгерту"><i class="fa-solid fa-pencil"></i></button>
-                                            <button class="delete-lesson-btn" title="Жою"><i class="fa-solid fa-trash-can"></i></button>
-                                        </div>
+                                    <div class="lesson-time">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</div>
+                                    <div class="lesson-subject">{{ lesson.subject.name }}</div>
+                                    <div class="lesson-details">
+                                        <p class="lesson-teacher">
+                                            <i class="fa-solid fa-chalkboard-user"></i>
+                                            {{ lesson.teacher.user.get_full_name|default:"Белгіленбеген" }}
+                                        </p>
+                                        <p class="lesson-classroom">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            Каб. {{ lesson.classroom|default:"-" }}
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Кнопки управления, которые будут работать с вашим JS -->
+                                    <div class="lesson-actions">
+                                        <button class="edit-lesson-btn" title="Өзгерту"><i class="fa-solid fa-pencil"></i></button>
+                                        <button class="delete-lesson-btn" title="Жою"><i class="fa-solid fa-trash-can"></i></button>
                                     </div>
                                 </div>
                             {% empty %}

@@ -48,7 +48,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    padding: 25px;
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    margin-bottom: 20px;
 }
 .logo-section { display: flex; align-items: center; gap: 12px; }
 .logo-icon { width: 40px; height: 40px; background-color: var(--accent-primary); border-radius: 8px; color: white; display: grid; place-items: center; font-size: 20px; font-weight: 700; }

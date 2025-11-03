@@ -22,8 +22,26 @@
 .red { background-color: var(--accent-red); }
 
 .td-schedule-list { display: flex; flex-direction: column; gap: 12px; }
-.td-lesson-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 10px; background-color: #F9FAFB; }
-.td-lesson-item.current { background-color: var(--accent-light); border: 1px solid var(--accent-primary); }
+.td-lesson-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 16px; 
+    padding: 16px; 
+    border-radius: 10px; 
+    background-color: #F8FAFC; 
+    border: 1px solid rgba(15,23,42,0.08);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+.td-lesson-item:hover {
+    background-color: #F1F5F9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+.td-lesson-item.current { 
+    background-color: var(--accent-light); 
+    border: 1px solid var(--accent-primary);
+    box-shadow: 0 1px 3px rgba(79,70,229,0.1);
+}
 .td-lesson-time p { font-weight: 600; }
 .td-lesson-time span { font-size: 14px; color: var(--text-secondary); }
 .td-lesson-info { flex-grow: 1; }
@@ -53,17 +71,81 @@
 
 /* === НАЧАЛО: СТИЛИ ДЛЯ ПОУРОЧНЫХ ПЛАНОВ === */
 .lp-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; }
-.lp-table { width: 100%; border-collapse: collapse; }
-.lp-table th, .lp-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); text-align: left; font-size: 14px; vertical-align: middle; }
-.lp-table th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 12px; }
-.lp-table tr:last-child td { border-bottom: none; }
+.lp-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.lp-table th, .lp-table td { 
+    padding: 16px; 
+    border-bottom: 1px solid var(--border-color); 
+    text-align: left; 
+    vertical-align: middle; 
+}
+
+.lp-table th { 
+    color: var(--text-secondary); 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    font-size: 11px; 
+    letter-spacing: 0.05em;
+}
+
+.lp-table tbody td {
+    font-size: 14.5px;
+    line-height: 1.6;
+    font-weight: 450;
+    color: var(--text-primary);
+}
+
+.lp-table tbody td:first-child {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.lp-table tr:last-child td { 
+    border-bottom: none; 
+}
 .lp-status { display: inline-block; padding: 4px 12px; border-radius: 99px; font-weight: 600; font-size: 12px; }
 .lp-status.approved { background-color: #D1FAE5; color: #065F46; }
 .lp-status.pending { background-color: #FEF3C7; color: #92400E; }
 .lp-status.rejected { background-color: #FEE2E2; color: #991B1B; }
 .lp-actions { display: flex; gap: 8px; }
-.lp-actions button { background: none; border: 1px solid transparent; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; font-size: 14px; }
-.lp-actions button:hover { background-color: #F3F4F6; color: var(--text-primary); }
+.lp-actions button { 
+    background: none; 
+    border: 1px solid transparent; 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    color: var(--text-secondary); 
+    transition: all 0.2s; 
+    font-size: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.lp-actions .view-plan-btn:hover { 
+    background-color: #F3F4F6; 
+    color: #2563EB;
+    border-color: rgba(37,99,235,0.2);
+    box-shadow: 0 2px 4px rgba(37,99,235,0.2);
+}
+
+.lp-actions .edit-plan-btn:hover { 
+    background-color: #F3F4F6; 
+    color: #10B981;
+    border-color: rgba(16,185,129,0.2);
+    box-shadow: 0 2px 4px rgba(16,185,129,0.2);
+}
+
+.lp-actions .delete-plan-btn:hover { 
+    background-color: #F3F4F6; 
+    color: #EF4444;
+    border-color: rgba(239,68,68,0.2);
+    box-shadow: 0 2px 4px rgba(239,68,68,0.2);
+}
+
 .lp-view-details { padding-left: 1rem; }
 .lp-view-details dt { font-weight: 600; margin-top: 12px; color: var(--text-primary); }
 .lp-view-details dd { margin-top: 4px; color: var(--text-secondary); white-space: pre-wrap; }
@@ -165,6 +247,7 @@
 }
 
 #grades-table td:first-child {
+    display: table-cell;
     text-align: left;
     font-weight: 500;
     color: var(--text-primary);
@@ -394,7 +477,12 @@
             --widget-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--accent-light); color: var(--text-primary); }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            /* background-color: var(--accent-light);  */
+            background-color: #edf2fe;
+            color: var(--text-primary); 
+        }
         .td-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
         .td-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .td-logo-section { display: flex; align-items: center; gap: 12px; }
@@ -449,10 +537,10 @@
 
         .stat-icon i { margin-top: 12px;}
 
-        .stat-icon.blue { background-color: var(--accent-blue); }
-        .stat-icon.orange { background-color: var(--accent-orange); }
-        .stat-icon.purple { background-color: var(--accent-purple); }
-        .stat-icon.red { background-color: var(--accent-red); }
+        .stat-icon.blue { background: linear-gradient(135deg, #60A5FA, #3B82F6) }
+        .stat-icon.orange { background: linear-gradient(135deg, #ff8b10, #ff682c); }
+        .stat-icon.purple { background: linear-gradient(135deg,#A78BFA,#7C3AED); }
+        .stat-icon.red { background: linear-gradient(135deg,#f85e5e, #cf3d3d ); }
 
         .td-schedule-list { display: flex; flex-direction: column; gap: 12px; }
         .td-lesson-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 10px; background-color: #F9FAFB; }
@@ -513,20 +601,80 @@
             border: 1px solid var(--accent-primary);
         }
         .lessons-list { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
-        .lesson-card {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background-color: var(--bg-widget);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: var(--widget-shadow);
-        }
-        .lesson-card .time { color: var(--text-secondary); font-size: 13px; }
-        .lesson-card .subject { font-weight: 700; font-size: 15px; color: var(--text-primary); }
-        .lesson-card .details { color: var(--text-secondary); font-size: 13px; display:flex; gap:8px; align-items:center; }
+.lesson-card {
+    display: flex;
+    flex-direction: column;
+    /* Увеличенный отступ внутри для "воздуха" */
+    padding: 16px;
+    /* Слегка более скругленные углы */
+    border-radius: 12px;
+    /* Убрали простую границу, оставив только акцентную */
+    /* background-color: var(--bg-widget); */ 
+    background-color: var(--bg-widget);
+    border: 1px solid var(--border-color);
+    /* Современная, мягкая тень */
+    box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+    
+    /* Визуальный акцент: синяя полоса слева */
+    border-left: 3px solid #2563EB; /* Профессиональный синий */
+    
+    /* Управление внутренними отступами вручную */
+    gap: 0; 
+    /* Добавляем переход для эффектов при наведении */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: 500;
+}
 
+/* Эффект при наведении для интерактивности */
+.lesson-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* 1. Стиль для времени (менее заметный) */
+.lesson-card .time {
+    /* Более приглушенный серый цвет */
+    color: #6B7280; 
+    font-size: 0.9rem;
+    /* Отступ до основного предмета */
+    margin-bottom: 10px; 
+    display: flex;
+    align-items: center;
+}
+
+/* 2. Стиль для названия предмета (самое главное) */
+.lesson-card .subject {
+    font-size: 1rem; /* Увеличенный размер */
+    font-weight: 600; /* Жирный шрифт */
+    color: #1F2937; /* Темный, заметный цвет */
+    /* Отступ после предмета */
+    margin-bottom: 12px; 
+}
+
+/* 3. Стиль для деталей (класс, кабинет) */
+.lesson-card .details {
+    color: #4B5563; /* Средне-темный текст */
+    font-size: 0.95rem;
+    margin-top: 5px; /* Небольшой отступ между строками деталей */
+    display: flex;
+    align-items: center; /* Выравнивание иконки и текста */
+}
+
+/* 4. Стиль для иконок (более приятный вид) */
+.lesson-card i {
+    /* Приглушенный цвет для иконок */
+    color: #9CA3AF; 
+    font-size: 1em; 
+    /* Фиксированная ширина для идеального выравнивания деталей */
+    width: 20px; 
+    margin-right: 8px; /* Отступ от иконки до текста */
+    text-align: center;
+}
+
+/* Специфично для иконки часов, чтобы она соответствовала цвету времени */
+.lesson-card .time i {
+    color: #6B7280;
+}
         /* СТИЛИ ДЛЯ ЖУРНАЛА */
         .journal-widget { background-color: var(--bg-widget); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--widget-shadow); }
         .journal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -573,7 +721,7 @@
         .tab-btn { padding: 8px 16px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; transition: all .2s; }
         .tab-btn.active { background-color: var(--accent-primary); border-color: var(--accent-primary); color: #fff; }
         .journal-table { width: 100%; border-collapse: collapse; display: table; }
-        .journal-table tr { display: table-row; }
+        /* .journal-table tr { display: block; } */
         .journal-table th, .journal-table td { display: table-cell; vertical-align: middle; }
         .journal-table th { font-size: 12px; text-transform: uppercase; color: var(--text-secondary); font-weight: 600; text-align: center; padding-bottom: 16px; }
         .journal-table th:first-child { text-align: left; }
@@ -666,6 +814,10 @@
         .file-link i { margin-right: 4px; }
 
         /* --- КРАСИВЫЙ СТИЛЬ ДЛЯ ПОЛЯ ЗАГРУЗКИ ФАЙЛА --- */
+
+/* .absent-count {
+    max-width: 150px;
+} */
 
 /* Стиль для метки (label) над полем ввода */
 .form-group label[for*="attached_file"] {
@@ -761,11 +913,12 @@ input[name="attached_file"]::file-selector-button:hover {
         /* margin-bottom: 32px;  */
     }
     .lp-widget .widget-header { 
-        background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+        background: #ffffff;
         padding: 24px;
         border-radius: 16px;
-        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
-        border: 1px solid rgba(15,23,42,0.04);
+        border: 1px solid rgba(15,23,42,0.08);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
         
     }
     .lp-widget .widget-title h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
@@ -783,18 +936,51 @@ input[name="attached_file"]::file-selector-button:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(79,70,229,0.2);
     }
-    .lp-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; padding:0px 10px;}
+    .lp-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; padding:0px 5px;}
     .lp-table thead th { text-align: left; padding: 12px 16px; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: 700; }
-    .lp-table tbody tr { background: #fff; border-radius: 16px; box-shadow: 0 6px 18px rgba(16,24,40,0.04); display: table-row; }
+    .lp-table tbody tr { 
+        background: #fff; 
+        border-radius: 16px; 
+        border: 1px solid rgba(15,23,42,0.08);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
+        display: table-row; 
+    }
+    .lp-table tbody tr:hover {
+        box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+    }
     .lp-table td { padding: 24px; vertical-align: middle; font-size: 14px; color: var(--text-primary); }
     .lp-table td:first-child { font-weight: 600; border-radius: 16px 0 0 16px; }
     .lp-table td:last-child { border-radius: 0 16px 16px 0; }
     .lp-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .lp-actions button { background: transparent; border: 1px solid rgba(15,23,42,0.06); width: 36px; height: 36px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); display: grid; place-items: center; }
-    .lp-actions button:hover { background: #F3F4F6; color: var(--text-primary); transform: translateY(-1px); }
-    .lp-actions .view-plan-btn { border-color: rgba(79,70,229,0.12); }
-    .lp-actions .edit-plan-btn { border-color: rgba(16,185,129,0.12); }
-    .lp-actions .delete-plan-btn { border-color: rgba(239,68,68,0.08); }
+    .lp-actions button { 
+        background: #FFFFFF; 
+        border: 1px solid rgba(15,23,42,0.08); 
+        width: 36px; 
+        height: 36px; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        color: var(--text-secondary); 
+        display: grid; 
+        place-items: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .lp-actions button:hover { 
+        background: #FFFFFF; 
+        color: var(--text-primary);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+    }
+    .lp-actions .view-plan-btn { 
+        border-color: rgba(15,23,42,0.1);
+    }
+    .lp-actions .edit-plan-btn { 
+        border-color: rgba(15,23,42,0.1);
+    }
+    .lp-actions .delete-plan-btn { 
+        border-color: rgba(15,23,42,0.1);
+    }
 
     /* Status pills */
     .lp-status { padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
@@ -814,15 +1000,22 @@ input[name="attached_file"]::file-selector-button:hover {
         .lp-table td:last-child { margin-top: 8px; }
     }
     /* Overall page polish */
-    body.td-body { background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%); }
+    body.td-body { 
+        /* background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);  */
+        /* background-color: #edf2fe;   */
+        /* синий */
+        background-color: #ffdab9;
+    }
 
     /* Header: cleaner, slightly elevated */
     .td-header {
         background: #fff;
         padding: 18px 22px;
         border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(16,24,40,0.06);
+        border: 1px solid rgba(15,23,42,0.08);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         align-items: center;
+        transition: all 0.2s ease;
     }
     .td-logo-icon { width:48px; height:48px; border-radius:12px; font-size:20px; }
     .td-logo-section h1 { font-size:18px; margin-bottom:4px; }
@@ -859,14 +1052,20 @@ input[name="attached_file"]::file-selector-button:hover {
     .schedule-day-column .day-header { font-size:15px; padding:10px; }
     .lessons-list { padding:8px; }
     .lesson-card { padding:10px; border-radius:10px; }
-    .lesson-card .subject { font-size:14px; }
+    /* .lesson-card .subject { font-size:14px; } */
 
     /* Journal table — modernized */
     .journal-table th, .journal-table td { padding:12px 10px; }
-    .journal-table th { background: transparent; font-size:12px; color:var(--text-secondary); }
+    .journal-table th { width: 14.2857%; background: transparent; font-size:12px; color:var(--text-secondary); }
     .journal-table td { background: #fff; border-radius:8px; border:1px solid rgba(229,231,235,0.6); }
-    .journal-table tbody tr { display: grid; grid-template-columns: 1fr 240px 140px; gap:8px; align-items:center; margin-bottom:10px; }
-    @media(min-width:900px) { .journal-table tbody tr { display: table-row; } .journal-table td { border-radius: 6px; } }
+    .journal-table tbody tr { 
+        /* display: flex;  */
+        /* grid-template-columns: 1fr 240px 140px;  */
+        gap:8px; 
+        align-items:center; 
+        margin-bottom:10px; 
+    }
+    /* @media(min-width:900px) { .journal-table tbody tr { display: table-row; } .journal-table td { border-radius: 6px; } } */ */
 
     /* Homework and lesson-plan buttons uniform look */
     .btn-create, .btn-submit { border-radius: 10px; padding:10px 14px; font-weight:700; }

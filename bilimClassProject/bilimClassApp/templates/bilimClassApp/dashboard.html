@@ -57,6 +57,10 @@
         margin-left: auto;
     }
 
+    .td-user-info {
+        display: none;
+    }
+
     .day-tabs ul{
         justify-content: center !important;
     }
@@ -155,6 +159,11 @@
 
     .day-tabs li {
         padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .lesson-details {
+        flex-direction: column;
     }
 
 
@@ -176,11 +185,14 @@
 
     /* --- Расписание --- */
     .lesson-card {
+        position: relative;
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
     .lesson-start-time {
+        position: absolute;
+        top:15px;
         align-self: flex-end;
         background-color: var(--accent-light);
         color: var(--accent-primary);
@@ -324,9 +336,9 @@
             <!-- Табы навигации -->
             <nav class="main-tabs">
                 <ul>
-                    <li data-tab="schedule" class="{% if active_tab == 'schedule' or not active_tab %}active{% endif %}"><a href="#">Кесте</a></li>
-                    <li data-tab="dnevnik" class="{% if active_tab == 'dnevnik' %}active{% endif %}"><a href="#">Журнал</a></li>
-                    <li data-tab="homework" class="{% if active_tab == 'homework' %}active{% endif %}"><a href="#">Үй тапсырмалары</a></li>
+                    <li data-tab="schedule"><a href="#"><i class="far fa-calendar-alt"></i> Кесте</a></li>
+                    <li data-tab="dnevnik" class="active"><a href="#"><i class="fas fa-book"></i> Журнал</a></li>
+                    <li data-tab="homework"><a href="#"><i class="fas fa-pencil-alt"></i> Үй тапсырмалары</a></li>
                 </ul>
             </nav>
 
@@ -438,9 +450,38 @@
                 <div class="homework-widget">
                     <div class="widget-header"><h2>Үй тапсырмалары</h2><p>Пәндер бойынша барлық тапсырмалар</p></div>
                     <div class="stats-grid">
-                        <div class="stat-card stat-card-pending"><div class="stat-icon">🕒</div><div><div class="stat-value">{{ not_submitted_list.count }}</div><p class="stat-label">Тапсырылмаған</p></div></div>
-                        <div class="stat-card stat-card-review"><div class="stat-icon">📄</div><div><div class="stat-value">{{ in_review_list.count }}</div><p class="stat-label">Тексеруде</p></div></div>
-                        <div class="stat-card stat-card-checked"><div class="stat-icon">✓</div><div><div class="stat-value">{{ checked_list.count }}</div><p class="stat-label">Тексерілді</p></div></div>
+                        <!-- 1. Тапсырылмаған (Не сдано) - Используем Красный/Оранжевый градиент -->
+                        <div class="stat-card stat-card-pending">
+                            <div class="stat-icon red"> <!-- Используем класс, соответствующий красному градиенту -->
+                                <i class="fas fa-exclamation-triangle"></i> <!-- Иконка Предупреждения -->
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ not_submitted_list.count }}</div>
+                                <p class="stat-label">Тапсырылмаған</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 2. Тексеруде (На проверке) - Используем Желтый/Золотой градиент -->
+                        <div class="stat-card stat-card-review">
+                            <div class="stat-icon orange"> <!-- Используем класс, соответствующий желтому градиенту -->
+                                <i class="fas fa-hourglass-half"></i> <!-- Иконка Часов/Песочных часов -->
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ in_review_list.count }}</div>
+                                <p class="stat-label">Тексеруде</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 3. Тексерілді (Проверено) - Используем Зеленый градиент -->
+                        <div class="stat-card stat-card-checked">
+                            <div class="stat-icon blue"> <!-- Используем класс, соответствующий зеленому градиенту (можно назвать 'green', но 'blue' был в исходном коде, используем для градиента) -->
+                                <i class="fas fa-check"></i> <!-- Иконка Галочки/Проверено -->
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ checked_list.count }}</div>
+                                <p class="stat-label">Тексерілді</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="homework-tabs">
                         <button class="tab-btn active" data-tab="not_submitted">Тапсырылмаған ({{ not_submitted_list.count }})</button>

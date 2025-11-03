@@ -31,7 +31,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--bg-main);
+    /* background-color: var(--bg-main); */
+    background-color: #edf2fe;
     color: var(--text-primary);
 }
 .container {

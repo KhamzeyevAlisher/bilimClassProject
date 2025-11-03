@@ -53,12 +53,15 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--accent-light);
+    /* background-color: var(--accent-light); */
+    background-color: #edf2fe;
     color: var(--text-primary);
 }
 
 body.td-body {
-    background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
+    /* background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%); */
+    background-color: #edf2fe; 
+    /* background-color: rgba(255, 218, 185, 50%); */
 }
 
 
@@ -265,10 +268,10 @@ body.td-body {
     color: #FFFFFF;
 }
 
-.stat-icon.blue { background-color: var(--accent-blue); }
-.stat-icon.orange { background-color: var(--accent-orange); }
-.stat-icon.purple { background-color: var(--accent-purple); }
-.stat-icon.red { background-color: var(--accent-red); }
+/* .stat-icon.blue { background-color: linear-gradient(135deg, #60A5FA, #3B82F6) } */
+/* .stat-icon.orange { background-color: var(--accent-orange); } */
+/* .stat-icon.purple { background-color: var(--accent-purple); } */
+/* .stat-icon.red { background-color: var(--accent-red); } */
 
 /* --- Табы --- */
 .tab-content { display: none; }
@@ -306,7 +309,7 @@ body.td-body {
     padding: 8px;
 }
 
-.lesson-card {
+/* .lesson-card {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -333,7 +336,7 @@ body.td-body {
     display: flex;
     gap: 8px;
     align-items: center;
-}
+} */
 
 
 /* ===================================================================
@@ -459,7 +462,7 @@ body.td-body {
 =================================================================== */
 
 .lp-widget {
-    background: transparent;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
     padding: 0;
 }
 
@@ -574,6 +577,10 @@ body.td-body {
     border-radius: 16px;
     padding: 24px;
     box-shadow: var(--widget-shadow);
+}
+
+.td-lesson-status {
+    display: none;
 }
 
 .widget-header {
@@ -1107,6 +1114,8 @@ input[name="attached_file"]::file-selector-button:hover {
 #lesson-plan-form .form-grid {
     grid-template-columns: 2fr; /* Одна колонка для мобильных устройств */
 }
+
+
 /* ===================================================================
    10. АДАПТИВНЫЕ СТИЛИ (MEDIA QUERIES)
 =================================================================== */

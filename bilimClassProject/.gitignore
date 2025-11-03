@@ -1,0 +1,5 @@
+# Ignore local SQLite database
+/db.sqlite3
+
+# Optional: ignore any other sqlite files
+*.sqlite3

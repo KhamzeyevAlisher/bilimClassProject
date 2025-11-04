@@ -56,7 +56,7 @@
         .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
         .day-column { background-color: var(--bg-main); border-radius: 12px; padding: 16px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .lesson-card { background: white; border-radius: 8px; padding: 22px 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .lesson-card { background: white; border-radius: 8px; padding: 22px 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #dddee0;}
         .performance-table .progress-bar-container {
             width: 100%;
             min-width: 100px;
@@ -189,7 +189,7 @@
         .actions-cell .action-btn.approve { color: var(--accent-green); }
         .actions-cell .action-btn.reject { color: var(--accent-red); }
         .actions-cell .action-btn:hover { background-color: #f3f4f6; }
-        .plans-table tr { transition: opacity 0.3s ease-out; }
+        .plans-table tr { transition: opacity 0.3s ease-out; border-bottom: 1px solid #939497; }
 
         /* bilimClassApp/css/schedule_head_school.css или в <style> */
 
@@ -473,6 +473,11 @@ a.class-details-link:hover {
 #performance-content .custom-select-trigger {
     max-width: 300px;
 }
+
+#performance-content .custom-option {
+    max-width: 300px;
+}
+
 
 .custom-select-trigger:hover {
     border-color: #A5B4FC;
@@ -956,6 +961,8 @@ a.class-details-link:hover {
         font-weight: 500;
         width: 100%;                /* Растягиваем на всю ширину */
         transition: background-color 0.2s, color 0.2s;
+        /* box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3); */
+        border: 1px solid #dddee0;
     }
 
     /* 5. Убираем синюю линию-подчеркивание от десктопной версии */
@@ -996,11 +1003,12 @@ a.class-details-link:hover {
     #plan-approval-content .plans-table tr {
         display: block;
         background-color: #FFFFFF;
-        border: 1px solid var(--border-color, #E5E7EB);
+        /* border: 1px solid var(--border-color, #E5E7EB); */
         border-radius: 12px;
         margin-bottom: 16px;
         padding: 12px 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        /* box-shadow: 0 0px 1px rgba(0,0,0,0.3); */
+        border: 1px solid #dddee0;
     }
 
     /* 3. Каждая ячейка <td> становится строкой "Ключ: Значение" */

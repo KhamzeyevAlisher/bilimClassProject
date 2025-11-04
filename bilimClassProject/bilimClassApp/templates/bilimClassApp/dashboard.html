@@ -19,6 +19,10 @@
     </style>
 
     <style>
+
+.td-mobile-nav, .mobile-menu-header {
+    display: none;
+}
     /* --- Планшеттерге арналған стильдер (992px дейін) --- */
 @media (max-width: 992px) {
     .container, .dashboard-container {
@@ -75,6 +79,31 @@
 
     .welcome-section h1 {
         font-size: 20px;
+    }
+
+
+    .schedule-section h3, p {
+        background-color: #ffffff;
+        padding: 20px 20px;
+    }
+
+    .schedule-section h3 {
+        padding-bottom: 5px;
+        border-radius: 12px 12px 0px 0px;
+    }    
+
+    .schedule-section p {
+        padding-top: 5px;
+        border-radius: 0px 0px 12px 12px;
+    }
+
+    .stats-cards-grid-v2 span {
+        margin-left: 20px;
+    }
+
+    .stats-cards-grid-v2 p {
+        padding: 10px;
+        padding-left: 20px;
     }
 
 
@@ -173,6 +202,16 @@
 
 
     /* --- Домашние задания --- */
+
+    #tab-content-homework .stat-value {
+        padding-left: 20px;
+    }
+
+    #tab-content-homework .stat-label {
+        padding: 10px;
+        padding-left: 20px;
+    }
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
@@ -264,6 +303,95 @@
         
         overflow-x:scroll !important;
     }
+
+    .main-tabs {
+        display: none;
+    }
+
+    /* Мобильді панельді көрсетеміз */
+    .td-mobile-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background-color: var(--bg-widget);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    #mobile-nav-title { font-size: 18px; font-weight: 600; }
+    #mobile-menu-btn {
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+    }
+
+    /* Бүйірден шығатын менюдің негізгі контейнері */
+    .main-nav {
+        position: fixed;
+        top: 0; right: 0;
+        width: 300px;
+        max-width: 90%;
+        height: 100%;
+        background-color: var(--bg-widget);
+        box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1);
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 2000;
+        padding: 0;
+        margin: 0;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .main-nav.is-open { transform: translateX(0); }
+
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    #mobile-menu-close-btn {
+        background: transparent;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: var(--text-secondary);
+    }
+    .main-nav ul {
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+    }
+    .main-nav a { 
+        display: block;
+        padding: 14px 20px; 
+        font-size: 16px; 
+        font-weight: 500; 
+        border-radius: 10px;
+    }
+    .main-nav a.active { background-color: var(--accent-primary); color: #fff; }
+
+    /* Меню ашылғанда артқы фонды қарайту */
+    body.menu-open::after {
+        content: '';
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(17, 24, 39, 0.6);
+        z-index: 1999;
+    }
 }
 
 
@@ -327,19 +455,32 @@
             </div>
         </header>
 
+        <div class="td-mobile-nav">
+            <h2 id="mobile-nav-title">Кесте</h2>
+            <button id="mobile-menu-btn" aria-label="Мәзірді ашу">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
         <!-- Основной контент -->
         <main class="dashboard-main">
-            <div class="welcome-section">
+            <!-- <div class="welcome-section">
                 <h1>Қош келдіңіз, {{ request.user.first_name }}!</h1>
-                <!-- <p>Жеке кабинет — {{ user_role|lower }}</p> -->
-            </div>
+            </div> -->
 
             <!-- Табы навигации -->
-            <nav class="main-tabs">
+            <nav class="main-nav">
+                <div class="mobile-menu-header">
+                    <h3>Мәзір</h3>
+                    <button id="mobile-menu-close-btn" aria-label="Мәзірді жабу">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 <ul>
-                    <li data-tab="schedule" class="active"><a href="#"><i class="far fa-calendar-alt"></i> Кесте</a></li>
-                    <li data-tab="dnevnik"><a href="#"><i class="fas fa-book"></i> Журнал</a></li>
-                    <li data-tab="homework"><a href="#"><i class="fas fa-pencil-alt"></i> Үй тапсырмалары</a></li>
+                    <!-- Маңызды: data-tab атрибуттары енді <a> тегінде -->
+                    <li><a href="#" data-tab="schedule" class="active"><i class="far fa-calendar-alt"></i> Кесте</a></li>
+                    <li><a href="#" data-tab="dnevnik"><i class="fas fa-book"></i> Журнал</a></li>
+                    <li><a href="#" data-tab="homework"><i class="fas fa-pencil-alt"></i> Үй тапсырмалары</a></li>
                 </ul>
             </nav>
 
@@ -594,6 +735,43 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    const menuButton = document.getElementById('mobile-menu-btn');
+    const closeButton = document.getElementById('mobile-menu-close-btn');
+    const navMenu = document.querySelector('.main-nav');
+    const mobileNavTitle = document.getElementById('mobile-nav-title');
+
+    if (menuButton && navMenu) {
+        const navLinks = navMenu.querySelectorAll('a');
+
+        const closeMenu = () => {
+            navMenu.classList.remove('is-open');
+            document.body.classList.remove('menu-open');
+        };
+
+        menuButton.addEventListener('click', function() {
+            navMenu.classList.add('is-open');
+            document.body.classList.add('menu-open');
+        });
+
+        closeButton.addEventListener('click', closeMenu);
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Тақырыпты жаңарту
+                mobileNavTitle.textContent = this.textContent.trim();
+                // Менюді жабу
+                closeMenu();
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            if (navMenu.classList.contains('is-open') && !navMenu.contains(event.target) && !menuButton.contains(event.target)) {
+                closeMenu();
+            }
+        });
+    }
+
     // --- ТАБТАРДЫ АУЫСТЫРУ ҮШІН УНИВЕРСАЛДЫ ФУНКЦИЯ ---
     function setupTabs(tabButtonsSelector, tabPanesSelector, activeClass = 'active') {
         const tabs = document.querySelectorAll(tabButtonsSelector);
@@ -613,7 +791,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    setupTabs('.main-tabs li', '.dashboard-main > .tab-pane');
+    setupTabs('.main-nav a', '.dashboard-main > .tab-pane');
     setupTabs('.day-tabs li', '.schedule-content .day-schedule');
     setupTabs('.homework-tabs .tab-btn', '#tab-content-homework .tab-pane');
 

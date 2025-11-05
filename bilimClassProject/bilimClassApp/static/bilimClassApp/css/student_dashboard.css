@@ -93,35 +93,58 @@
 .grades-table-v2 th { text-align: left; font-size: 12px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
 .grades-table-v2 td { padding: 20px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 16px; font-weight: 600; }
 .grades-table-v2 tbody tr:last-child td { border-bottom: none; }
+
+.grades-table-v2 tbody tr {
+    display: flex;
+    width: 100%;
+    align-items: center; 
+}
+
+
+
+.grades-table-v2 .subject-teacher,
+.grades-table-v2 tr td:last-child {
+    width: 150px;
+    flex-shrink: 0; 
+    flex-grow: 0;   
+}
+
+.grades-table-v2 .grades-list {
+    flex-grow: 1; 
+    min-width: 0; 
+}
+
 .grades-table-v2 .subject-name { font-weight: 600; margin: 0; }
 .grades-table-v2 .teacher-name { font-size: 14px; font-weight: 400; color: var(--text-secondary); }
 .grades-table-v2 .average-grade { font-weight: 700; }
  
 .grades-list {
     display: flex;
+    flex-grow: 2;
     gap: 8px;
     align-items: center;
     /* ИЗМЕНЕНО: Запрещаем перенос элементов на новую строку */
     flex-wrap: nowrap;
     /* ИЗМЕНЕНО: Включаем горизонтальный скролл */
-    overflow-x: scroll;
+    overflow-x:auto;
     /* Скрываем саму полосу прокрутки для эстетики */
-    --msoverflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    /* --msoverflow-style: none;  */
+    scrollbar-width: 5px;  /* Firefox */
 }
 /* Скрытие скроллбара для Chrome, Safari и Opera */
 .grades-list::-webkit-scrollbar {
-    display: none;
+    display: flex;
+    height: 5px;
 }
 
 
 .grades-list::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Цвет фона дорожки скролла */
+    background: #ece7e7; /* cscsЦвет самого ползунка */
     border-radius: 10px;
 }
 
 .grades-list::-webkit-scrollbar-thumb {
-    background: #ccc; /* cscsЦвет самого ползунка */
+    background: #D1FAE5; /* Цвет фона дорожки скролла */
     border-radius: 10px;
 }
 

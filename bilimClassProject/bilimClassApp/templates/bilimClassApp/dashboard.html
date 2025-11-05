@@ -86,6 +86,7 @@
     .schedule-section h3, p {
         background-color: #ffffff;
         padding: 20px 20px;
+        padding-left: 0px;
     }
 
     .schedule-section h3 {
@@ -393,6 +394,12 @@
         background-color: rgba(17, 24, 39, 0.6);
         z-index: 1999;
     }
+
+    .grades-table-v2 tbody {
+        display: flex;
+        flex-direction: column;
+    }
+
 }
 
 
@@ -559,7 +566,7 @@
                         <tbody>
                             {% for subject_data in grades_by_subject %}
                             <tr>
-                                <td>
+                                <td class="subject-teacher">
                                     <p class="subject-name">{{ subject_data.subject_name }}</p>
                                     <span class="teacher-name">{{ subject_data.teacher_name }}</span>
                                 </td>
@@ -940,9 +947,51 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
+
+    
     
     // ИСПРАВЛЕНО: Удалена старая ненужная функция setupGradeTooltips
 });
+</script>
+
+<!-- ===== НАЧАЛО НОВОГО СКРИПТА ДЛЯ ВЫРАВНИВАНИЯ ШИРИНЫ СТРОК ===== -->
+<script>
+function adjustRowWidths() {
+    const tbody = document.querySelector('.grades-table-v2 tbody');
+    if (!tbody) return; // Если элемента нет на странице, выходим
+
+    const trs = tbody.querySelectorAll('tr');
+    if (trs.length === 0) return;
+
+    const firstAndLastCells = document.querySelectorAll('.grades-table-v2 .subject-teacher, .grades-table-v2 tr td:last-child');
+
+    // Получаем фактическую ширину контейнера tbody в пикселях
+    const tbodyWidth = tbody.offsetWidth;
+
+    if (tbodyWidth >= 768) {
+
+        // Применяем эту ширину к каждой строке tr
+        trs.forEach(row => {
+            row.style.width = `${tbodyWidth}px`;
+        });
+    } else {
+        trs.forEach(row => {
+            row.style.display = 'block';
+            row.style.width = '100%'; // Также установим ширину 100% для блочного элемента
+        });
+
+        // 2. Меняем у первой и последней ячейки ширину на '100%'
+        firstAndLastCells.forEach(cell => {
+            cell.style.width = '100%';
+        });
+    }
+}
+
+// Вызываем функцию, когда страница полностью загружена
+document.addEventListener('DOMContentLoaded', adjustRowWidths);
+
+// Также вызываем функцию при каждом изменении размера окна
+window.addEventListener('resize', adjustRowWidths);
 </script>
 
 </body>

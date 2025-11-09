@@ -4,12 +4,21 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from .forms import ProfileForm, HomeworkForm, HomeworkSubmission, HomeworkSubmissionForm, UserManagementForm, SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm, LessonPlanForm, CustomPasswordChangeForm, UserNameChangeForm, EmailChangeForm
+from .forms import (
+    ProfileForm, HomeworkForm, HomeworkSubmissionForm, UserManagementForm, 
+    SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm, 
+    LessonPlanForm, CustomPasswordChangeForm, UserNameChangeForm, EmailChangeForm,
+    SummativeAssessmentForm, SummativeAssessmentSubmissionForm
+)
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed
 import json
 from datetime import date, timedelta
 from .decorators import group_required
-from .models import Schedule, Teacher, Assessment, Subject, Holiday, Attendance,Profile, SchoolClass, School, Homework, HomeworkSubmission, TeacherAssignment, LessonPlan
+from .models import (
+    Schedule, Teacher, Assessment, Subject, Holiday, Attendance, Profile, 
+    SchoolClass, School, Homework, HomeworkSubmission, TeacherAssignment, 
+    LessonPlan, SummativeAssessment, SummativeAssessmentSubmission
+)
 from django.db.models import Avg, Q, Count, Case, When, FloatField
 from django.views.decorators.http import require_POST
 import datetime
@@ -158,7 +167,6 @@ def change_password(request):
         return JsonResponse({'status': 'error', 'message': 'Неверный тип запроса. Ожидался JSON.'}, status=400)
 
     data = json.loads(request.body)
-    print(data)
     form = PasswordChangeForm(user=request.user, data=data)
     
     if form.is_valid():
@@ -336,6 +344,7 @@ def dashboard_view(request):
     schedule_by_day = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     grades_by_subject = []
     not_submitted, in_review, checked = [], [], []
+    summative_not_submitted, summative_in_review, summative_checked = [], [], []
     average_grade, total_grades_count, total_absences = None, 0, 0
     attendance_percentage = 100.0
 
@@ -415,6 +424,15 @@ def dashboard_view(request):
                 in_review = submissions.filter(grade__isnull=True)
                 checked = submissions.filter(grade__isnull=False)
 
+                # Получаем СУММАТИВНЫЕ РАБОТЫ (БЖБ/ТЖБ)
+                all_summative = SummativeAssessment.objects.filter(school_class=student_class).order_by('due_date')
+                summative_submissions = SummativeAssessmentSubmission.objects.filter(student=current_user, assessment__in=all_summative)
+                submitted_summative_ids = summative_submissions.values_list('assessment_id', flat=True)
+                summative_not_submitted = all_summative.exclude(pk__in=submitted_summative_ids)
+                summative_in_review = summative_submissions.filter(grade__isnull=True)
+                summative_checked = summative_submissions.filter(grade__isnull=False)
+                # === КОНЕЦ НОВОГО КОДА ===
+
                 # 2.4 Считаем ПОСЕЩАЕМОСТЬ (без изменений)
                 start_of_school_year = date(today.year, 9, 1) if today.month >= 9 else date(today.year - 1, 9, 1)
                 attendance_records = Attendance.objects.filter(student=current_user, date__gte=start_of_school_year, date__lte=today)
@@ -452,6 +470,12 @@ def dashboard_view(request):
         'in_review_list': in_review,
         'checked_list': checked,
         'active_period': period, # НОВОЕ: передаем активный период в шаблон
+        # === НАЧАЛО НОВОГО КОДА ===
+        # Передаем данные о БЖБ/ТЖБ в шаблон
+        'summative_not_submitted_list': summative_not_submitted,
+        'summative_in_review_list': summative_in_review,
+        'summative_checked_list': summative_checked,
+        # === КОНЕЦ НОВОГО КОДА ===
     }
     
     return render(request, 'bilimClassApp/dashboard.html', context)
@@ -488,6 +512,12 @@ def teacher_dashboard_view(request):
     # Создаем экземпляр формы для создания/редактирования ДЗ,
     # передавая в него учителя для фильтрации классов и предметов
     homework_form = HomeworkForm(teacher=teacher)
+
+    summative_assessments = SummativeAssessment.objects.filter(teacher=teacher).annotate(
+        submission_count=Count('submissions'),
+        checked_count=Count('submissions', filter=Q(submissions__grade__isnull=False))
+    ).order_by('-created_at').prefetch_related('school_class', 'subject')
+    summative_form = SummativeAssessmentForm(teacher=teacher)
 
     # === КОНЕЦ: ДАННЫЕ ДЛЯ ВКЛАДКИ "ДОМАШНИЕ ЗАДАНИЯ" ===
 
@@ -593,6 +623,8 @@ def teacher_dashboard_view(request):
 
         'lesson_plans': lesson_plans,
         'lesson_plan_form': lesson_plan_form,
+        'summative_assessments': summative_assessments,
+        'summative_form': summative_form,
     }
     return render(request, 'bilimClassApp/teacher_dashboard.html', context)
 
@@ -2455,3 +2487,156 @@ def get_student_performance_details_api(request, student_id):
         'student_full_name': student.get_full_name() or student.username,
         'subjects': performance_data,
     })
+
+# === НАЧАЛО НОВОГО КОДА ===
+# === API ДЛЯ СУММАТИВНЫХ РАБОТ (БЖБ/ТЖБ) ===
+
+@login_required
+@require_POST
+def create_summative_assessment_api(request):
+    """ API для создания БЖБ/ТЖБ. """
+    try:
+        teacher = request.user.teacher
+    except Teacher.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'User is not a teacher'}, status=403)
+
+    form = SummativeAssessmentForm(request.POST, teacher=teacher)
+    if form.is_valid():
+        assessment = form.save(commit=False)
+        assessment.teacher = teacher
+        assessment.save()
+        return JsonResponse({'status': 'success', 'message': 'Суммативная работа успешно создана!'})
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+@login_required
+def get_summative_assessment_details_api(request, pk):
+    """ API, возвращающее данные одного БЖБ/ТЖБ для редактирования. """
+    assessment = get_object_or_404(SummativeAssessment, pk=pk, teacher=request.user.teacher)
+    data = {
+        'assessment_type': assessment.assessment_type,
+        'title': assessment.title,
+        'description': assessment.description,
+        'school_class': assessment.school_class_id,
+        'subject': assessment.subject_id,
+        'due_date': assessment.due_date.strftime('%Y-%m-%dT%H:%M'),
+        'link': assessment.link or '',
+    }
+    return JsonResponse({'status': 'success', 'data': data})
+
+@login_required
+@require_POST
+def update_summative_assessment_api(request, pk):
+    """ API для обновления существующего БЖБ/ТЖБ. """
+    assessment = get_object_or_404(SummativeAssessment, pk=pk, teacher=request.user.teacher)
+    form = SummativeAssessmentForm(request.POST, instance=assessment, teacher=request.user.teacher)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'status': 'success', 'message': 'Работа успешно обновлена!'})
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+@login_required
+@require_POST
+def delete_summative_assessment_api(request, pk):
+    """ API для удаления БЖБ/ТЖБ. """
+    assessment = get_object_or_404(SummativeAssessment, pk=pk, teacher=request.user.teacher)
+    assessment.delete()
+    return JsonResponse({'status': 'success', 'message': 'Суммативная работа удалена.'})
+
+@login_required
+def get_summative_submissions_api(request, pk):
+    """ API для получения списка сданных работ по БЖБ/ТЖБ. """
+    assessment = get_object_or_404(SummativeAssessment, pk=pk, teacher=request.user.teacher)
+    students = assessment.school_class.students.all().order_by('last_name', 'first_name')
+    submissions_map = {sub.student.id: sub for sub in assessment.submissions.all()}
+    
+    response_data = []
+    for student in students:
+        sub_obj = submissions_map.get(student.id)
+        status = 'Ожидается'
+        if sub_obj:
+            status = 'Проверено' if sub_obj.grade is not None else 'Сдано'
+
+        response_data.append({
+            'submission_id': sub_obj.id if sub_obj else None,
+            'full_name': student.get_full_name(),
+            'status': status,
+            'submitted_at': sub_obj.submitted_at.strftime('%d.%m.%Y') if sub_obj else None,
+            'grade': sub_obj.grade if sub_obj else None,
+            'teacher_comment': sub_obj.teacher_comment if sub_obj else "",
+            'file_url': sub_obj.submission_file.url if sub_obj and sub_obj.submission_file else None,
+            'submission_text': sub_obj.submission_text if sub_obj else None,
+        })
+            
+    return JsonResponse({'status': 'success', 'submissions': response_data})
+
+@login_required
+@require_POST
+def grade_summative_submission_api(request, pk):
+    """ API для сохранения оценки и комментария к СДАННОЙ СУММАТИВНОЙ РАБОТЕ. """
+    try:
+        data = json.loads(request.body)
+        submission = get_object_or_404(SummativeAssessmentSubmission, pk=pk)
+
+        if submission.assessment.teacher != request.user.teacher:
+            return JsonResponse({'status': 'error', 'message': 'Access denied'}, status=403)
+
+        grade = data.get('grade')
+        submission.grade = int(grade) if grade not in [None, ''] else None
+        submission.teacher_comment = data.get('comment', '')
+        submission.checked_at = timezone.now()
+        submission.save()
+
+        # Создаем или обновляем оценку в общем журнале
+        if submission.grade is not None:
+            Assessment.objects.update_or_create(
+                # Ищем по уникальной связи с этой работой, чтобы избежать дублей
+                assessment_type=submission.assessment.assessment_type,
+                student=submission.student,
+                subject=submission.assessment.subject,
+                date=submission.checked_at.date(),
+                defaults={
+                    'school_class': submission.assessment.school_class,
+                    'teacher': request.user.teacher,
+                    'grade': submission.grade,
+                    'comment': submission.teacher_comment,
+                }
+            )
+        else:
+            # Если оценку убрали, удаляем ее из общего журнала
+            Assessment.objects.filter(
+                assessment_type=submission.assessment.assessment_type,
+                student=submission.student,
+                subject=submission.assessment.subject,
+                date=submission.checked_at.date(),
+            ).delete()
+
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Рецензия сохранена и оценка добавлена в журнал',
+            'new_grade': submission.grade
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+@login_required
+@require_POST
+def submit_summative_assessment_api(request, pk):
+    """ API для сдачи БЖБ/ТЖБ учеником. """
+    assessment = get_object_or_404(SummativeAssessment, pk=pk)
+    
+    if SummativeAssessmentSubmission.objects.filter(assessment=assessment, student=request.user).exists():
+        return JsonResponse({'status': 'error', 'message': 'Вы уже сдали эту работу.'}, status=400)
+
+    form = SummativeAssessmentSubmissionForm(request.POST, request.FILES)
+    if form.is_valid():
+        submission = form.save(commit=False)
+        submission.assessment = assessment
+        submission.student = request.user
+        submission.save()
+        return JsonResponse({'status': 'success', 'message': 'Работа успешно отправлена!'})
+    else:
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+# === КОНЕЦ НОВОГО КОДА ===

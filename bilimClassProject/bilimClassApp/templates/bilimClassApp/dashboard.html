@@ -489,6 +489,8 @@
                     <li><a href="#" data-tab="schedule" class="active"><i class="far fa-calendar-alt"></i> Кесте</a></li>
                     <li><a href="#" data-tab="dnevnik"><i class="fas fa-book"></i> Журнал</a></li>
                     <li><a href="#" data-tab="homework"><i class="fas fa-pencil-alt"></i> Үй тапсырмалары</a></li>
+                    <li><a href="#" data-tab="bjb"><i class="fas fa-tasks"></i> БЖБ</a></li>
+                    <li><a href="#" data-tab="tjb"><i class="fas fa-award"></i> ТЖБ</a></li>
                 </ul>
             </nav>
 
@@ -687,6 +689,166 @@
                 </div>
             </div>
 
+            <!-- ===== БАСТАУ: БЖБ (СОР) ҮШІН ЖАҢА ҚОЙЫНДЫ ===== -->
+            <div id="tab-content-bjb" class="tab-pane">
+                <div class="homework-widget">
+                    <div class="widget-header"><h2>БЖБ (Бөлім бойынша жиынтық бағалау)</h2><p>Барлық БЖБ жұмыстары</p></div>
+                    <div class="stats-grid">
+                        <div class="stat-card stat-card-pending">
+                            <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div>
+                                <div class="stat-value">{{ summative_not_submitted_list|length }}</div>
+                                <p class="stat-label">Тапсырылмаған</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card-review">
+                            <div class="stat-icon orange"><i class="fas fa-hourglass-half"></i></div>
+                            <div>
+                                <div class="stat-value">{{ summative_in_review_list|length }}</div>
+                                <p class="stat-label">Тексеруде</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card-checked">
+                            <div class="stat-icon blue"><i class="fas fa-check"></i></div>
+                            <div>
+                                <div class="stat-value">{{ summative_checked_list|length }}</div>
+                                <p class="stat-label">Тексерілді</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="homework-list">
+                        {% for sa in summative_not_submitted_list %}
+                            {% if sa.assessment_type == 'BJB' %}
+                            <div class="homework-card">
+                                <div class="hw-card-header"><h3>{{ sa.title }}</h3><span class="hw-status-tag tag-pending">Тапсырылмаған</span></div>
+                                <p class="hw-meta">{{ sa.subject.name }} • {{ sa.teacher.user.get_full_name }}</p>
+                                <p class="hw-description">{{ sa.description }}</p>
+                                {% if sa.link %}
+                                    <a href="{{ sa.link }}" class="hw-attachment" target="_blank">
+                                        <i class="fas fa-link"></i>
+                                        <span>Тапсырма сілтемесі</span>
+                                    </a>
+                                {% endif %}
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-clock"></i> Тапсыру мерзімі: {{ sa.due_date|date:"d.m.Y H:i" }}</div>
+                                    <button class="btn-submit open-sa-submission-modal" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-subject="{{ sa.subject.name }}" data-sa-description="{{ sa.description }}">Жұмысты тапсыру</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for submission in summative_in_review_list %}
+                            {% if submission.assessment.assessment_type == 'BJB' %}
+                             <div class="homework-card">
+                                <div class="hw-card-header"><h3>{{ submission.assessment.title }}</h3><span class="hw-status-tag tag-review">Тексеруде</span></div>
+                                <p class="hw-meta">{{ submission.assessment.subject.name }} • {{ submission.assessment.teacher.user.get_full_name }}</p>
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Тапсырылды: {{ submission.submitted_at|date:"d.m.Y" }}</div>
+                                    <button class="btn-submit btn-submitted" disabled>Жіберілді</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for submission in summative_checked_list %}
+                            {% if submission.assessment.assessment_type == 'BJB' %}
+                            <div class="homework-card">
+                                 <div class="hw-card-header"><h3>{{ submission.assessment.title }}</h3><span class="hw-status-tag tag-checked">Баға: {{ submission.grade }}</span></div>
+                                <p class="hw-meta">{{ submission.assessment.subject.name }} • {{ submission.assessment.teacher.user.get_full_name }}</p>
+                                <p class="hw-description"><strong>Мұғалімнің пікірі:</strong> {{ submission.teacher_comment|default:"-" }}</p>
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Тексерілді: {{ submission.checked_at|date:"d.m.Y" }}</div>
+                                    <button class="btn-submit btn-checked" disabled>Тексерілді</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- ===== АЯҚТАУ: БЖБ (СОР) ҮШІН ЖАҢА ҚОЙЫНДЫ ===== -->
+
+            <!-- ===== БАСТАУ: ТЖБ (СОЧ) ҮШІН ЖАҢА ҚОЙЫНДЫ ===== -->
+            <div id="tab-content-tjb" class="tab-pane">
+                 <div class="homework-widget">
+                    <div class="widget-header"><h2>ТЖБ (Тоқсан бойынша жиынтық бағалау)</h2><p>Барлық ТЖБ жұмыстары</p></div>
+                     <div class="stats-grid">
+                        <div class="stat-card stat-card-pending">
+                            <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div>
+                                <div class="stat-value">{{ summative_not_submitted_list|length }}</div>
+                                <p class="stat-label">Тапсырылмаған</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card-review">
+                            <div class="stat-icon orange"><i class="fas fa-hourglass-half"></i></div>
+                            <div>
+                                <div class="stat-value">{{ summative_in_review_list|length }}</div>
+                                <p class="stat-label">Тексеруде</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card-checked">
+                            <div class="stat-icon blue"><i class="fas fa-check"></i></div>
+                            <div>
+                                <div class="stat-value">{{ summative_checked_list|length }}</div>
+                                <p class="stat-label">Тексерілді</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="homework-list">
+                       {% for sa in summative_not_submitted_list %}
+                            {% if sa.assessment_type == 'TJB' %}
+                            <div class="homework-card">
+                                <div class="hw-card-header"><h3>{{ sa.title }}</h3><span class="hw-status-tag tag-pending">Тапсырылмаған</span></div>
+                                <p class="hw-meta">{{ sa.subject.name }} • {{ sa.teacher.user.get_full_name }}</p>
+                                <p class="hw-description">{{ sa.description }}</p>
+                                {% if sa.link %}
+                                    <a href="{{ sa.link }}" class="hw-attachment" target="_blank">
+                                        <i class="fas fa-link"></i>
+                                        <span>Тапсырма сілтемесі</span>
+                                    </a>
+                                {% endif %}
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-clock"></i> Тапсыру мерзімі: {{ sa.due_date|date:"d.m.Y H:i" }}</div>
+                                    <button class="btn-submit open-sa-submission-modal" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-subject="{{ sa.subject.name }}" data-sa-description="{{ sa.description }}">Жұмысты тапсыру</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for submission in summative_in_review_list %}
+                            {% if submission.assessment.assessment_type == 'TJB' %}
+                             <div class="homework-card">
+                                <div class="hw-card-header"><h3>{{ submission.assessment.title }}</h3><span class="hw-status-tag tag-review">Тексеруде</span></div>
+                                <p class="hw-meta">{{ submission.assessment.subject.name }} • {{ submission.assessment.teacher.user.get_full_name }}</p>
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Тапсырылды: {{ submission.submitted_at|date:"d.m.Y" }}</div>
+                                    <button class="btn-submit btn-submitted" disabled>Жіберілді</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for submission in summative_checked_list %}
+                            {% if submission.assessment.assessment_type == 'TJB' %}
+                            <div class="homework-card">
+                                 <div class="hw-card-header"><h3>{{ submission.assessment.title }}</h3><span class="hw-status-tag tag-checked">Баға: {{ submission.grade }}</span></div>
+                                <p class="hw-meta">{{ submission.assessment.subject.name }} • {{ submission.assessment.teacher.user.get_full_name }}</p>
+                                <p class="hw-description"><strong>Мұғалімнің пікірі:</strong> {{ submission.teacher_comment|default:"-" }}</p>
+                                <div class="hw-footer">
+                                    <div class="hw-deadline"><i class="far fa-calendar-check"></i> Тексерілді: {{ submission.checked_at|date:"d.m.Y" }}</div>
+                                    <button class="btn-submit btn-checked" disabled>Тексерілді</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- ===== АЯҚТАУ: ТЖБ (СОЧ) ҮШІН ЖАҢА ҚОЙЫНДЫ ===== -->
+
             <!-- ВКЛАДКА: ПРОФИЛЬ -->
             <div id="tab-content-profile" class="tab-pane {% if active_tab == 'profile' %}active{% endif %}">
                 <p>"Профиль" бөлімі әзірленуде.</p>
@@ -813,13 +975,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const fileDropText = document.getElementById('file-drop-text');
 
         dashboardMain.addEventListener('click', function(e) {
-            const openBtn = e.target.closest('.open-submission-modal');
-            if (openBtn) {
-                const { hwPk, hwTitle, hwSubject, hwDescription } = openBtn.dataset;
-                submissionModal.querySelector('#modal-hw-title').textContent = hwTitle;
-                submissionModal.querySelector('#modal-hw-subject').textContent = hwSubject;
-                submissionModal.querySelector('#modal-hw-description').innerHTML = `<p><strong>Тапсырма:</strong> ${hwDescription}</p>`;
-                submissionForm.action = `/api/homework/${hwPk}/submit/`;
+            // Екі түрлі батырманы да іздейміз
+            const openHwBtn = e.target.closest('.open-submission-modal');
+            const openSaBtn = e.target.closest('.open-sa-submission-modal'); // SA - Summative Assessment
+            
+            let pk, title, subject, description, url;
+
+            if (openHwBtn) {
+                // Егер үй тапсырмасының батырмасы басылса
+                pk = openHwBtn.dataset.hwPk;
+                title = openHwBtn.dataset.hwTitle;
+                subject = openHwBtn.dataset.hwSubject;
+                description = openHwBtn.dataset.hwDescription;
+                url = `/api/homework/${pk}/submit/`;
+            } else if (openSaBtn) {
+                // Егер БЖБ/ТЖБ батырмасы басылса
+                pk = openSaBtn.dataset.saPk;
+                title = openSaBtn.dataset.saTitle;
+                subject = openSaBtn.dataset.saSubject;
+                description = openSaBtn.dataset.saDescription;
+                url = `/api/summative-assessment/${pk}/submit/`; // URL өзгереді
+            }
+
+            // Егер батырмалардың бірі басылса, модальді терезені толтырамыз
+            if (pk) {
+                submissionModal.querySelector('#modal-hw-title').textContent = title;
+                submissionModal.querySelector('#modal-hw-subject').textContent = subject;
+                submissionModal.querySelector('#modal-hw-description').innerHTML = `<p><strong>Тапсырма:</strong> ${description}</p>`;
+                submissionForm.action = url;
                 submissionModal.classList.add('visible');
             }
         });

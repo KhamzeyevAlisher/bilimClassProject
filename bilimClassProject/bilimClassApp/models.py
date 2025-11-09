@@ -50,8 +50,6 @@ class Teacher(models.Model):
 
 class Profile(models.Model):
     """Профиль пользователя для дополнительной информации."""
-    # user = models.OneToOneField(User, on_delete=models.CASCADE)
-
     ROLE_CHOICES = (
         ('teacher', 'Учитель'),
         ('student', 'Ученик'),
@@ -63,27 +61,9 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True, verbose_name="Өмірбаян")
     location = models.CharField(max_length=30, blank=True, verbose_name="Мекенжайы")
     birth_date = models.DateField(null=True, blank=True, verbose_name="Туылған күні")
-    
-    phone_number = models.CharField(
-        max_length=20,
-        blank=True, 
-        verbose_name="Телефон нөмірі"
-    )
-
-    iin = models.CharField(
-        max_length=12,
-        blank=True, # Делаем поле необязательным
-        verbose_name="ИИН"
-    )
-
-    role = models.CharField(
-        max_length=20, 
-        choices=ROLE_CHOICES, 
-        verbose_name="Роль",
-        # Добавляем blank=True и null=True, чтобы существующие профили не вызвали ошибку
-        blank=True, 
-        null=True
-    )
+    phone_number = models.CharField(max_length=20, blank=True, verbose_name="Телефон нөмірі")
+    iin = models.CharField(max_length=12, blank=True, verbose_name="ИИН")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, verbose_name="Роль", blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -94,13 +74,6 @@ class SchoolClass(models.Model):
     name = models.CharField(max_length=10, verbose_name="Название класса (например, 9А)")
     students = models.ManyToManyField(User, related_name='school_classes', blank=True, verbose_name="Ученики")
     class_teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Классный руководитель")
-
-    # === НАЧАЛО НОВОГО КОДА ===
-    # @property
-    # def student_count(self):
-    #     """Возвращает количество учеников в классе."""
-    #     return self.students.count()
-    # === КОНЕЦ НОВОГО КОДА ===
 
     class Meta:
         verbose_name = "Класс"
@@ -172,6 +145,54 @@ class HomeworkSubmission(models.Model):
     def __str__(self):
         return f'Ответ от {self.student.username} на "{self.homework.title}"'
 
+# === НАЧАЛО НОВОГО КОДА ===
+
+class SummativeAssessment(models.Model):
+    """Модель для Суммативных работ (БЖБ/СОР и ТЖБ/СОЧ)."""
+    class AssessmentType(models.TextChoices):
+        BJB = 'BJB', 'БЖБ (СОР)'
+        TJB = 'TJB', 'ТЖБ (СОЧ)'
+
+    assessment_type = models.CharField(max_length=3, choices=AssessmentType.choices, verbose_name="Тип работы")
+    title = models.CharField(max_length=255, verbose_name="Заголовок/Тема работы")
+    description = models.TextField(verbose_name="Описание и критерии")
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='summative_assessments', verbose_name="Класс")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='summative_assessments_by_subject', verbose_name="Предмет")
+    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, related_name='created_summative_assessments', verbose_name="Учитель (автор)")
+    link = models.URLField(max_length=500, blank=True, null=True, verbose_name="Ссылка на задание (Google Forms, Quizizz и т.д.)")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    due_date = models.DateTimeField(verbose_name="Срок сдачи (дедлайн)")
+    
+    class Meta:
+        verbose_name = "Суммативная работа (СОР/СОЧ)"
+        verbose_name_plural = "Суммативные работы (СОР/СОЧ)"
+        ordering = ['-due_date', 'assessment_type']
+
+    def __str__(self):
+        return f'{self.get_assessment_type_display()} по "{self.subject.name}" для {self.school_class.name}'
+
+class SummativeAssessmentSubmission(models.Model):
+    """Модель для сдачи Суммативной работы (БЖБ/СОР и ТЖБ/СОЧ) учеником."""
+    assessment = models.ForeignKey(SummativeAssessment, on_delete=models.CASCADE, related_name='submissions', verbose_name="Суммативная работа")
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='summative_submissions', verbose_name="Ученик", limit_choices_to={'groups__name': 'Ученик'})
+    submission_text = models.TextField(blank=True, verbose_name="Текстовый ответ ученика")
+    submission_file = models.FileField(upload_to='summative_submission_files/', blank=True, null=True, verbose_name="Прикрепленный файл ответа")
+    submitted_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата сдачи")
+    grade = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)], null=True, blank=True, verbose_name="Оценка за работу")
+    teacher_comment = models.TextField(blank=True, verbose_name="Комментарий учителя")
+    checked_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата проверки")
+
+    class Meta:
+        verbose_name = "Ответ на Суммативную работу"
+        verbose_name_plural = "Ответы на Суммативные работы"
+        unique_together = ('assessment', 'student')
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f'Ответ от {self.student.username} на "{self.assessment.title}"'
+
+# === КОНЕЦ НОВОГО КОДА ===
+
 # --- 5. МОДЕЛИ УЧЕТА И ОЦЕНИВАНИЯ ---
 
 class Assessment(models.Model):
@@ -179,6 +200,10 @@ class Assessment(models.Model):
     class AssessmentType(models.TextChoices):
         LESSON = 'lesson', 'За урок'
         HOMEWORK = 'homework', 'За домашнее задание'
+        # === ИЗМЕНЕНИЕ: Добавляем типы для СОР и СОЧ ===
+        BJB = 'BJB', 'За БЖБ (СОР)'
+        TJB = 'TJB', 'За ТЖБ (СОЧ)'
+        # ============================================
         QUARTER = 'quarter', 'За четверть'
         EXAM = 'exam', 'За экзамен'
 
@@ -249,7 +274,6 @@ class TeacherAssignment(models.Model):
     class Meta:
         verbose_name = "Назначение учителя"
         verbose_name_plural = "Назначения учителей"
-        # Убедимся, что нельзя назначить одного и того же учителя на один и тот же предмет в одном классе дважды
         unique_together = ('teacher', 'school_class', 'subject')
         ordering = ['teacher__user__last_name', 'school_class__name']
 
@@ -263,26 +287,14 @@ class LessonPlan(models.Model):
         APPROVED = 'approved', 'Утвержден'
         REJECTED = 'rejected', 'Отклонен'
 
-    # Основная информация
     name = models.CharField(max_length=255, verbose_name="Название урока")
     date = models.DateField(verbose_name="Дата проведения")
     topic = models.CharField(max_length=255, blank=True, verbose_name="Тема урока")
-    
-    # Связи
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='lesson_plans', verbose_name="Учитель")
     school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='lesson_plans', verbose_name="Класс")
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lesson_plans', verbose_name="Предмет")
-
-    # Содержание плана
     goals_and_objectives = models.TextField(blank=True, verbose_name="Цели и задачи урока")
-    learning_materials = models.FileField(
-        upload_to='lesson_plan_materials/', 
-        blank=True, 
-        null=True, 
-        verbose_name="Учебные материалы (файл)"
-    )
-
-    # Мета-информация
+    learning_materials = models.FileField(upload_to='lesson_plan_materials/', blank=True, null=True, verbose_name="Учебные материалы (файл)")
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING, verbose_name="Статус")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -299,13 +311,5 @@ class LessonPlan(models.Model):
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    print(instance)
     if created:
-        # Устанавливаем роль по умолчанию для всех новых пользователей.
-        # Вы можете выбрать любую, например, 'student'.
         Profile.objects.create(user=instance, role='student')
-
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     """Сохраняет профиль пользователя при сохранении пользователя."""
-#     instance.profile.save()

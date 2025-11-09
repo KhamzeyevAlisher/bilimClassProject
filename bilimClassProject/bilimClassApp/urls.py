@@ -101,4 +101,18 @@ urlpatterns = [
     path('reset_password_complete/', 
          auth_views.PasswordResetCompleteView.as_view(template_name="registration/password_reset_complete.html"), 
          name="password_reset_complete"),
+    # === НАЧАЛО НОВОГО КОДА: API ДЛЯ СУММАТИВНЫХ РАБОТ (БЖБ/ТЖБ) ===
+    # Мұғалімдерге арналған API
+    path('api/summative-assessment/create/', views.create_summative_assessment_api, name='api_create_summative_assessment'),
+    path('api/summative-assessment/<int:pk>/details/', views.get_summative_assessment_details_api, name='api_get_summative_assessment_details'),
+    path('api/summative-assessment/<int:pk>/update/', views.update_summative_assessment_api, name='api_update_summative_assessment'),
+    path('api/summative-assessment/<int:pk>/delete/', views.delete_summative_assessment_api, name='api_delete_summative_assessment'),
+    path('api/summative-assessment/<int:pk>/submissions/', views.get_summative_submissions_api, name='api_get_summative_submissions'),
+    
+    # Тапсырылған жұмысты бағалауға арналған API (submission_id бойынша)
+    path('api/summative-submission/<int:pk>/grade/', views.grade_summative_submission_api, name='api_grade_summative_submission'),
+
+    # Оқушыларға арналған API
+    path('api/summative-assessment/<int:pk>/submit/', views.submit_summative_assessment_api, name='api_submit_summative_assessment'),
+    # === КОНЕЦ НОВОГО КОДА ===
 ]

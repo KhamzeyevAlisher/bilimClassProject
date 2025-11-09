@@ -4,7 +4,7 @@ from django import forms
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
-from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule,  Holiday, LessonPlan # Импортируем нужные модели
+from .models import Homework, SchoolClass, Subject, School, Profile, HomeworkSubmission, Teacher, Schedule,  Holiday, LessonPlan, SummativeAssessment, SummativeAssessmentSubmission
 
 class ProfileForm(forms.ModelForm):
     
@@ -462,3 +462,72 @@ class EmailChangeForm(forms.Form):
         strip=False, 
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'})
     )
+
+# === НАЧАЛО НОВЫХ ФОРМ ДЛЯ БЖБ/ТЖБ (СОР/СОЧ) ===
+
+class SummativeAssessmentForm(forms.ModelForm):
+    """
+    Суммативті жұмыстарды (БЖБ/ТЖБ) жасауға және өңдеуге арналған форма.
+    HomeworkForm формасына өте ұқсас, бірақ файлдың орнына 'link' өрісі бар.
+    """
+    due_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        label="Тапсыру мерзімі *"
+    )
+
+    class Meta:
+        model = SummativeAssessment
+        # Өрістерді қажетті ретпен көрсетеміз
+        fields = [
+            'assessment_type', 'title', 'school_class', 'subject', 
+            'due_date', 'link', 'description'
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Мысалы, "Фотосинтез тақырыбы бойынша №1 БЖБ"'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Бағалау критерийлерін сипаттап, нұсқаулар беріңіз...'}),
+            'link': forms.URLInput(attrs={'placeholder': 'https://forms.google.com/...'}),
+        }
+        labels = {
+            'assessment_type': "Жұмыс түрі *",
+            'title': "Жұмыс атауы *",
+            'school_class': "Сынып *",
+            'subject': "Пән *",
+            'description': "Сипаттама және критерийлер *",
+            'link': "Тапсырмаға сілтеме *",
+        }
+
+    def __init__(self, *args, **kwargs):
+        # View-тен берілген мұғалімді аламыз
+        teacher = kwargs.pop('teacher', None)
+        super().__init__(*args, **kwargs)
+
+        # Барлық өрістерді міндетті етіп белгілейміз
+        for field_name, field in self.fields.items():
+            field.required = True
+
+        if teacher:
+            # Тек осы мұғалімге БЕЛГІЛЕНГЕН сыныптар мен пәндерді ғана көрсетеміз
+            self.fields['school_class'].queryset = SchoolClass.objects.filter(
+                teacherassignment__teacher=teacher
+            ).distinct().order_by('name')
+            
+            self.fields['subject'].queryset = Subject.objects.filter(
+                teacherassignment__school_class__teacherassignment__teacher=teacher
+            ).distinct().order_by('name')
+            
+            # Таңдау өрістеріне бос мән қосамыз
+            self.fields['school_class'].empty_label = "Сыныпты таңдаңыз"
+            self.fields['subject'].empty_label = "Пәнді таңдаңыз"
+
+
+class SummativeAssessmentSubmissionForm(forms.ModelForm):
+    """
+    Форма для сдачи Суммативной работы учеником.
+    Аналогична HomeworkSubmissionForm.
+    """
+    class Meta:
+        model = SummativeAssessmentSubmission
+        # Указываем только те поля, которые заполняет ученик
+        fields = ['submission_text', 'submission_file']
+
+# === КОНЕЦ НОВЫХ ФОРМ ===

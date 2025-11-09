@@ -1570,6 +1570,8 @@ input[name="attached_file"]::file-selector-button:hover {
                 <li><a data-tab="schedule"><i class="far fa-calendar-alt"></i> Сабақ кестесі</a></li>
                 <li><a data-tab="journal"><i class="fas fa-book"></i> Журнал</a></li>
                 <li><a data-tab="homework"><i class="fas fa-pencil-alt"></i> Үй тапсырмалары</a></li>
+                <li><a data-tab="bjb"><i class="fas fa-tasks"></i>БЖБ</a></li>
+                <li><a data-tab="tjb"><i class="fas fa-award"></i>ТЖБ</a></li>
             </ul>
         </nav>
 
@@ -1826,6 +1828,100 @@ input[name="attached_file"]::file-selector-button:hover {
             </div>
             <!-- === КОНЕЦ: КОНТЕНТ ДЛЯ ВКЛАДКИ "ДОМАШНИЕ ЗАДАНИЯ" === -->
 
+            <!-- === НАЧАЛО: КОНТЕНТ ДЛЯ ВКЛАДКИ "БЖБ (СОР)" === -->
+            <div id="bjb-content" class="tab-content">
+                 <main class="homework-widget">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <h2>БЖБ (Бөлім бойынша жиынтық бағалау)</h2>
+                            <p>БЖБ жұмыстарын жасау және тексеру</p>
+                        </div>
+                        <button class="btn-create" id="create-bjb-btn"><i class="fas fa-plus"></i> БЖБ жасау</button>
+                    </div>
+
+                    <div class="homework-list" id="bjb-list-container">
+                        {% for sa in summative_assessments %}
+                          {% if sa.assessment_type == 'BJB' %}
+                            <div class="homework-card" id="sa-card-{{ sa.pk }}">
+                                <div class="hw-card-header">
+                                    <div class="hw-title-group">
+                                        <h3>{{ sa.title }}</h3>
+                                        <span class="hw-tag" style="background-color: #DBEAFE; color: #1E40AF;">БЖБ</span>
+                                        <span class="hw-tag">{{ sa.school_class.name }}</span>
+                                        <span class="hw-tag">{{ sa.subject.name }}</span>
+                                    </div>
+                                    <div class="hw-actions">
+                                        <button class="edit-summative-btn" data-sa-pk="{{ sa.pk }}"><i class="fas fa-pencil-alt"></i></button>
+                                        <button class="delete-summative-btn" data-sa-pk="{{ sa.pk }}"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                                <p class="hw-description">{{ sa.description|truncatewords:20 }}</p>
+                                <div class="hw-card-footer">
+                                    <div class="hw-stats">
+                                        <span>Тапсырылды: {{ sa.submission_count }}</span> &nbsp;&nbsp;
+                                        <span>Тексерілді: {{ sa.checked_count }} -дан {{ sa.submission_count }}</span>
+                                    </div>
+                                    <button class="btn-view-submissions view-summative-btn" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-info="{{ sa.school_class.name }} • {{ sa.subject.name }}">
+                                        <i class="far fa-eye"></i> Жұмыстарды қарау
+                                    </button>
+                                </div>
+                            </div>
+                          {% endif %}
+                        {% empty %}
+                            <p style="text-align:center; color: var(--text-secondary); padding: 20px;">Сіз әлі бірде-бір БЖБ жасамадыңыз.</p>
+                        {% endfor %}
+                    </div>
+                </main>
+            </div>
+            <!-- === КОНЕЦ: КОНТЕНТ ДЛЯ ВКЛАДКИ "БЖБ (СОР)" === -->
+
+            <!-- === НАЧАЛО: КОНТЕНТ ДЛЯ ВКЛАДКИ "ТЖБ (СОЧ)" === -->
+            <div id="tjb-content" class="tab-content">
+                 <main class="homework-widget">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <h2>ТЖБ (Тоқсан бойынша жиынтық бағалау)</h2>
+                            <p>ТЖБ жұмыстарын жасау және тексеру</p>
+                        </div>
+                        <button class="btn-create" id="create-tjb-btn"><i class="fas fa-plus"></i> ТЖБ жасау</button>
+                    </div>
+
+                    <div class="homework-list" id="tjb-list-container">
+                        {% for sa in summative_assessments %}
+                          {% if sa.assessment_type == 'TJB' %}
+                            <div class="homework-card" id="sa-card-{{ sa.pk }}">
+                                <div class="hw-card-header">
+                                    <div class="hw-title-group">
+                                        <h3>{{ sa.title }}</h3>
+                                        <span class="hw-tag" style="background-color: #D1FAE5; color: #065F46;">ТЖБ</span>
+                                        <span class="hw-tag">{{ sa.school_class.name }}</span>
+                                        <span class="hw-tag">{{ sa.subject.name }}</span>
+                                    </div>
+                                    <div class="hw-actions">
+                                        <button class="edit-summative-btn" data-sa-pk="{{ sa.pk }}"><i class="fas fa-pencil-alt"></i></button>
+                                        <button class="delete-summative-btn" data-sa-pk="{{ sa.pk }}"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                                <p class="hw-description">{{ sa.description|truncatewords:20 }}</p>
+                                <div class="hw-card-footer">
+                                    <div class="hw-stats">
+                                        <span>Тапсырылды: {{ sa.submission_count }}</span> &nbsp;&nbsp;
+                                        <span>Тексерілді: {{ sa.checked_count }} -дан {{ sa.submission_count }}</span>
+                                    </div>
+                                    <button class="btn-view-submissions view-summative-btn" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-info="{{ sa.school_class.name }} • {{ sa.subject.name }}">
+                                        <i class="far fa-eye"></i> Жұмыстарды қарау
+                                    </button>
+                                </div>
+                            </div>
+                          {% endif %}
+                        {% empty %}
+                            <p style="text-align:center; color: var(--text-secondary); padding: 20px;">Сіз әлі бірде-бір ТЖБ жасамадыңыз.</p>
+                        {% endfor %}
+                    </div>
+                </main>
+            </div>
+            <!-- === КОНЕЦ: КОНТЕНТ ДЛЯ ВКЛАДКИ "ТЖБ (СОЧ)" === -->
+
         </div>
     </main>
 </div>
@@ -1893,6 +1989,40 @@ input[name="attached_file"]::file-selector-button:hover {
         </form>
     </div>
 </div>
+
+<!-- === НАЧАЛО: МОДАЛЬНОЕ ОКНО ДЛЯ СОР/СОЧ === -->
+<div class="modal-overlay" id="summative-modal">
+    <div class="modal-container">
+        <button class="close-btn" id="close-summative-modal">&times;</button>
+        <div class="modal-header">
+            <h2 id="summative-modal-title">Жаңа жұмыс жасау</h2>
+            <p>Жұмыс туралы ақпаратты толтырыңыз</p>
+        </div>
+        <form id="summative-form" method="POST">
+            {% csrf_token %}
+            <!-- Бұл өріс қай батырманың басылғанын сақтайды (BJB немесе TJB) -->
+            {{ summative_form.assessment_type.as_hidden }} 
+            
+            <div class="form-group full-width" style="margin-top: 24px;">
+                <label for="{{ summative_form.title.id_for_label }}">Жұмыс атауы</label>
+                {{ summative_form.title }}
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="{{ summative_form.school_class.id_for_label }}">Сынып</label>{{ summative_form.school_class }}</div>
+                <div class="form-group"><label for="{{ summative_form.subject.id_for_label }}">Пән</label>{{ summative_form.subject }}</div>
+                <div class="form-group"><label for="{{ summative_form.due_date.id_for_label }}">Тапсыру мерзімі</label>{{ summative_form.due_date }}</div>
+            </div>
+            <div class="form-group full-width"><label for="{{ summative_form.link.id_for_label }}">Тапсырмаға сілтеме</label>{{ summative_form.link }}</div>
+            <div class="form-group full-width"><label for="{{ summative_form.description.id_for_label }}">Жұмыс сипаттамасы</label>{{ summative_form.description }}</div>
+            <div class="modal-footer full-width">
+                <button type="button" class="btn-secondary" id="cancel-summative-btn">Болдырмау</button>
+                <button type="submit" class="btn-submit">Жасау</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- === КОНЕЦ: МОДАЛЬНОЕ ОКНО ДЛЯ СОР/СОЧ === -->
+
 <div class="modal-overlay" id="submissions-modal">
     <div class="modal-container">
         <button class="close-btn" id="close-submissions-modal">&times;</button>
@@ -2373,6 +2503,169 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    // === НАЧАЛО: JAVASCRIPT ДЛЯ ЛОГИКИ БЖБ/ТЖБ (СОР/СОЧ) ===
+    const bjbTab = document.getElementById('bjb-content');
+    const tjbTab = document.getElementById('tjb-content');
+
+    // Бұл код тек қажетті элементтер бетте бар болса ғана іске қосылады
+    if (bjbTab && tjbTab) {
+        
+        // --- 1. НЕГІЗГІ ЭЛЕМЕНТТЕРДІ АЛУ ---
+        const summativeModal = document.getElementById('summative-modal');
+        const summativeForm = document.getElementById('summative-form');
+        const modalTitle = summativeModal.querySelector('#summative-modal-title');
+        const submitButton = summativeForm.querySelector('button[type="submit"]');
+        // Бұл жасырын өріс жұмыстың түрін (БЖБ немесе ТЖБ) сақтау үшін өте маңызды
+        const assessmentTypeInput = summativeForm.querySelector('[name="assessment_type"]');
+
+        // "Жасау" батырмалары
+        const createBjbBtn = document.getElementById('create-bjb-btn');
+        const createTjbBtn = document.getElementById('create-tjb-btn');
+
+        // Жұмыстар тізімінің контейнерлері
+        const bjbListContainer = document.getElementById('bjb-list-container');
+        const tjbListContainer = document.getElementById('tjb-list-container');
+        
+        // --- 2. НЕГІЗГІ ФУНКЦИЯЛАР ---
+
+        /**
+         * Жаңа жұмыс (БЖБ немесе ТЖБ) жасау үшін модальді терезені ашады.
+         * @param {string} type - 'BJB' немесе 'TJB'
+         */
+        const openSummativeModalForCreate = (type) => {
+            summativeForm.reset(); // Форманы алдыңғы деректерден тазалау
+            summativeForm.setAttribute('action', "{% url 'api_create_summative_assessment' %}");
+            submitButton.textContent = 'Жасау';
+
+            if (type === 'BJB') {
+                modalTitle.textContent = 'Жаңа БЖБ (СОР) жасау';
+                assessmentTypeInput.value = 'BJB'; // Жасырын өріске 'BJB' мәнін орнату
+            } else if (type === 'TJB') {
+                modalTitle.textContent = 'Жаңа ТЖБ (СОЧ) жасау';
+                assessmentTypeInput.value = 'TJB'; // Жасырын өріске 'TJB' мәнін орнату
+            }
+            
+            summativeModal.style.display = 'flex';
+        };
+
+        /**
+         * Бұрыннан бар жұмысты өңдеу үшін модальді терезені ашады.
+         * @param {string} assessmentId - Өңделетін жұмыстың ID-і
+         */
+        const openSummativeModalForEdit = async (assessmentId) => {
+            modalTitle.textContent = 'Жұмысты өңдеу';
+            submitButton.textContent = 'Сақтау';
+            summativeForm.reset();
+            summativeForm.setAttribute('action', `/api/summative-assessment/${assessmentId}/update/`);
+            
+            try {
+                const response = await fetch(`/api/summative-assessment/${assessmentId}/details/`);
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message);
+                
+                const data = result.data;
+                // Форманы серверден келген деректермен толтыру
+                summativeForm.querySelector('[name="assessment_type"]').value = data.assessment_type;
+                summativeForm.querySelector('[name="title"]').value = data.title;
+                summativeForm.querySelector('[name="description"]').value = data.description;
+                summativeForm.querySelector('[name="school_class"]').value = data.school_class;
+                summativeForm.querySelector('[name="subject"]').value = data.subject;
+                summativeForm.querySelector('[name="due_date"]').value = data.due_date;
+                summativeForm.querySelector('[name="link"]').value = data.link;
+                
+                summativeModal.style.display = 'flex';
+            } catch (error) {
+                alert('Жұмыс деректерін жүктеу мүмкін болмады: ' + error.message);
+            }
+        };
+
+        /** Модальді терезені жабады */
+        const closeSummativeModal = () => { summativeModal.style.display = 'none'; };
+
+        // --- 3. ОҚИҒАЛАРДЫ БАЙЛАНЫСТЫРУ (EVENT LISTENERS) ---
+
+        // "Жасау" батырмаларын басқанда...
+        createBjbBtn.addEventListener('click', () => openSummativeModalForCreate('BJB'));
+        createTjbBtn.addEventListener('click', () => openSummativeModalForCreate('TJB'));
+        
+        // Модальді терезенің жабу элементтерін басқанда...
+        summativeModal.querySelector('#close-summative-modal').addEventListener('click', closeSummativeModal);
+        summativeModal.querySelector('#cancel-summative-btn').addEventListener('click', closeSummativeModal);
+
+        // Форманы жібергенде (submit)...
+        summativeForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Беттің қайта жүктелуін тоқтату
+            const formData = new FormData(this);
+            const actionUrl = this.getAttribute('action');
+            
+            try {
+                const response = await fetch(actionUrl, {
+                    method: 'POST', 
+                    body: formData, 
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(result.message || 'Сәтті сақталды!');
+                    window.location.reload(); // Сәтті болса, бетті қайта жүктеу
+                } else {
+                    // Қателерді әдемі форматта шығару
+                    const errorMessages = Object.values(result.errors).map(err => err[0]).join('\n');
+                    alert('Қате:\n' + errorMessages);
+                }
+            } catch (error) {
+                alert('Желілік қате орын алды.');
+            }
+        });
+        
+        // Екі контейнерге де (БЖБ және ТЖБ) ортақ оқиға тыңдаушы қосу
+        // Бұл "event delegation" деп аталады және өте тиімді әдіс
+        [bjbListContainer, tjbListContainer].forEach(container => {
+            if (!container) return; // Егер контейнер жоқ болса, жалғастырмау
+            
+            container.addEventListener('click', function(e) {
+                // "Өңдеу" батырмасын іздеу
+                const editButton = e.target.closest('.edit-summative-btn');
+                if (editButton) {
+                    openSummativeModalForEdit(editButton.dataset.saPk);
+                    return; // Басқа тексерулердің қажеті жоқ
+                }
+
+                // "Жою" батырмасын іздеу
+                const deleteButton = e.target.closest('.delete-summative-btn');
+                if (deleteButton) {
+                    if (confirm('Бұл жұмысты жойғыңыз келетініне сенімдісіз бе?')) {
+                        fetch(`/api/summative-assessment/${deleteButton.dataset.saPk}/delete/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Жұмыс сәтті жойылды.');
+                                window.location.reload();
+                            } else {
+                                alert('Қате: ' + data.message);
+                            }
+                        });
+                    }
+                    return;
+                }
+
+                // "Жұмыстарды қарау" батырмасын іздеу
+                // Бұл ДЗ-дағы логиканы қайталайды, сондықтан ортақ функцияны қолдану керек
+                const viewBtn = e.target.closest('.view-summative-btn');
+                if (viewBtn) {
+                    // Бұл жерде сіздің үй тапсырмасына арналған openSubmissionsModal функцияңыз шақырылады
+                    // openSubmissionsModal(viewBtn.dataset.saPk, ...);
+                    alert(`"${viewBtn.dataset.saTitle}" жұмыстарын қарау функциясы қосылады.`);
+                }
+            });
+        });
+    }
+    // === КОНЕЦ: JAVASCRIPT ДЛЯ ЛОГИКИ БЖБ/ТЖБ (СОР/СОЧ) ===
     
     // === JAVASCRIPT ДЛЯ ЛОГИКИ ПОУРОЧНЫХ ПЛАНОВ ===
     const lessonPlansTab = document.getElementById('lesson-plans-content');

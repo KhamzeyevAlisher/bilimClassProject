@@ -2715,3 +2715,23 @@ def set_summative_grade_api(request):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 # ===== АЯҚТАУ: ЖАҢА API ФУНКЦИЯСЫ =====
+
+@require_POST  # Разрешаем только POST-запросы для безопасности
+@login_required
+@user_passes_test(is_staff_check) # Только администраторы/персонал могут удалять
+def delete_class_api(request, class_id):
+    """
+    API-эндпоинт для полного удаления класса.
+    """
+    try:
+        # 1. Находим класс по ID. Если не найден, вернется ошибка 404.
+        school_class = get_object_or_404(SchoolClass, pk=class_id)
+        
+        # 2. Удаляем объект из базы данных
+        school_class.delete()
+        
+        # 3. Возвращаем успешный JSON-ответ
+        return JsonResponse({'status': 'success', 'message': 'Класс успешно удален'})
+    except Exception as e:
+        # В случае любой другой ошибки, возвращаем ее описание
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

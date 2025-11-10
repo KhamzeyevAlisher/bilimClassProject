@@ -8,7 +8,7 @@ from .forms import (
     ProfileForm, HomeworkForm, HomeworkSubmissionForm, UserManagementForm, 
     SchoolClassForm, SchoolForm, ScheduleForm, SubjectForm, HolidayForm, 
     LessonPlanForm, CustomPasswordChangeForm, UserNameChangeForm, EmailChangeForm,
-    SummativeAssessmentForm, SummativeAssessmentSubmissionForm
+    SummativeAssessmentForm, SummativeAssessmentSubmissionForm, UserEditForm
 )
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed
 import json
@@ -1630,6 +1630,7 @@ def get_user_details_view(request, user_id):
             "email": user.email,
             "is_active": user.is_active,
             "role": user.profile.role,
+            "phone_number": user.profile.phone_number, # <-- ДОБАВЛЕНО
             "school_class_id": "",
             "subject_ids": [],
         }
@@ -1653,9 +1654,14 @@ def manage_user_view(request):
     API-эндпоинт. Создает или обновляет пользователя, используя данные из POST-запроса.
     """
     if request.method == 'POST':
-        form = UserManagementForm(request.POST)
+        user_id = request.POST.get('user_id')
+        
+        if user_id:
+            form = UserEditForm(request.POST)
+        # Если user_id нет, значит, это создание нового пользователя.
+        else:
+            form = UserManagementForm(request.POST)
 
-        print(form)
 
         if form.is_valid():
             form.save() 

@@ -531,3 +531,96 @@ class SummativeAssessmentSubmissionForm(forms.ModelForm):
         fields = ['submission_text', 'submission_file']
 
 # === КОНЕЦ НОВЫХ ФОРМ ===
+
+class UserEditForm(forms.Form):
+    # Поля из User
+    full_name = forms.CharField(label="ФИО", max_length=150, required=True)
+    username = forms.CharField(label="Логин (Username)", max_length=150, required=True)
+    email = forms.EmailField(label="Email", required=True)
+    is_active = forms.ChoiceField(label="Статус", choices=[(True, 'Активен'), (False, 'Заблокирован')])
+
+    # Поля из Profile
+    phone_number = forms.CharField(label="Телефон", max_length=20, required=False)
+    role = forms.ChoiceField(label="Роль", choices=Profile.ROLE_CHOICES)
+
+    # Поля для специфичных ролей
+    school_class = forms.ModelChoiceField(
+        queryset=SchoolClass.objects.all(),
+        label="Класс", required=False
+    )
+    subjects = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.all(),
+        label="Предметы", required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+
+    # Скрытое поле для ID при редактировании
+    user_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
+    @transaction.atomic
+    def save(self):
+        user_id = self.cleaned_data.get('user_id')
+        user = User.objects.get(id=user_id) if user_id else None
+
+        if not user:
+            # Эта форма не должна создавать пользователей, но на всякий случай
+            # оставим эту логику.
+            username = self.cleaned_data['username']
+            user = User.objects.create_user(username=username, email=self.cleaned_data['email'])
+            user.set_password('password123')
+
+        user._role_to_set = self.cleaned_data['role']
+        
+        # Обновление данных User
+        name_parts = self.cleaned_data['full_name'].split()
+        user.first_name = name_parts[0] if len(name_parts) > 0 else ''
+        user.last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+        user.username = self.cleaned_data['username']
+        user.email = self.cleaned_data['email']
+        user.is_active = self.cleaned_data['is_active'] == 'True'
+        user.save()
+
+        # Обработка Profile
+        profile, _ = Profile.objects.get_or_create(user=user)
+        profile.role = self.cleaned_data['role']
+        profile.phone_number = self.cleaned_data.get('phone_number', '')
+        profile.save()
+
+        # Обработка в зависимости от роли
+        role = self.cleaned_data['role']
+
+        if role == 'student':
+            user.school_classes.clear()
+            selected_class = self.cleaned_data.get('school_class')
+            if selected_class:
+                selected_class.students.add(user)
+            Teacher.objects.filter(user=user).delete()
+
+        elif role == 'teacher':
+            teacher, _ = Teacher.objects.get_or_create(user=user)
+            selected_subjects = self.cleaned_data.get('subjects')
+            if selected_subjects:
+                teacher.subjects.set(selected_subjects)
+            else:
+                teacher.subjects.clear()
+            user.school_classes.clear()
+        
+        else:
+            user.school_classes.clear()
+            Teacher.objects.filter(user=user).delete()
+
+        return user
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        user_id = self.cleaned_data.get('user_id')
+
+        # if not user_id:
+        #     if User.objects.filter(username=username).exists():
+        #         raise forms.ValidationError("Этот логин уже занят.")
+        # else:
+        #     if User.objects.filter(username=username).exclude(id=user_id).exists():
+        #         raise forms.ValidationError("Этот логин уже занят.")
+        
+        return username
+# === КОНЕЦ: НОВАЯ ФОРМА ===

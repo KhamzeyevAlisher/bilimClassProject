@@ -29,6 +29,11 @@
 }
     /* --- Планшеттерге арналған стильдер (992px дейін) --- */
 @media (max-width: 992px) {
+    .schedule-section h3, p {
+        padding: 10px;
+        width: 100%;
+    }
+
     .container, .dashboard-container {
         padding: 16px; /* Уменьшаем боковые отступы */
         margin: 10px;
@@ -736,7 +741,7 @@
                                 {% endif %}
                                 <div class="hw-footer">
                                     <div class="hw-deadline"><i class="far fa-clock"></i> Тапсыру мерзімі: {{ sa.due_date|date:"d.m.Y H:i" }}</div>
-                                    <button class="btn-submit open-sa-submission-modal" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-subject="{{ sa.subject.name }}" data-sa-description="{{ sa.description }}">Жұмысты тапсыру</button>
+                                    <button class="btn-submit open-sa-submission-modal" style="display: none;" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-subject="{{ sa.subject.name }}" data-sa-description="{{ sa.description }}">Жұмысты тапсыру</button>
                                 </div>
                             </div>
                             {% endif %}
@@ -816,7 +821,7 @@
                                 {% endif %}
                                 <div class="hw-footer">
                                     <div class="hw-deadline"><i class="far fa-clock"></i> Тапсыру мерзімі: {{ sa.due_date|date:"d.m.Y H:i" }}</div>
-                                    <button class="btn-submit open-sa-submission-modal" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-subject="{{ sa.subject.name }}" data-sa-description="{{ sa.description }}">Жұмысты тапсыру</button>
+                                    <button class="btn-submit open-sa-submission-modal" style="display: none;" data-sa-pk="{{ sa.pk }}" data-sa-title="{{ sa.title }}" data-sa-subject="{{ sa.subject.name }}" data-sa-description="{{ sa.description }}">Жұмысты тапсыру</button>
                                 </div>
                             </div>
                             {% endif %}
@@ -1136,9 +1141,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     
-    
     // ИСПРАВЛЕНО: Удалена старая ненужная функция setupGradeTooltips
 });
+
 </script>
 
 <!-- ===== НАЧАЛО НОВОГО СКРИПТА ДЛЯ ВЫРАВНИВАНИЯ ШИРИНЫ СТРОК ===== -->

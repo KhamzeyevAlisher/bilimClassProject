@@ -1655,6 +1655,8 @@ def manage_user_view(request):
     if request.method == 'POST':
         form = UserManagementForm(request.POST)
 
+        print(form)
+
         if form.is_valid():
             form.save() 
             return JsonResponse({'status': 'success'})
@@ -2546,27 +2548,38 @@ def delete_summative_assessment_api(request, pk):
 
 @login_required
 def get_summative_submissions_api(request, pk):
-    """ API для получения списка сданных работ по БЖБ/ТЖБ. """
+    """
+    API для получения списка ВСЕХ учеников класса и статусов их работ по БЖБ/ТЖБ.
+    """
+    # Негізгі жұмысты (БЖБ/ТЖБ) табамыз
     assessment = get_object_or_404(SummativeAssessment, pk=pk, teacher=request.user.teacher)
-    students = assessment.school_class.students.all().order_by('last_name', 'first_name')
+    
+    # Сол жұмыс тағайындалған сыныптың БАРЛЫҚ оқушыларын аламыз
+    students_in_class = assessment.school_class.students.all().order_by('last_name', 'first_name')
+    
+    # Тапсырылған жұмыстарды жылдам іздеу үшін сөздікке (dictionary) саламыз
     submissions_map = {sub.student.id: sub for sub in assessment.submissions.all()}
     
     response_data = []
-    for student in students:
-        sub_obj = submissions_map.get(student.id)
-        status = 'Ожидается'
-        if sub_obj:
-            status = 'Проверено' if sub_obj.grade is not None else 'Сдано'
+    # Сыныптағы ӘРБІР оқушыны циклмен аралап шығамыз
+    for student in students_in_class:
+        submission_obj = submissions_map.get(student.id)
+        
+        status = 'Күтілуде' # Үнсіз келісім бойынша статус
+        if submission_obj:
+            status = 'Проверено' if submission_obj.grade is not None else 'Сдано'
 
         response_data.append({
-            'submission_id': sub_obj.id if sub_obj else None,
-            'full_name': student.get_full_name(),
+            # Егер оқушы жұмыс тапсырмаса, submission_id = None болады
+            'submission_id': submission_obj.id if submission_obj else None,
+            'student_id': student.id, # Оқушының ID-і әрқашан болады
+            'full_name': student.get_full_name() or student.username,
             'status': status,
-            'submitted_at': sub_obj.submitted_at.strftime('%d.%m.%Y') if sub_obj else None,
-            'grade': sub_obj.grade if sub_obj else None,
-            'teacher_comment': sub_obj.teacher_comment if sub_obj else "",
-            'file_url': sub_obj.submission_file.url if sub_obj and sub_obj.submission_file else None,
-            'submission_text': sub_obj.submission_text if sub_obj else None,
+            'submitted_at': submission_obj.submitted_at.strftime('%d.%m.%Y') if submission_obj else None,
+            'grade': submission_obj.grade if submission_obj else None,
+            'teacher_comment': submission_obj.teacher_comment if submission_obj else "",
+            'file_url': submission_obj.submission_file.url if submission_obj and submission_obj.submission_file else None,
+            'submission_text': submission_obj.submission_text if submission_obj else None,
         })
             
     return JsonResponse({'status': 'success', 'submissions': response_data})
@@ -2640,3 +2653,65 @@ def submit_summative_assessment_api(request, pk):
         return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
 # === КОНЕЦ НОВОГО КОДА ===
+
+# ===== БАСТАУ: БАҒАНЫ ИКЕМДІ САҚТАЙТЫН ЖАҢА API ФУНКЦИЯСЫ =====
+@login_required
+@require_POST
+def set_summative_grade_api(request):
+    """
+    Бұл API БЖБ/ТЖБ үшін баға қояды.
+    Егер оқушы жұмыс тапсырмаса, ол үшін автоматты түрде жазба жасайды.
+    """
+    try:
+        teacher = request.user.teacher
+        data = json.loads(request.body)
+        
+        assessment_id = data.get('assessment_id')
+        student_id = data.get('student_id')
+        grade = data.get('grade')
+        comment = data.get('comment', '')
+
+        # Қауіпсіздік тексерісі: мұғалімнің бұл жұмысқа қатысы бар-жоғын тексеру
+        assessment = get_object_or_404(SummativeAssessment, pk=assessment_id, teacher=teacher)
+
+        # update_or_create: егер жазба болса - жаңартады, болмаса - жасайды.
+        submission, created = SummativeAssessmentSubmission.objects.update_or_create(
+            assessment=assessment,
+            student_id=student_id,
+            defaults={
+                'grade': int(grade) if grade not in [None, ''] else None,
+                'teacher_comment': comment,
+                'checked_at': timezone.now()
+            }
+        )
+
+        # Ортақ Assessment моделін жаңарту (бұл логика бұрынғыдай)
+        if submission.grade is not None:
+            Assessment.objects.update_or_create(
+                assessment_type=submission.assessment.assessment_type,
+                student=submission.student,
+                subject=submission.assessment.subject,
+                date=submission.checked_at.date(),
+                defaults={
+                    'school_class': submission.assessment.school_class,
+                    'teacher': teacher,
+                    'grade': submission.grade,
+                    'comment': submission.teacher_comment,
+                }
+            )
+        else:
+            Assessment.objects.filter(
+                assessment_type=submission.assessment.assessment_type,
+                student=submission.student,
+                subject=submission.assessment.subject,
+                date=submission.checked_at.date(),
+            ).delete()
+
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Баға сәтті сақталды',
+            'new_grade': submission.grade
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+# ===== АЯҚТАУ: ЖАҢА API ФУНКЦИЯСЫ =====

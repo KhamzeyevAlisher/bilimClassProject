@@ -110,9 +110,10 @@ urlpatterns = [
     path('api/summative-assessment/<int:pk>/submissions/', views.get_summative_submissions_api, name='api_get_summative_submissions'),
     
     # Тапсырылған жұмысты бағалауға арналған API (submission_id бойынша)
-    path('api/summative-submission/<int:pk>/grade/', views.grade_summative_submission_api, name='api_grade_summative_submission'),
-
+#     path('api/summative-submission/<int:pk>/grade/', views.grade_summative_submission_api, name='api_grade_summative_submission'),
+    path('api/summative/set-grade/', views.set_summative_grade_api, name='api_set_summative_grade'),
     # Оқушыларға арналған API
     path('api/summative-assessment/<int:pk>/submit/', views.submit_summative_assessment_api, name='api_submit_summative_assessment'),
     # === КОНЕЦ НОВОГО КОДА ===
+    
 ]

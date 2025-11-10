@@ -1115,6 +1115,23 @@ input[name="attached_file"]::file-selector-button:hover {
     grid-template-columns: 2fr; /* Одна колонка для мобильных устройств */
 }
 
+#summative-form .form-grid {
+    grid-template-columns: 2fr;
+}
+
+#cancel-summative-btn {
+    min-width: 120px;
+}
+
+.hw-title-link {
+    text-decoration: none;
+    color: inherit; /* Түсін ата-ана элементінен алады */
+    transition: color 0.2s;
+}
+
+.hw-title-link:hover {
+    color: var(--accent-primary); /* Тінтуірді апарғанда түсін өзгертеді */
+}
 
 /* ===================================================================
    10. АДАПТИВНЫЕ СТИЛИ (MEDIA QUERIES)
@@ -1845,7 +1862,13 @@ input[name="attached_file"]::file-selector-button:hover {
                             <div class="homework-card" id="sa-card-{{ sa.pk }}">
                                 <div class="hw-card-header">
                                     <div class="hw-title-group">
-                                        <h3>{{ sa.title }}</h3>
+                                        <h3>
+                                            {% if sa.link %}
+                                                <a href="{{ sa.link }}" target="_blank" rel="noopener noreferrer" class="hw-title-link">{{ sa.title }}</a>
+                                            {% else %}
+                                                {{ sa.title }}
+                                            {% endif %}
+                                        </h3>
                                         <span class="hw-tag" style="background-color: #DBEAFE; color: #1E40AF;">БЖБ</span>
                                         <span class="hw-tag">{{ sa.school_class.name }}</span>
                                         <span class="hw-tag">{{ sa.subject.name }}</span>
@@ -1892,7 +1915,13 @@ input[name="attached_file"]::file-selector-button:hover {
                             <div class="homework-card" id="sa-card-{{ sa.pk }}">
                                 <div class="hw-card-header">
                                     <div class="hw-title-group">
-                                        <h3>{{ sa.title }}</h3>
+                                        <h3>
+                                            {% if sa.link %}
+                                                <a href="{{ sa.link }}" target="_blank" rel="noopener noreferrer" class="hw-title-link">{{ sa.title }}</a>
+                                            {% else %}
+                                                {{ sa.title }}
+                                            {% endif %}
+                                        </h3>
                                         <span class="hw-tag" style="background-color: #D1FAE5; color: #065F46;">ТЖБ</span>
                                         <span class="hw-tag">{{ sa.school_class.name }}</span>
                                         <span class="hw-tag">{{ sa.subject.name }}</span>
@@ -2310,6 +2339,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const homeworkModal = document.getElementById('homework-modal');
         const submissionsModal = document.getElementById('submissions-modal');
         const gradingModal = document.getElementById('grading-modal');
+        const submissionsTbody = document.getElementById('submissions-tbody');
+        const gradingForm = document.getElementById('grading-form');
         
         if (homeworkModal && homeworkListContainer) {
             const openCreateBtn = homeworkTab.querySelector('.btn-create');
@@ -2446,59 +2477,89 @@ document.addEventListener('DOMContentLoaded', function() {
             const studentNameEl = document.getElementById('grading-student-name');
             const gradeInput = gradingModal.querySelector('#grade-input');
             const commentTextarea = gradingModal.querySelector('#comment-textarea');
-            let currentSubmissionRow = null;
 
+            /** Бағалау терезесін ашады */
             const openGradingModal = (cell) => {
-                const { submissionPk, studentName, grade, comment } = cell.dataset;
-                currentSubmissionRow = document.getElementById(`sub-row-${submissionPk}`);
+                const { submissionPk, studentId, studentName, grade, comment, saPk, type } = cell.dataset;
+
                 studentNameEl.textContent = studentName;
                 gradeInput.value = grade || "";
                 commentTextarea.value = comment || "";
-                gradingForm.dataset.submissionPk = submissionPk;
+                
+                // Форманың dataset-іне бағаны сақтау үшін қажетті барлық ID-ді сақтаймыз
+                gradingForm.dataset.submissionPk = submissionPk || '0'; // '0' немесе submission ID
+                gradingForm.dataset.studentId = studentId;       // оқушы ID-і
+                gradingForm.dataset.type = type;                 // 'homework' немесе 'summative'
+                
+                if (type === 'summative') {
+                    gradingForm.dataset.saPk = saPk;
+                } else {
+                    delete gradingForm.dataset.saPk;
+                }
                 gradingModal.style.display = 'flex';
             };
-
+            
+            /** Бағалау терезесін жабады */
             const closeGradingModal = () => { gradingModal.style.display = 'none'; };
-            gradingModal.querySelector('#close-grading-modal').addEventListener('click', closeGradingModal);
-            gradingModal.querySelector('#cancel-grading-btn').addEventListener('click', closeGradingModal);
-            gradingModal.addEventListener('click', (e) => { if (e.target === gradingModal) closeGradingModal(); });
 
-            gradingForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const submissionPk = this.dataset.submissionPk;
-                const grade = gradeInput.value;
-                const comment = commentTextarea.value;
-
-                try {
-                    const response = await fetch(`/api/submission/${submissionPk}/grade/`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                        body: JSON.stringify({ grade: grade, comment: comment }),
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.message);
-
-                    if (currentSubmissionRow) {
-                        const statusCell = currentSubmissionRow.cells[2];
-                        const gradeCell = currentSubmissionRow.cells[4];
-                        const actionCell = currentSubmissionRow.cells[5];
-                        
-                        statusCell.innerHTML = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Тексерілді</span>`;
-                        gradeCell.innerHTML = result.new_grade ? `<span class="grade-circle">${result.new_grade}</span>` : '-';
-                        actionCell.dataset.grade = result.new_grade || "";
-                        actionCell.dataset.comment = comment;
-                        actionCell.querySelector('button').textContent = 'Өзгерту';
-                    }
-                    closeGradingModal();
-                } catch (error) {
-                    alert(`Қате: ${error.message}`);
-                }
-            });
-
+            // "Тексеру" батырмасын басқанда бағалау терезесін ашу
             submissionsTbody.addEventListener('click', (e) => {
                 const checkBtn = e.target.closest('td > button');
                 if (checkBtn) {
                     openGradingModal(checkBtn.parentElement);
+                }
+            });
+
+            // Жабу батырмаларына оқиғалар тіркеу
+            gradingModal.querySelector('#close-grading-modal').addEventListener('click', closeGradingModal);
+            gradingModal.querySelector('#cancel-grading-btn').addEventListener('click', closeGradingModal);
+            
+            // Форманы жіберу (submit)
+            gradingForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const { submissionPk, studentId, saPk, type } = this.dataset;
+                
+                // Жіберу алдында ID-лердің бар екенін тексереміз
+                if ((type === 'summative' && (!saPk || !studentId)) || (type === 'homework' && !submissionPk)) {
+                    alert('Қате: Бағаны сақтау үшін қажетті деректер табылмады.');
+                    return;
+                }
+
+                const grade = this.querySelector('#grade-input').value;
+                const comment = this.querySelector('#comment-textarea').value;
+                
+                let url = '';
+                let payload = {};
+
+                if (type === 'summative') {
+                    url = "{% url 'api_set_summative_grade' %}";
+                    payload = {
+                        assessment_id: saPk,
+                        student_id: studentId,
+                        grade: grade,
+                        comment: comment
+                    };
+                } else { 
+                    url = `/api/submission/${submissionPk}/grade/`;
+                    payload = { grade: grade, comment: comment };
+                }
+
+                try {
+                    const response = await fetch(url, { /* ... fetch-тің ішкі бөлігі өзгеріссіз ... */ });
+                    if (!response.ok) throw new Error((await response.json()).message);
+                    
+                    alert('Сәтті сақталды!');
+                    closeGradingModal();
+                    
+                    if (type === 'summative') {
+                        const title = submissionsModal.querySelector('#submissions-modal-title').textContent;
+                        const info = submissionsModal.querySelector('#submissions-modal-info').textContent;
+                        openSubmissionsModalForSummative(saPk, title, info);
+                    } else {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    alert(`Қате: ${error.message}`);
                 }
             });
         }
@@ -2526,6 +2587,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Жұмыстар тізімінің контейнерлері
         const bjbListContainer = document.getElementById('bjb-list-container');
         const tjbListContainer = document.getElementById('tjb-list-container');
+
+        // === МАҢЫЗДЫ: Үй тапсырмасынан ортақ элементтерді аламыз ===
+        const submissionsModal = document.getElementById('submissions-modal');
+        const submissionsTbody = document.getElementById('submissions-tbody');
+        const gradingModal = document.getElementById('grading-modal');
+        const gradingForm = document.getElementById('grading-form');
         
         // --- 2. НЕГІЗГІ ФУНКЦИЯЛАР ---
 
@@ -2582,6 +2649,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
         /** Модальді терезені жабады */
         const closeSummativeModal = () => { summativeModal.style.display = 'none'; };
+
+        const openSubmissionsModalForSummative = async (saId, saTitle, saInfo) => {
+            submissionsModal.querySelector('#submissions-modal-title').textContent = saTitle;
+            submissionsModal.querySelector('#submissions-modal-info').textContent = saInfo;
+            submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Жүктелуде...</td></tr>';
+            submissionsModal.style.display = 'flex';
+
+            try {
+                const response = await fetch(`/api/summative-assessment/${saId}/submissions/`);
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Деректерді жүктеу мүмкін болмады.');
+
+                submissionsTbody.innerHTML = '';
+                if (data.submissions.length === 0) {
+                    // Бұл шарт енді сирек орындалады, себебі submissions API-і барлық оқушыларды қайтарады
+                    submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Оқушылар табылмады.</td></tr>';
+                    return;
+                }
+
+                data.submissions.forEach(sub => {
+                    let fileHtml = sub.file_url ? `<td><a href="${sub.file_url}" class="file-link" target="_blank"><i class="fas fa-paperclip"></i> Қарау</a></td>` : '<td>-</td>';
+                    
+                    let statusHtml;
+                    if (sub.status === 'Проверено') statusHtml = `<span class="status-tag status-checked">Тексерілді</span>`;
+                    else if (sub.status === 'Сдано') statusHtml = `<span class="status-tag status-submitted">Тапсырылды</span>`;
+                    else statusHtml = `<span class="status-tag status-awaiting">Күтілуде</span>`;
+                    
+                    const gradeHtml = sub.grade !== null ? `<td><span class="grade-circle">${sub.grade}</span></td>` : '<td>-</td>';
+                    
+                    // === МАҢЫЗДЫ ӨЗГЕРІС: Батырма енді әрқашан көрсетіледі ===
+                    const buttonText = sub.status === 'Проверено' ? 'Өзгерту' : 'Тексеру';
+                    const actionButton = `<button class="btn-view-submissions">${buttonText}</button>`;
+                    
+                    // data-sa-pk атрибутына негізгі жұмыстың ID-ін қосамыз
+                    const actionHtml = `<td data-submission-pk="${sub.submission_id || 0}" 
+                                            data-student-id="${sub.student_id}" 
+                                            data-student-name="${sub.full_name}" 
+                                            data-grade="${sub.grade || ''}" 
+                                            data-comment="${sub.teacher_comment || ''}"
+                                            data-sa-pk="${saId}"
+                                            data-type="summative">${actionButton}</td>`;
+
+                    const row = `<tr id="sub-row-${sub.submission_id || sub.student_id}"><td>${sub.full_name}</td>${fileHtml}<td>${statusHtml}</td><td>${sub.submitted_at || '-'}</td>${gradeHtml}${actionHtml}</tr>`;
+                    submissionsTbody.insertAdjacentHTML('beforeend', row);
+                });
+            } catch (error) {
+                submissionsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">${error.message}</td></tr>`;
+            }
+
+        };
 
         // --- 3. ОҚИҒАЛАРДЫ БАЙЛАНЫСТЫРУ (EVENT LISTENERS) ---
 
@@ -2658,12 +2775,75 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Бұл ДЗ-дағы логиканы қайталайды, сондықтан ортақ функцияны қолдану керек
                 const viewBtn = e.target.closest('.view-summative-btn');
                 if (viewBtn) {
-                    // Бұл жерде сіздің үй тапсырмасына арналған openSubmissionsModal функцияңыз шақырылады
-                    // openSubmissionsModal(viewBtn.dataset.saPk, ...);
-                    alert(`"${viewBtn.dataset.saTitle}" жұмыстарын қарау функциясы қосылады.`);
+                    // Жаңа функциямызды шақырамыз
+                    openSubmissionsModalForSummative(viewBtn.dataset.saPk, viewBtn.dataset.saTitle, viewBtn.dataset.saInfo);
                 }
             });
         });
+
+        // --- 4. БАҒАЛАУ ФОРМАСЫН БЕЙІМДЕУ ---
+    
+        // Бұл код бағалау формасын үй тапсырмасы үшін де, БЖБ/ТЖБ үшін де жұмыс істейтіндей етеді.
+        // === МАҢЫЗДЫ: grading-form submit оқиғасын жаңа API-мен жұмыс істеу үшін жаңарту ===
+        if (gradingForm) {
+            gradingForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const { submissionPk, studentId, saPk, type } = this.dataset;
+                
+                let url = '';
+                let payload = {};
+                
+                const grade = this.querySelector('#grade-input').value;
+                const comment = this.querySelector('#comment-textarea').value;
+                const submitButton = this.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+
+                if (type === 'summative') {
+                    url = "{% url 'api_set_summative_grade' %}";
+                    payload = {
+                        assessment_id: saPk,
+                        student_id: studentId,
+                        grade: grade,
+                        comment: comment
+                    };
+                } else { // 'homework'
+                    url = `/api/submission/${submissionPk}/grade/`;
+                    payload = { grade: grade, comment: comment };
+                }
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                        body: JSON.stringify(payload),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+
+                    alert(result.message || 'Сәтті сақталды!');
+                    closeGradingModal();
+                    
+                    // Тізімді жаңарту
+                    if (type === 'summative') {
+                        // БЖБ/ТЖБ тізімін қайта жүктеу
+                        const title = submissionsModal.querySelector('#submissions-modal-title').textContent;
+                        const info = submissionsModal.querySelector('#submissions-modal-info').textContent;
+                        openSubmissionsModalForSummative(saPk, title, info);
+                    } else {
+                        // Үй тапсырмасы тізімін қайта жүктеу
+                        const hwPk = document.querySelector('.btn-view-submissions[data-hw-pk]').dataset.hwPk;
+                        const title = document.querySelector('.btn-view-submissions[data-hw-pk]').dataset.hwTitle;
+                        const info = document.querySelector('.btn-view-submissions[data-hw-pk]').dataset.hwInfo;
+                        openSubmissionsModalForHomework(hwPk, title, info);
+                    }
+                } catch (error) {
+                    alert(`Қате: ${error.message}`);
+                } finally {
+                    submitButton.disabled = false;
+                }
+            });
+        }
+
     }
     // === КОНЕЦ: JAVASCRIPT ДЛЯ ЛОГИКИ БЖБ/ТЖБ (СОР/СОЧ) ===
     

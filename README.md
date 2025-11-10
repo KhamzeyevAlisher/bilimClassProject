@@ -62,8 +62,8 @@
 
 -   **Backend:** Python 3, Django Framework
 -   **Frontend:** HTML5, CSS3, JavaScript
--   **База данных:** PostgreSQL (рекомендуется), SQLite3 (для разработки)
--   **Инструменты:** Git, Docker (опционально)
+-   **База данных:** SQLite3
+-   **Инструменты:** Git
 
 ## 🚀 Установка и Запуск
 
@@ -71,7 +71,7 @@
 
 1.  **Клонируйте репозиторий:**
     ```bash
-    git clone [URL вашего репозитория]
+    git clone https://github.com/KhamzeyevAlisher/bilimClassProject.git
     cd bilimClassProject
     ```
 

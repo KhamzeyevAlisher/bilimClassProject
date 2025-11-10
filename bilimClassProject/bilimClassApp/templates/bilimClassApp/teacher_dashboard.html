@@ -2515,53 +2515,60 @@ document.addEventListener('DOMContentLoaded', function() {
             gradingModal.querySelector('#cancel-grading-btn').addEventListener('click', closeGradingModal);
             
             // Форманы жіберу (submit)
-            gradingForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const { submissionPk, studentId, saPk, type } = this.dataset;
+            // gradingForm.addEventListener('submit', async function(e) {
+            //     e.preventDefault();
+            //     const { submissionPk, studentId, saPk, type } = this.dataset;
                 
-                // Жіберу алдында ID-лердің бар екенін тексереміз
-                if ((type === 'summative' && (!saPk || !studentId)) || (type === 'homework' && !submissionPk)) {
-                    alert('Қате: Бағаны сақтау үшін қажетті деректер табылмады.');
-                    return;
-                }
+            //     // Жіберу алдында ID-лердің бар екенін тексереміз
+            //     if ((type === 'summative' && (!saPk || !studentId)) || (type === 'homework' && !submissionPk)) {
+            //         alert('Қате: Бағаны сақтау үшін қажетті деректер табылмады.');
+            //         return;
+            //     }
 
-                const grade = this.querySelector('#grade-input').value;
-                const comment = this.querySelector('#comment-textarea').value;
+            //     const grade = this.querySelector('#grade-input').value;
+            //     const comment = this.querySelector('#comment-textarea').value;
                 
-                let url = '';
-                let payload = {};
+            //     let url = '';
+            //     let payload = {};
 
-                if (type === 'summative') {
-                    url = "{% url 'api_set_summative_grade' %}";
-                    payload = {
-                        assessment_id: saPk,
-                        student_id: studentId,
-                        grade: grade,
-                        comment: comment
-                    };
-                } else { 
-                    url = `/api/submission/${submissionPk}/grade/`;
-                    payload = { grade: grade, comment: comment };
-                }
+            //     if (type === 'summative') {
+            //         url = "{% url 'api_set_summative_grade' %}";
+            //         payload = {
+            //             assessment_id: saPk,
+            //             student_id: studentId,
+            //             grade: grade,
+            //             comment: comment
+            //         };
+            //     } else { 
+            //         url = `/api/submission/${submissionPk}/grade/`;
+            //         payload = { grade: grade, comment: comment };
+            //     }
 
-                try {
-                    const response = await fetch(url, { /* ... fetch-тің ішкі бөлігі өзгеріссіз ... */ });
-                    if (!response.ok) throw new Error((await response.json()).message);
+            //     try {
+            //         const response = await fetch(url, { 
+            //             method: 'POST',
+            //             headers: { 
+            //                 'Content-Type': 'application/json', 
+            //                 'X-CSRFToken': getCookie('csrftoken') 
+            //             },
+            //             body: JSON.stringify(payload)
+            //         });
+            //         if (!response.ok) throw new Error((await response.json()).message);
                     
-                    alert('Сәтті сақталды!');
-                    closeGradingModal();
+            //         alert('Сәтті сақталды!');
+            //         closeGradingModal();
                     
-                    if (type === 'summative') {
-                        const title = submissionsModal.querySelector('#submissions-modal-title').textContent;
-                        const info = submissionsModal.querySelector('#submissions-modal-info').textContent;
-                        openSubmissionsModalForSummative(saPk, title, info);
-                    } else {
-                        window.location.reload();
-                    }
-                } catch (error) {
-                    alert(`Қате: ${error.message}`);
-                }
-            });
+            //         if (type === 'summative') {
+            //             const title = submissionsModal.querySelector('#submissions-modal-title').textContent;
+            //             const info = submissionsModal.querySelector('#submissions-modal-info').textContent;
+            //             openSubmissionsModalForSummative(saPk, title, info);
+            //         } else {
+            //             window.location.reload();
+            //         }
+            //     } catch (error) {
+            //         alert(`Қате: ${error.message}`);
+            //     }
+            // });
         }
     }
 
@@ -2796,7 +2803,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const grade = this.querySelector('#grade-input').value;
                 const comment = this.querySelector('#comment-textarea').value;
                 const submitButton = this.querySelector('button[type="submit"]');
+                const gradingModal = document.getElementById('grading-modal');
                 submitButton.disabled = true;
+
+                const closeGradingModal = () => { gradingModal.style.display = 'none'; };
+
 
                 if (type === 'summative') {
                     url = "{% url 'api_set_summative_grade' %}";
@@ -2837,7 +2848,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         openSubmissionsModalForHomework(hwPk, title, info);
                     }
                 } catch (error) {
-                    alert(`Қате: ${error.message}`);
+                    alert(`Қате: ${error.message} ----------`);
                 } finally {
                     submitButton.disabled = false;
                 }

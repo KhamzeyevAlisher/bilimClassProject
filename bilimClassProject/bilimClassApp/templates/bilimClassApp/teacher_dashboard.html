@@ -2823,6 +2823,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 try {
+                    const gradingModal = document.getElementById('grading-modal');
+
+                    const closeGradingModal = () => { gradingModal.style.display = 'none'; };
+
+                    const openSubmissionsModal = async (hwId, hwTitle, hwInfo) => {
+                        submissionsModal.querySelector('#submissions-modal-title').textContent = hwTitle;
+                        submissionsModal.querySelector('#submissions-modal-info').textContent = hwInfo;
+                        submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Жүктелуде...</td></tr>';
+                        submissionsModal.style.display = 'flex';
+
+                        try {
+                            const response = await fetch(`/api/homework/${hwId}/submissions/`);
+                            const data = await response.json();
+                            if (!response.ok || data.status !== 'success') throw new Error(data.message || 'Не удалось загрузить данные.');
+
+                            submissionsTbody.innerHTML = '';
+                            if (data.submissions.length === 0) {
+                                submissionsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Жұмыстар әлі тапсырылмаған.</td></tr>';
+                                return;
+                            }
+
+                            data.submissions.forEach(sub => {
+                                let fileHtml = '<td>-</td>';
+                                if (sub.file_url) {
+                                    fileHtml = `<td><a href="${sub.file_url}" class="file-link" target="_blank" title="Файлды ашу"><i class="fas fa-paperclip"></i> Қарау</a></td>`;
+                                }
+                                
+                                let statusHtml;
+                                if (sub.status === 'Проверено') statusHtml = `<span class="status-tag status-checked"><i class="fas fa-check-circle"></i> Тексерілді</span>`;
+                                else if (sub.status === 'Сдано') statusHtml = `<span class="status-tag status-submitted"><i class="fas fa-check"></i> Тапсырылды</span>`;
+                                else statusHtml = `<span class="status-tag status-awaiting"><i class="far fa-clock"></i> Күтілуде</span>`;
+                                
+                                const gradeHtml = sub.grade !== null ? `<td><span class="grade-circle">${sub.grade}</span></td>` : '<td>-</td>';
+                                const actionButton = sub.status !== 'Ожидается' ? `<button class="btn-view-submissions" style="padding: 6px 10px; font-size: 12px;">${sub.status === 'Проверено' ? 'Өзгерту' : 'Тексеру'}</button>` : '-';
+                                const actionHtml = `<td data-submission-pk="${sub.submission_id}" data-student-name="${sub.full_name}" data-grade="${sub.grade || ''}" data-comment="${sub.teacher_comment || ''}">${actionButton}</td>`;
+
+                                const row = `<tr id="sub-row-${sub.submission_id}"><td>${sub.full_name}</td>${fileHtml}<td>${statusHtml}</td><td>${sub.submitted_at || '-'}</td>${gradeHtml}${actionHtml}</tr>`;
+                                submissionsTbody.insertAdjacentHTML('beforeend', row);
+                            });
+                        } catch (error) {
+                            submissionsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">${error.message}</td></tr>`;
+                        }
+                    };
+
                     const response = await fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
@@ -2845,7 +2889,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const hwPk = document.querySelector('.btn-view-submissions[data-hw-pk]').dataset.hwPk;
                         const title = document.querySelector('.btn-view-submissions[data-hw-pk]').dataset.hwTitle;
                         const info = document.querySelector('.btn-view-submissions[data-hw-pk]').dataset.hwInfo;
-                        openSubmissionsModalForHomework(hwPk, title, info);
+                        openSubmissionsModal(hwPk, title, info);
                     }
                 } catch (error) {
                     alert(`Қате: ${error.message} ----------`);

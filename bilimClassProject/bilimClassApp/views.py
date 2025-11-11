@@ -339,6 +339,7 @@ def dashboard_view(request):
     
     current_user = request.user
     role = current_user.groups.first()
+    role = "Ученик"
     
     user_role_name = "Пользователь"
     schedule_by_day = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
@@ -352,9 +353,10 @@ def dashboard_view(request):
     # 2. ОСНОВНАЯ ЛОГИКА В ЗАВИСИМОСТИ ОТ РОЛИ
     # ===============================================================
     if role:
-        user_role_name = role.name
+        # user_role_name = role.name
+        user_role_name = "Ученик"
         
-        if role.name == 'Ученик':
+        if role == 'Ученик':
             student_class = current_user.school_classes.first()
             if student_class:
                 # 2.1 Получаем РАСПИСАНИЕ (без изменений)

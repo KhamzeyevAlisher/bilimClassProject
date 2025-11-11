@@ -20,6 +20,45 @@
 
     <style>
 
+.ai_icon {
+    /* Позициясы өзгеріссіз */
+    position: fixed;
+    right: 40px;
+    bottom: 40px;
+    height: 56px; /* Сәл үлкенірек және тартымды */
+    width: 56px;
+    border-radius: 50%; /* Толық дөңгелек үшін */
+    
+    /* --- Жаңа әдемі түс (градиент) --- */
+    background: linear-gradient(45deg, #8B5CF6, #6366F1);
+    
+    /* Иконканы ортаға келтіру үшін */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Көлемдік эффект беру үшін көлеңке */
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    
+    /* Курсорды өзгерту */
+    cursor: pointer;
+
+    /* Плавный переход для анимации */
+    transition: all 0.3s ease;
+}
+
+/* Иконканың өзінің стилі */
+.ai_icon i {
+    color: white;
+    font-size: 24px;
+}
+
+/* Тышқанды апарған кездегі эффект */
+.ai_icon:hover {
+    transform: translateY(-5px); /* Сәл жоғары көтеріледі */
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
 .td-mobile-nav, .mobile-menu-header {
     display: none;
 }
@@ -448,6 +487,10 @@
     </style>
 </head>
 <body>
+
+    <div class="ai_icon">
+        <a href="https://app.diffit.me/#topic" target="_blank"><i class="fa-solid fa-wand-magic-sparkles"></i></a>
+    </div>
 
     <div class="dashboard-container">
         <!-- ИСПРАВЛЕНО: Классы в шапке теперь соответствуют base.css -->

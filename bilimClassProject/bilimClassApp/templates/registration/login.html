@@ -6,160 +6,346 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Жүйеге кіру - Sabaq Saqshy</title>
-    <!-- Подключаем наш CSS-файл -->
-    <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
-    <!-- Подключаем иконки Font Awesome (для иконок) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* --- АДАПТИВНЫЙ ДИЗАЙН ДЛЯ СТРАНИЦЫ ВХОДА --- */
-
-/* Стили для планшетов и небольших десктопов (до 1120px) */
-@media (max-width: 1120px) {
-    .login-container {
-        /* Уменьшаем максимальную ширину и отступы на средних экранах */
-        max-width: 95%;
-        margin: 20px;
-    }
-    .login-left-panel, .login-right-panel {
-        /* Уменьшаем внутренние отступы, чтобы контент не был слишком сжатым */
-        padding: 40px;
-    }
-}
-
-/* Стили для мобильных устройств (до 900px) */
-@media (max-width: 900px) {
-    /* Меняем направление flex-контейнера на вертикальное */
-    .login-container {
-        flex-direction: column;
-        max-width: 100%;
-        margin: 0;
-        border-radius: 0; /* Убираем скругление углов на всю ширину экрана */
-        box-shadow: none; /* Убираем тень */
-    }
-
-    /* Тело страницы на мобильных устройствах больше не нуждается в центрировании */
-    .login-page-body {
-        display: block;
-        min-height: auto;
-    }
-
-    .login-left-panel {
-        /* Устанавливаем минимальную высоту и центрируем контент */
-        min-height: 100px;
-        justify-content: center;
-        text-align: center;
-        padding: 20px;
-        box-sizing: border-box;
-        background-color: #f8faff; /* Сохраняем фон для визуального разделения */
-        padding-bottom: 10px;
-    }
-
-    .login-logo {
-        /* Центрируем логотип */
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-
-    .login-right-panel {
-        /* Выравниваем форму по центру и добавляем отступы */
-        display: block;
-        position: absolute;
-        top:55%;
-        width: 90%;
-        left: 5%;
-        transform: translateY(-50%);
-        padding: 40px 20px;
-        align-items: flex-start; /* Начинаем с верха */
-        background-color: #f8faff;
-        border-radius: 40px;
-    }
+    <!-- Подключаем иконки Font Awesome (ОБЯЗАТЕЛЬНО) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     
-    .login-form-wrapper {
-        max-width: 100%;
-    }
+    <!-- Внешний файл стилей больше не нужен для этой страницы, 
+         но оставим его на случай, если он используется где-то еще -->
+    <link rel="stylesheet" href="{% static 'bilimClassApp/css/style.css' %}">
 
-    .login-form-wrapper h2  {
-        text-align: center;
-    }
+    <style>
+        /* --- СТИЛИ ДЛЯ СТРАНИЦЫ ВХОДА (ПОЛНОСТЬЮ ПЕРЕРАБОТАНЫ ПОД ДИЗАЙН) --- */
 
-    .login-form-wrapper p {
-        text-align: center;
-        width: 80%;
-        margin-left: 50%;
-        transform: translateX(-50%);
-    }
+        /* Обнуление и базовые стили */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    .login-form-wrapper i {
-        z-index: 2;
-        margin-left: 5%;
-    }
+        body.login-page-body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(120deg, #f0f4f9, #e6ebf5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-    .login-form-wrapper label {
-        margin-left: 5%;
-    }
+        /* Основной контейнер */
+        .login-container {
+            position: relative;
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
 
-    #id_username, #id_password, .login-btn {
-        width: 90%;
-        margin-left: 5%;
-        /* transform: translateX(-50%); */
-    }
+            /* -webkit-mask-image: url("{% static 'bilimClassApp/images/2.svg' %}");
+            mask-image: url("{% static 'bilimClassApp/images/2.svg' %}");
 
-    /* --- СКРЫВАЕМ БЛОК INFO-PANEL НА МОБИЛЬНЫХ УСТРОЙСТВАХ --- */
-    .info-panel {
-        display: none;
-    }
+            -webkit-mask-size: 25%;
+            mask-size: 25%;
 
-    .logo-icon-wrapper {
-        /* Увеличиваем размер иконки логотипа на мобильных устройствах */
-        width:50px;
-        height:50px;
-    }
+            -webkit-mask-position: bottom right;
+            mask-position: bottom right;
 
-    .logo-text-wrapper  {
-        width: 70%;
+           
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat; */
+        }
+        
+        /* --- СТИЛИ ДЛЯ ОРНАМЕНТОВ --- */
+        .login-container::before, .login-container::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-repeat: no-repeat;
+            opacity: 0.5;
+            z-index: 1;
+            /* SVG-орнамент (простой уголок) */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><path d="M80 2 L2 2 L2 80" fill="none" stroke="%23e1e8f2" stroke-width="3" stroke-linecap="round"/></svg>');
+        }
+        
+        /* Верхний левый угол */
+        .login-container::before {
+            top: 15px;
+            left: 15px;
+        }
 
-    }
-}
+        /* Нижний правый угол */
+        .login-container::after {
+            bottom: 15px;
+            right: 15px;
+            transform: rotate(180deg);
+        }
 
-@media (max-width: 700px) {
-    .login-right-panel {
-        top: calc(50% + 50px);
-    }
-}
+
+        /* Левая и правая панели */
+        .login-left-panel, 
+        .login-right-panel {
+            flex-basis: 50%;
+            padding: 60px;
+            position: relative;
+            
+            /* МАҢЫЗДЫ: Фонды мөлдір ету */
+            background-color: transparent;
+            
+            /* Сұраныс бойынша z-index мәні */
+            z-index: 2; 
+        }
+        
+        .login-right-panel {
+            /* background-color: #fbfdff; */
+        }
+
+        .login-left-panel {
+            flex-basis: 50%;
+            padding: 60px;
+            position: relative; /* Ішіндегі элементтерді абсолютті орналастыру үшін */
+            /* overflow: hidden; Масканың шеттері шығып кетпеуі үшін */
+            z-index: 2; /* Мазмұн қабаты */
+        }
+
+        .ornament-mask-layer {
+            position: absolute;
+            bottom:-350px;
+            right: -350px;
+            width: 700px;
+            height: 700px;
+            
+            /* Бұл фон маска арқылы көрінеді */
+            background-color: rgba(103, 117, 164, 0.542); /* Фонның түсін дизайнға сәйкестендіруге болады */
+
+            /* SVG масканы қолдану */
+            -webkit-mask-image: url("{% static 'bilimClassApp/images/2.svg' %}");
+            mask-image: url("{% static 'bilimClassApp/images/2.svg' %}");
+            
+            /* Масканың өлшемі, орны және қайталанбауы */
+            -webkit-mask-size: 100%;
+            mask-size: 100%;
+            -webkit-mask-position: bottom right;
+            mask-position: bottom right;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            
+            /* Бұл қабат тышқанмен басылмауы керек */
+            pointer-events: none;
+            z-index: 1; /* Маска қабаты артта орналасады */
+        }
+
+
+        /* --- Левая панель --- */
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .logo-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #4a5aef, #6a7bff);
+            color: white;
+            font-size: 24px;
+        }
+
+        .login-logo h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .info-panel h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .info-panel p {
+            color: #6a737d;
+            line-height: 1.6;
+            margin-bottom: 35px;
+        }
+        
+        .info-card { margin-bottom: 35px; }
+
+        .info-card .info-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .info-card h3 { font-size: 18px; color: #1a202c; }
+        .info-card .fa-lightbulb { color: #f59e0b; }
+
+        .quote-card {
+            border-left: 3px solid #e2e8f0;
+            padding-left: 20px;
+            font-style: italic;
+            color: #4a5568;
+        }
+        .quote-card .quote-icon { font-size: 12px; margin-bottom: 5px; }
+        .quote-card footer { margin-top: 10px; font-style: normal; font-weight: 500; }
+        
+
+        /* --- Правая панель (форма) --- */
+        .login-form-wrapper h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .login-form-wrapper .subtitle {
+            color: #718096;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .input-group input[type="text"],
+        .input-group input[type="password"] {
+            width: 100%;
+            padding: 12px 15px 12px 45px; /* Отступ слева для иконки */
+            border: 1px solid rgba(48, 77, 124, 0.603);
+            border-radius: 8px;
+            background-color: #f1f5f9;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            background-color: #fff;
+            border-color: #4a5aef;
+            box-shadow: 0 0 0 3px rgba(74, 90, 239, 0.15);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 41px;
+            color: #a0aec0;
+            transition: color 0.2s ease;
+        }
+        
+        .input-group input:focus + .input-icon {
+            color: #4a5aef;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1a202c;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .login-btn:hover {
+            background-color: #364152;
+        }
+
+        .forgot-password {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #4a5aef;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .error-message {
+            color: #e53e3e;
+            background-color: #fed7d7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        input {
+            border: 1px solid black;
+        }
+        
+
+        /* --- Адаптивность --- */
+        @media (max-width: 950px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 500px;
+            }
+            
+            /* Скрываем орнаменты на мобильных */
+            .login-container::before, .login-container::after {
+                display: none;
+            }
+
+            .login-left-panel, .login-right-panel {
+                flex-basis: 100%;
+                padding: 40px;
+            }
+            
+            .info-panel { display: none; } /* Скрываем левый блок с текстом */
+        }
+
     </style>
 </head>
 <body class="login-page-body">
 
     <div class="login-container">
+        <div class="ornament-mask-layer"></div>
         <!-- Левая колонка -->
         <div class="login-left-panel">
             <header class="login-logo">
-                <div class="logo-icon-wrapper">🎓</div>
-                <div class="logo-text-wrapper">
-                    <h1>Sabaq Saqshy</h1>
-                    <!-- <p>Электронная платформа нового поколения</p> -->
+                <div class="logo-icon-wrapper">
+                    <i class="fa-solid fa-graduation-cap"></i>
                 </div>
+                <h1>Sabaq Saqshy</h1>
             </header>
 
             <div class="info-panel">
-                <div class="welcome-message">
-                    <h2>Білімге арналған бірыңғай платформа</h2>
-                    <p>Оқу үдерісін ұйымдастырыңыз, үлгерімді қадағалаңыз және Sabaq Saqshy-мен бірге жаңа биіктерге жетеңіз.</p>
-                </div>
-
-                <div class="info-card">
+                 <h2>Білімге арналған бірыңғай платформа</h2>
+                 <p>Оқу үдерісін ұйымдастырыңыз, үлгерімді қадағалаңыз және Sabaq Saqshy-мен бірге жаңа биіктерге жетеңіз.</p>
+                
+                 <div class="info-card">
                     <div class="info-card-header">
                         <i class="fas fa-lightbulb"></i>
                         <h3>Күн кеңесі</h3>
                     </div>
                     <p>Уақытыңызды тиімді жоспарлау үшін жеке кабинетіңізде алдағы аптаның сабақ кестесін көре аласыз.</p>
-                </div>
+                 </div>
 
-                <blockquote class="quote-card">
+                 <blockquote class="quote-card">
                     <i class="fas fa-quote-left quote-icon"></i>
                     <p>Білім – әлемді өзгерту үшін қолдануға болатын ең қуатты қару.</p>
                     <footer>— Нельсон Мандела</footer>
-                </blockquote>
+                 </blockquote>
             </div>
         </div>
 
@@ -170,26 +356,22 @@
                 <p class="subtitle">Платформаға кіру үшін есептік деректеріңізді енгізіңіз</p>
 
                 {% if form.errors %}
-                    <p class="error-message">Дұрыс логин мен құпиясөзді енгізіңіз.</p>
+                    <p class="error-message">Логин немесе құпиясөз қате. Қайталап көріңіз.</p>
                 {% endif %}
 
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     
                     <div class="input-group">
-                        <!-- {{ form.username.label_tag }} Django-тег для <label> -->
                         <label for="{{ form.username.id_for_label }}">Логин</label>
-                        <i class="fas fa-user input-icon"></i>
-                        <!-- Рендерим поле 'username' вручную, добавляя нужные нам атрибуты -->
                         {{ form.username }}
+                        <i class="fas fa-user input-icon"></i>
                     </div>
 
                     <div class="input-group">
-                        <!-- {{ form.password.label_tag }} Django-тег для <label> -->
                         <label for="{{ form.password.id_for_label }}">Құпиясөз</label>
-                        <i class="fas fa-lock input-icon"></i>
-                        <!-- Рендерим поле 'password' вручную -->
                         {{ form.password }}
+                        <i class="fas fa-lock input-icon"></i>
                     </div>
                     
                     <button type="submit" class="login-btn">Кіру</button>
